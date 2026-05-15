@@ -1,2 +1,13 @@
-# jataka
-jataka game
+# 悉达多旅程（定稿版 · 齿轮霓虹壳）
+
+静态文字冒险游戏：解压或克隆本文件夹后，用浏览器打开根目录下的 `index.html`，点击「开始旅程」。详细说明见同目录的 `通关攻略与说明.md` 与 `README-分发说明.txt`。
+
+## 反馈与建议
+
+请任选其一联系（便于集中处理 bug 与玩法/文案建议）：
+
+1. **GitHub Issues**：打开本游戏所在仓库主页，进入 **Issues** 新建一条即可。若你的仓库地址是 `https://github.com/<用户名>/<仓库名>`，Issues 入口为：  
+   `https://github.com/<用户名>/<仓库名>/issues`  
+   （将 `<用户名>`、`<仓库名>` 换成实际名称。）
+
+2. **邮件**：jiang.yan.ru@stu.pku.edu.cn

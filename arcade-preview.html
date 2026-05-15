@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>街机风预览 — 悉达多旅程</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --arcade-bg: #0a0512;
+      --arcade-panel: #12081c;
+      --arcade-border: #ffcc00;
+      --arcade-cyan: #00e8ff;
+      --arcade-magenta: #ff2d95;
+      --arcade-white: #f0f4ff;
+      --arcade-dim: #6b7a9e;
+      --zh-size: 15pt;
+      --font-zh: "PingFang SC", "Heiti SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    /* 与全站相同的细密画背景；暗角让中间街机更突出 */
+    html {
+      min-height: 100%;
+      background-color: #0a0706;
+      background-image:
+        radial-gradient(
+          ellipse 92% 80% at 50% 48%,
+          rgba(8, 6, 12, 0.25) 0%,
+          rgba(4, 3, 8, 0.55) 55%,
+          rgba(2, 2, 6, 0.78) 100%
+        ),
+        linear-gradient(
+          160deg,
+          rgba(40, 20, 50, 0.12) 0%,
+          transparent 45%,
+          rgba(10, 30, 45, 0.1) 100%
+        ),
+        url("./assets/final-chapter-bg.png");
+      background-size: auto, auto, cover;
+      background-position: center, center, center;
+      background-repeat: no-repeat, no-repeat, no-repeat;
+      background-attachment: scroll, scroll, scroll;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 0;
+      font-family: var(--font-zh);
+      font-size: var(--zh-size);
+      line-height: 1.65;
+      color: var(--arcade-white);
+      position: relative;
+      background: transparent;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .stage-wrap {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.75rem 0.65rem;
+      width: 100%;
+    }
+
+    /* 机台外框：叠在细密画之上（加宽加高） */
+    .cabinet {
+      width: 100%;
+      max-width: min(920px, 96vw);
+      margin: 0 auto;
+      border: 5px solid var(--arcade-border);
+      box-shadow:
+        0 0 0 2px #1a0a24,
+        0 0 32px rgba(255, 204, 0, 0.35),
+        0 24px 48px rgba(0, 0, 0, 0.65),
+        inset 0 0 60px rgba(0, 0, 0, 0.45);
+      background: var(--arcade-panel);
+      position: relative;
+      z-index: 1;
+    }
+
+    .cabinet-top {
+      padding: 0.85rem 1rem;
+      border-bottom: 4px solid var(--arcade-border);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      background: linear-gradient(180deg, #1a0f28 0%, var(--arcade-panel) 100%);
+    }
+
+    .marquee {
+      font-family: "Press Start 2P", monospace;
+      font-size: clamp(0.52rem, 3.4vw, 0.78rem);
+      line-height: 1.6;
+      color: var(--arcade-magenta);
+      text-shadow:
+        0 0 8px rgba(255, 45, 149, 0.8),
+        2px 2px 0 #4a0830;
+      letter-spacing: 0.06em;
+    }
+
+    .hud {
+      font-family: "Press Start 2P", monospace;
+      font-size: clamp(0.48rem, 2.2vw, 0.62rem);
+      line-height: 1.5;
+      color: var(--arcade-cyan);
+      text-align: right;
+      text-shadow: 0 0 6px rgba(0, 232, 255, 0.5);
+    }
+
+    .screen {
+      position: relative;
+      padding: 1.35rem 1.2rem 1.5rem;
+      min-height: min(420px, 48vh);
+      border: 4px solid var(--arcade-cyan);
+      margin: 1rem;
+      box-shadow:
+        inset 0 0 40px rgba(0, 232, 255, 0.06),
+        0 0 12px rgba(0, 232, 255, 0.12);
+      background: #06040c;
+      overflow: hidden;
+    }
+
+    /* 仅内屏 CRT 扫描线，不遮挡两侧原画 */
+    .screen::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.18) 2px,
+        rgba(0, 0, 0, 0.18) 4px
+      );
+      opacity: 0.55;
+      z-index: 1;
+    }
+
+    .screen > * {
+      position: relative;
+      z-index: 2;
+    }
+
+    .screen h1 {
+      font-family: "Press Start 2P", monospace;
+      font-size: clamp(0.58rem, 3.8vw, 0.85rem);
+      line-height: 1.7;
+      color: var(--arcade-border);
+      text-align: center;
+      margin: 0 0 1rem;
+      text-shadow:
+        0 0 12px rgba(255, 204, 0, 0.45),
+        2px 2px 0 #5c4200;
+      letter-spacing: 0.04em;
+    }
+
+    .screen .lede {
+      color: #9aa8c4;
+      font-size: var(--zh-size);
+      margin-bottom: 0.85rem;
+      text-align: center;
+    }
+
+    .screen .narrative {
+      text-align: justify;
+      text-justify: inter-ideograph;
+      margin: 0 0 1rem;
+      border-left: 4px solid var(--arcade-magenta);
+      padding-left: 0.85rem;
+    }
+
+    .screen .pali {
+      font-family: "Times New Roman", "Noto Serif", Georgia, serif;
+      font-size: max(18px, var(--zh-size));
+      line-height: 1.75;
+      color: var(--arcade-cyan);
+      margin: 0.75rem 0;
+      padding: 0.65rem 0;
+      border-top: 2px solid rgba(0, 232, 255, 0.35);
+      border-bottom: 2px solid rgba(0, 232, 255, 0.35);
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+      justify-content: center;
+      margin-top: 1rem;
+    }
+
+    .btn-arcade {
+      font-family: "Press Start 2P", monospace;
+      font-size: clamp(0.48rem, 2vw, 0.58rem);
+      line-height: 1.4;
+      padding: 0.8rem 1.25rem;
+      border: 4px solid var(--arcade-border);
+      background: var(--arcade-magenta);
+      color: #1a0510;
+      cursor: pointer;
+      text-transform: uppercase;
+      box-shadow: 4px 4px 0 #5c4200;
+      transition: transform 0.08s ease, box-shadow 0.08s ease;
+    }
+
+    .btn-arcade:hover {
+      transform: translate(1px, 1px);
+      box-shadow: 3px 3px 0 #5c4200;
+    }
+
+    .btn-arcade.secondary {
+      background: transparent;
+      color: var(--arcade-cyan);
+      border-color: var(--arcade-cyan);
+      box-shadow: 4px 4px 0 rgba(0, 120, 140, 0.5);
+    }
+
+    .btn-arcade.secondary:hover {
+      box-shadow: 3px 3px 0 rgba(0, 120, 140, 0.5);
+    }
+
+    .blink {
+      animation: arcade-blink 1.1s step-end infinite;
+    }
+
+    @keyframes arcade-blink {
+      50% {
+        opacity: 0;
+      }
+    }
+
+    .footer-note {
+      text-align: center;
+      font-size: var(--zh-size);
+      color: #e8ecff;
+      margin: 0;
+      padding: 0.75rem 1rem 1.25rem;
+      background: linear-gradient(0deg, rgba(6, 4, 14, 0.82), transparent);
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+    }
+
+    .footer-note a {
+      color: var(--arcade-cyan);
+    }
+  </style>
+</head>
+<body>
+  <div class="stage-wrap">
+  <div class="cabinet" role="article" aria-label="街机风界面预览">
+    <div class="cabinet-top">
+      <div class="marquee">SIDDHARTHA<br />JATAKA QUEST</div>
+      <div class="hud">
+        SCORE 000420<br />
+        HI 009001
+      </div>
+    </div>
+    <div class="screen">
+      <h1>PLAYER 1<br />PRESS START<span class="blink">_</span></h1>
+      <p class="lede">原画全屏铺底，中间为霓虹街机框；扫描线仅在内屏。</p>
+      <p class="narrative">
+        你独自走入这场葬礼，仿佛死亡与你无关。人群为你让路，并非出于敬意，而是因为你看起来从未属于他们。
+      </p>
+      <p class="pali" lang="pi">
+        Na idaṃ dukkhaṃ aduṃ dukkhaṃ yaṃ maṃ tudati vāyaso
+      </p>
+      <div class="controls">
+        <button type="button" class="btn-arcade">START</button>
+        <button type="button" class="btn-arcade secondary">CREDITS</button>
+      </div>
+    </div>
+  </div>
+  </div>
+  <p class="footer-note">
+    纯 UI 预览 · 全站街机壳见 <a href="./index.html">定稿版-街机壳 入口</a>
+  </p>
+</body>
+</html>

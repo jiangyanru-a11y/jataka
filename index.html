@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>悉达多旅程 · 定稿版（齿轮霓虹壳）</title>
+  <link rel="stylesheet" href="./assets/indian-pixel-frame.css" />
+  <link rel="stylesheet" href="./assets/gear-neon-shell.css" />
+  <script src="./assets/journey-bookmark.js"></script>
+  <style>
+    #continueRow[hidden] { display: none; }
+  </style>
+  <link rel="stylesheet" href="./assets/immersive-shell.css" />
+</head>
+<body class="arcade-landing">
+  <div class="arcade-landing-inner">
+    <h1>悉达多旅程（定稿版 · 齿轮霓虹壳）</h1>
+    <p>齿轮霓虹对话框/游戏框（蓝·粉·黄）+ 细密画全屏底；关卡与逻辑与定稿版一致。进度自动保存在本机浏览器。</p>
+    <p>
+      <a class="cta" href="./prologue/index.html">开始旅程</a>
+      <span id="continueRow" hidden>
+        <a class="cta-secondary" id="continueJourney" href="#">继续上次进度</a>
+      </span>
+    </p>
+    <p class="note">攻略见 <strong>通关攻略与说明.md</strong> · <a href="./arcade-preview.html">街机风 UI 参考</a> · <a href="../街机齿轮壳-预览/index.html">齿轮霓虹纯预览</a></p>
+    <script>
+      (function () {
+        var url = typeof journeyContinueUrl === "function" ? journeyContinueUrl("./") : null;
+        var row = document.getElementById("continueRow");
+        var a = document.getElementById("continueJourney");
+        if (url && row && a) {
+          a.href = url;
+          row.hidden = false;
+        }
+      })();
+    </script>
+  </div>
+  <script src="./assets/gear-neon-corners.js"></script>
+</body>
+</html>
