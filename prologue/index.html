@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>开场 — 《悉达多》</title>
+    <link rel="stylesheet" href="../assets/indian-pixel-frame.css" />
+    <link rel="stylesheet" href="../assets/gear-neon-shell.css" />
+    <style>
+      :root {
+        --bg: #141210;
+        --fg: #e8e4dc;
+        --muted: #9a958c;
+        --accent: #c4a574;
+        --panel-max-h: min(88vh, 900px);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        min-height: 100%;
+        min-height: 100dvh;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100dvh;
+        background: transparent;
+        color: var(--fg);
+        font-family: var(--font-zh-hei);
+        font-size: var(--zh-size);
+        line-height: 1.65;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 1.25rem 1rem 1.25rem;
+      }
+      .terminal-window {
+        width: var(--game-column);
+        min-height: auto;
+        max-height: min(92dvh, 1040px);
+        overflow-y: auto;
+        margin: 0 auto;
+        background: var(--game-panel-bg);
+        border: var(--game-panel-border);
+        outline: none;
+        box-shadow: none;
+        padding: 0.9rem;
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      header {
+        text-align: center;
+        margin-bottom: 0.75rem;
+      }
+
+      header h1 {
+        font-size: 1.05em;
+        font-weight: 600;
+        letter-spacing: 0.2em;
+        margin: 0 0 0.25rem;
+        color: var(--accent);
+      }
+
+      header p {
+        margin: 0;
+        font-size: var(--zh-size);
+        color: var(--muted);
+      }
+
+      .stage {
+        width: 100%;
+        max-width: 100%;
+        flex: 0 1 auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+      }
+
+      .panel-wrap {
+        position: relative;
+        border-radius: 0;
+        overflow: hidden;
+        background: rgba(56, 56, 60, 0.55);
+        backdrop-filter: blur(4px);
+        box-shadow: none;
+        opacity: 0;
+        transform: translateY(6px);
+        animation: enter 0.35s ease forwards;
+        width: 100%;
+        max-width: 100%;
+      }
+
+      @keyframes enter {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .panel-wrap img {
+        display: block;
+        width: 100%;
+        min-height: min(62vh, 620px);
+        max-height: var(--panel-max-h);
+        height: auto;
+        object-fit: cover;
+        object-position: center;
+        background: rgba(48, 48, 52, 0.45);
+      }
+
+      .caption {
+        padding: 0.9rem 1rem 1.1rem;
+        font-size: max(var(--zh-size), clamp(0.95rem, 2.8vw, 1.05rem));
+        text-align: justify;
+        text-justify: inter-ideograph;
+      }
+
+      .caption p {
+        margin: 0 0 0.65em;
+      }
+
+      .caption p:last-child {
+        margin-bottom: 0;
+      }
+
+      .progress {
+        display: flex;
+        gap: 0.35rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 0.25rem;
+      }
+
+      .progress button {
+        width: 8px;
+        height: 8px;
+        padding: 0;
+        border: none;
+        border-radius: 50%;
+        background: #3a3632;
+        cursor: pointer;
+      }
+
+      .progress button[aria-current="true"] {
+        background: var(--accent);
+        transform: scale(1.15);
+      }
+
+      .bar {
+        padding: 0.6rem 0;
+        margin-top: 0.4rem;
+        background: transparent;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+      }
+
+      .bar button {
+        font: inherit;
+        font-size: var(--zh-size);
+        padding: 0.55rem 1.1rem;
+        border-radius: 4px;
+        border: 1px solid #3a3632;
+        background: #1f1c19;
+        color: var(--fg);
+        cursor: pointer;
+      }
+
+      .bar button:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+      }
+
+      .bar button.primary {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+
+      .hint {
+        font-size: var(--zh-size);
+        color: var(--muted);
+        text-align: center;
+        margin-top: 0.5rem;
+      }
+
+      .transition-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 1100;
+        background: rgba(8, 8, 10, 0.92);
+        display: grid;
+        place-items: center;
+        padding: 1rem;
+      }
+
+      .transition-overlay[hidden] {
+        display: none;
+      }
+
+      .transition-card {
+        width: min(700px, 94vw);
+        border: 1px solid #3a3632;
+        border-radius: 8px;
+        background: rgba(88, 88, 92, 0.52);
+        backdrop-filter: blur(4px);
+        padding: 1rem 1rem 0.9rem;
+        line-height: 1.9;
+      }
+
+      .typewriter-text {
+        white-space: pre-line;
+        min-height: 6em;
+      }
+
+      .transition-actions {
+        margin-top: 0.8rem;
+        display: flex;
+        gap: 0.65rem;
+        justify-content: flex-end;
+      }
+
+      /* Terminal typewriter pixel theme override */
+      :root {
+        --bg: rgba(48, 48, 52, 0.65);
+        --fg: #fff;
+        --muted: #a8a8a8;
+        --accent: #fff;
+      }
+      body {
+        font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+      }
+      .panel-wrap,
+      .transition-card {
+        border-radius: 0;
+        box-shadow: none;
+        border: 1px solid #555;
+        background: rgba(48, 48, 52, 0.45);
+        max-height: min(88vh, 900px);
+        overflow-y: auto;
+      }
+      .caption {
+        text-align: left;
+      }
+      .bar button,
+      .transition-actions button {
+        border-radius: 0;
+        border: 1px solid #777;
+        background: rgba(48, 48, 52, 0.45);
+        color: #fff;
+      }
+      body {
+        letter-spacing: 0.04em;
+        text-transform: none;
+      }
+      h1, h2, h3, button, .hint, .caption, .typewriter-text {
+        letter-spacing: 0.04em;
+        text-transform: none;
+      }
+      .intro-anim {
+        position: fixed;
+        inset: 0;
+        z-index: 1200;
+        background: rgba(22, 22, 26, 0.94);
+      }
+      .intro-anim[hidden] {
+        display: none;
+      }
+      #introCanvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+      .intro-anim-ui {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        align-content: end;
+        justify-items: center;
+        padding-bottom: 18vh;
+        pointer-events: none;
+      }
+      .intro-skip {
+        pointer-events: auto;
+        border: 1px solid #777;
+        background: rgba(48, 48, 52, 0.45);
+        color: #fff;
+        border-radius: 0;
+        padding: 6px 10px;
+        cursor: pointer;
+        font: inherit;
+      }
+      .test-panel {
+        position: fixed;
+        left: 10px;
+        bottom: 10px;
+        z-index: 1200;
+        border: 1px solid #777;
+        background: rgba(48, 48, 52, 0.45);
+        padding: 8px;
+        display: flex;
+        gap: 6px;
+      }
+      .test-panel[hidden] { display: none; }
+      .test-panel button {
+        border: 1px solid #777;
+        background: rgba(48, 48, 52, 0.45);
+        color: #fff;
+        border-radius: 0;
+        padding: 4px 8px;
+        cursor: pointer;
+        font: inherit;
+        font-size: var(--zh-size);
+      }
+      body, body * {
+        color: #fff !important;
+      }
+    </style>
+    <link rel="stylesheet" href="../assets/immersive-shell.css" />
+    <script src="../assets/journey-bookmark.js"></script>
+  </head>
+  <body>
+    <section id="introAnim" class="intro-anim" aria-label="开场终端动画">
+      <canvas id="introCanvas"></canvas>
+      <div class="intro-anim-ui">
+        <button type="button" id="skipIntroAnim" class="intro-skip">跳过动画</button>
+      </div>
+    </section>
+    <div id="testPanel" class="test-panel" hidden>
+      <button type="button" id="testToL1">测试：进关卡1</button>
+    </div>
+    <div class="terminal-window">
+      <header>
+        
+       
+      </header>
+
+      <main class="stage" id="stage" aria-live="polite"></main>
+
+      <p class="hint">点击画面、空格或方向键切换 · 1–6 直达分镜</p>
+
+      <div class="progress" id="dots" aria-label="分镜进度"></div>
+
+      <div class="bar">
+        <button type="button" id="prev">上一张</button>
+        <button type="button" class="primary" id="next">下一张</button>
+        <button type="button" class="primary" id="startJourney" hidden>进入第一关</button>
+      </div>
+    </div>
+
+    <section id="transition01" class="transition-overlay" hidden>
+      <div class="transition-card">
+        <div id="transition01Text" class="typewriter-text"></div>
+        <div class="transition-actions" id="transition01-actions" hidden>
+          <button type="button" id="cancelTransition01">返回</button>
+          <button type="button" class="primary" id="confirmTransition01">进入下一页</button>
+        </div>
+      </div>
+    </section>
+
+    <script>
+      /** 顺序与 1.docx 中插图及紧随其后的段落一致 */
+      const PANELS = [
+        {
+          image: "img/panel-01.png",
+          lines: [
+            "你独自走入这场葬礼，仿佛死亡与你无关，又仿佛他才是这场仪式唯一的主人。",
+            "人群为你让路，并非出于敬意，而是因为你身上有种不属于尘世的寂静——像多年持戒者眼底无始的疲倦，又像一条从本生故事里走出来、却忘了自己曾是谁的人。",
+          ],
+        },
+        {
+          image: "img/panel-02.png",
+          lines: [
+            "你打开棺木。人们为死者准备了一切，唯独忘了问死者是否愿意被埋葬。",
+            "棺中没有遗体。只有一面镜子，安静地躺在那里，像一个等待被发现的谎言。《经》中所说「诸法无我」，而此镜专照「我」还能假装存在多久。",
+          ],
+        },
+        {
+          image: "img/panel-03.png",
+          lines: ["你看向镜子，镜中映出一张一百岁的脸。那的确是你自己一百岁的脸——不是你此时该有之龄，却是你累世结下的形貌，在无常面前忽然显形。"],
+        },
+        {
+          image: "img/panel-04.png",
+          lines: [
+            "镜里那张百岁的脸没有碎。",
+            "它只是缓慢后退，像潮水撤出礁石，像霜从枯枝上沉默地化开。",
+            "白发回黑，皱纹归平，最后站在玻璃深处的，是你失散多年的少年。",
+            "你这才懂，镜子从不负责返老还童。",
+            "镜子只负责裁决：色相随之而迁，唯有一念「我」借这副面孔，试图在无常中赖住不移。",
+          ],
+        },
+        {
+          image: "img/panel-05.png",
+          lines: [
+            "棺盖合拢时，没有人说话。",
+            "火焰沿着木纹爬行，像一卷被点燃的判词，又像火供里最后一块将被焚尽的柴。",
+            "镜子在火里失去形状，两个「你」也在火里失去边界。",
+            "那一刻你听见了命运最古老的交易，也是业我们最自欺的换名：",
+            "若要少年归来，必有人替他背负百年——像本生故事里那些以一念痴，换一劫沉沦的人。",
+          ],
+        },
+        {
+          image: "img/panel-06.png",
+          lines: [
+            "火熄以后，你抬头。",
+            "胸口仍有少年人的惊惶，骨头里却全是老年的寒。",
+            "你终于确认：死去的不是身体，死去的是「还能重来」的幻觉；",
+            "活下来的也不是年龄，活下来的是那个一百岁的人，",
+            "他要替你继续走完这条不能回头的路，并被迫重读诸佛曾以本生偈颂警示过的因缘。",
+          ],
+        },
+      ];
+
+      const stage = document.getElementById("stage");
+      const dots = document.getElementById("dots");
+      const btnPrev = document.getElementById("prev");
+      const btnNext = document.getElementById("next");
+      const btnStartJourney = document.getElementById("startJourney");
+      const transition01 = document.getElementById("transition01");
+      const transition01Text = document.getElementById("transition01Text");
+      const cancelTransition01 = document.getElementById("cancelTransition01");
+      const confirmTransition01 = document.getElementById("confirmTransition01");
+      const transition01Actions = document.getElementById("transition01-actions");
+      const introAnim = document.getElementById("introAnim");
+      const introCanvas = document.getElementById("introCanvas");
+      const skipIntroAnim = document.getElementById("skipIntroAnim");
+      const testPanel = document.getElementById("testPanel");
+      const testToL1 = document.getElementById("testToL1");
+      const TRANSITION_01_CONTENT =
+`你起身，走进风沙。
+光从天而降，把你的旧名字一层层剥离，像剥去不再合身的袈裟。
+
+有声音在高处说——
+或许是往昔佛号在风中回响：
+「你看见了死，还没有看见生。去吧。
+去看那些把失去当作宿命、把执著当作呼吸的人。」
+
+刚才在火里死去的，是你的少年。
+刚才在灰里醒来的，是你的百岁之身。
+
+从此每一首古偈都不再是文字，
+而是一面本生的镜子：照见贪欲如何萌芽，如何焚烧，如何在灰烬里复燃。
+
+《本生经》中的门扉，不设铁锁。
+门上只有巴利文刻成的纹路——像树根，像河流，像风中散落的羽毛。
+你须踏入故事，亲证欲取与厌舍、布施与执著所各招致的果报。
+
+现在，翻开第一个故事。
+先读偈颂，
+再入偈颂。
+替那个仍在活着的老人，从黑暗里把答案带回来。`;
+      let transition01Timer = null;
+
+      function playTypewriter(el, text, speed = 30, onDone) {
+        if (transition01Timer) clearInterval(transition01Timer);
+        el.textContent = "";
+        let i = 0;
+        transition01Timer = setInterval(() => {
+          i += 1;
+          el.textContent = text.slice(0, i);
+          if (i >= text.length) {
+            clearInterval(transition01Timer);
+            transition01Timer = null;
+            if (typeof onDone === "function") onDone();
+          }
+        }, speed);
+      }
+
+
+      const isTestMode = new URLSearchParams(window.location.search).get("test") === "1";
+
+      function runIntroAnimation() {
+        const ctx = introCanvas.getContext("2d");
+        const LEXICON = [
+          "Buddha", "Dhamma", "Sangha", "Karuna", "Metta", "Sati", "Anicca", "Dukkha",
+          "Panna", "Nibbana", "Sila", "Samadhi", "Bhavana", "Kamma", "Paticca", "Anatta",
+          "Tanha", "Upekkha", "Mudita", "Sacca", "Magga", "Phala", "无常", "慈悲", "正念",
+          "因缘", "觉醒", "空性", "寂静", "中道", "明心"
+        ];
+        const drops = [];
+        const duration = 8500;
+        const phaseSwitch = 4500;
+        const title = "《悉达多》";
+        let running = true;
+        const start = performance.now();
+
+        function resize() {
+          introCanvas.width = window.innerWidth;
+          introCanvas.height = window.innerHeight;
+        }
+        function spawn() {
+          const text = LEXICON[Math.floor(Math.random() * LEXICON.length)];
+          const maxX = Math.max(0, introCanvas.width - text.length * 11);
+          drops.push({
+            text,
+            x: Math.random() * maxX,
+            y: -Math.random() * 120,
+            vy: 1.2 + Math.random() * 2.8,
+            vx: -0.35 + Math.random() * 0.7
+          });
+        }
+        function endIntro() {
+          if (!running) return;
+          running = false;
+          introAnim.hidden = true;
+          window.removeEventListener("resize", resize);
+        }
+        resize();
+        window.addEventListener("resize", resize);
+        skipIntroAnim.addEventListener("click", endIntro, { once: true });
+
+        function frame(now) {
+          if (!running) return;
+          const elapsed = now - start;
+          if (elapsed >= duration) {
+            endIntro();
+            return;
+          }
+          ctx.fillStyle = "#000";
+          ctx.fillRect(0, 0, introCanvas.width, introCanvas.height);
+          ctx.fillStyle = "#fff";
+          ctx.font = "16px ui-monospace, monospace";
+
+          const spawnCount = Math.max(1, Math.floor(introCanvas.width / 300));
+          for (let i = 0; i < spawnCount; i++) spawn();
+
+          const cx = introCanvas.width / 2;
+          const cy = introCanvas.height / 2;
+          for (let i = drops.length - 1; i >= 0; i--) {
+            const d = drops[i];
+            d.y += d.vy;
+            d.x += d.vx;
+            if (elapsed > phaseSwitch) {
+              const dx = cx - d.x;
+              d.vx += dx * 0.00001;
+            }
+            ctx.fillText(d.text, d.x, d.y);
+            if (d.y > introCanvas.height + 30 || d.x < -200 || d.x > introCanvas.width + 200) {
+              drops.splice(i, 1);
+            }
+          }
+
+          if (elapsed > phaseSwitch) {
+            ctx.font = "bold 34px ui-monospace, monospace";
+            const tw = ctx.measureText(title).width;
+            ctx.fillText(title, cx - tw / 2, cy);
+          }
+          requestAnimationFrame(frame);
+        }
+        requestAnimationFrame(frame);
+      }
+
+      let index = 0;
+      if (typeof journeyShouldRestore === "function" && journeyShouldRestore("prologue")) {
+        const saved = typeof journeyGetStage === "function" ? journeyGetStage("prologue") : null;
+        if (typeof saved === "number" && saved >= 0 && saved < PANELS.length) index = saved;
+      }
+
+      function renderDots() {
+        dots.innerHTML = "";
+        PANELS.forEach((_, i) => {
+          const b = document.createElement("button");
+          b.type = "button";
+          b.setAttribute("aria-label", `第 ${i + 1} 张`);
+          b.setAttribute("aria-current", i === index ? "true" : "false");
+          b.addEventListener("click", () => {
+            index = i;
+            render();
+          });
+          dots.appendChild(b);
+        });
+      }
+
+      function render() {
+        const panel = PANELS[index];
+        stage.innerHTML = "";
+
+        const wrap = document.createElement("div");
+        wrap.className = "panel-wrap";
+
+        const img = document.createElement("img");
+        img.src = panel.image;
+        img.alt = `分镜 ${index + 1}`;
+        img.loading = index === 0 ? "eager" : "lazy";
+        img.addEventListener("click", () => go(1));
+
+        const cap = document.createElement("div");
+        cap.className = "caption";
+        panel.lines.forEach((line) => {
+          const p = document.createElement("p");
+          p.textContent = line;
+          cap.appendChild(p);
+        });
+
+        wrap.appendChild(img);
+        wrap.appendChild(cap);
+        stage.appendChild(wrap);
+
+        btnPrev.disabled = index <= 0;
+        btnNext.disabled = index >= PANELS.length - 1;
+        btnNext.textContent =
+          index >= PANELS.length - 1 ? "已是最后一张" : "下一张";
+        btnStartJourney.hidden = index < PANELS.length - 1;
+
+        Array.from(dots.children).forEach((el, i) => {
+          el.setAttribute("aria-current", i === index ? "true" : "false");
+        });
+        if (typeof journeySaveStage === "function") journeySaveStage("prologue", index);
+        if (typeof journeyNotifyPage === "function") {
+          journeyNotifyPage("prologue", window.location.search ? window.location.search.slice(1) : "");
+        }
+      }
+
+      function go(delta) {
+        const n = index + delta;
+        if (n < 0 || n >= PANELS.length) return;
+        index = n;
+        render();
+      }
+
+      btnPrev.addEventListener("click", () => go(-1));
+      btnNext.addEventListener("click", () => go(1));
+      btnStartJourney.addEventListener("click", () => {
+        transition01.hidden = false;
+        document.body.classList.add("chapter-transition-on");
+        if (transition01Actions) transition01Actions.hidden = true;
+        playTypewriter(transition01Text, TRANSITION_01_CONTENT, 30, () => {
+          if (transition01Actions) transition01Actions.hidden = false;
+        });
+      });
+      cancelTransition01.addEventListener("click", () => {
+        if (transition01Timer) {
+          clearInterval(transition01Timer);
+          transition01Timer = null;
+        }
+        transition01.hidden = true;
+        document.body.classList.remove("chapter-transition-on");
+        if (transition01Actions) transition01Actions.hidden = true;
+      });
+      function goToLevel1Crow() {
+        try {
+          localStorage.setItem("siddharthaJourneyProgress", "1");
+        } catch (e) {}
+        var q = new URLSearchParams();
+        q.set("entry", "1");
+        window.location.href = "../qvan/执水之鸦.html?" + q.toString();
+      }
+      confirmTransition01.addEventListener("click", () => {
+        document.body.classList.remove("chapter-transition-on");
+        goToLevel1Crow();
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowRight" || e.key === " ") {
+          e.preventDefault();
+          go(1);
+        } else if (e.key === "ArrowLeft") {
+          e.preventDefault();
+          go(-1);
+        } else if (/^[1-6]$/.test(e.key)) {
+          const n = Number(e.key) - 1;
+          if (n < PANELS.length) {
+            index = n;
+            render();
+          }
+        }
+      });
+
+      renderDots();
+      render();
+      runIntroAnimation();
+      if (isTestMode) {
+        testPanel.hidden = false;
+        testToL1.addEventListener("click", () => {
+          try { localStorage.setItem("siddharthaJourneyProgress", "1"); } catch (e) {}
+          window.location.href = "../qvan/执水之鸦.html?entry=1&test=1";
+        });
+        document.addEventListener("keydown", (e) => {
+          if (e.key !== "7") return;
+          e.preventDefault();
+          try { localStorage.setItem("siddharthaJourneyProgress", "1"); } catch (err) {}
+          window.location.href = "../qvan/执水之鸦.html?entry=1&test=1";
+        });
+      }
+
+    </script>
+    <script src="../assets/gear-neon-corners.js"></script>
+    <script src="../assets/gear-neon-skip.js"></script>
+  </body>
+</html>
