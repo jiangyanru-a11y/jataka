@@ -1,0 +1,1430 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>月兔之戒</title>
+  <link rel="stylesheet" href="../assets/indian-pixel-frame.css" />
+  <link rel="stylesheet" href="../assets/stage-bg.css" />
+  <link rel="stylesheet" href="../assets/gear-neon-shell.css" />
+  <style>
+    :root {
+      --bg: rgba(90, 90, 94, 0.5);
+      --fg: #fff;
+      --muted: #ccc;
+      --err: #f66;
+      --ok: #9f9;
+      --hi: #e6e600;
+      --border: #fff;
+      --pali-size: var(--letter-min);
+      --pali-lh: 1.85;
+      --pali-track: 0.02em;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100vh; background: transparent; color: var(--fg);
+       font-family: var(--font-zh-hei);
+       font-size: var(--zh-size); line-height: 1.55; }
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .sr-only {
+      position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+      overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+    }
+    #mission-bar {
+      position: relative;
+      z-index: 2;
+      border: none;
+      outline: none;
+      box-shadow: none;
+      border-bottom: 1px solid rgba(196, 165, 116, 0.2);
+      padding: 0.5rem 0.75rem;
+      font-size: var(--zh-size);
+      letter-spacing: 0.02em;
+      color: var(--muted);
+      text-align: center;
+      background: var(--game-panel-bg);
+      width: var(--game-column);
+      margin: 1.1rem auto 0;
+    }
+    #mission-bar strong { color: var(--fg); font-size: clamp(1.22em, 3.2vw, 1.58em); font-weight: 700; letter-spacing: 0.03em; }
+    .shell {
+      width: var(--game-column);
+      margin: 0 auto 1.1rem;
+      padding: 0.9rem;
+      position: relative;
+      z-index: 1;
+      background: var(--game-panel-bg);
+      border: var(--game-panel-border);
+      outline: none;
+      box-shadow: none;
+    }
+    /* Full-screen forest scrim — hides the miniature background; keep off */
+    .forest-deco { display: none !important; }
+    .shell > * { position: relative; z-index: 1; }
+    .stage { display: none; background: transparent; }
+    .stage.active { display: block; }
+    h1, h2 { text-align: center; }
+    .narrative {
+      border: 1px solid #444;
+      padding: 1rem;
+      margin: 0.75rem 0;
+      white-space: pre-wrap;
+    }
+    .narrative .tri { color: var(--muted); }
+    .btn-continue {
+      margin-top: 0.75rem;
+      padding: 0.4rem 0.9rem;
+      background: var(--bg);
+      color: var(--fg);
+      border: 1px solid var(--border);
+      font: inherit;
+      cursor: pointer;
+    }
+    .btn-continue:hover { outline: 1px solid var(--hi); }
+    .jataka-bridge { margin: 1rem 0; padding: 0.55rem 0.7rem; border: 1px solid rgba(196, 165, 116, 0.35); background: rgba(18, 16, 12, 0.55); font-size: var(--zh-size); }
+    .jataka-bridge summary { cursor: pointer; color: #c4a574; font-weight: 600; letter-spacing: 0.04em; list-style-position: outside; }
+    .jataka-bridge .jb-body { margin-top: 0.6rem; padding-top: 0.6rem; border-top: 1px solid #444; }
+    .jataka-bridge .jb-pali { font-family: "Times New Roman", "Noto Serif", "Source Serif 4", Georgia, serif; font-size: var(--pali-size); line-height: var(--pali-lh); letter-spacing: var(--pali-track); color: var(--fg); white-space: normal; margin: 0 0 0.75rem; }
+    .jataka-bridge .jb-en { color: var(--muted); line-height: 1.72; }
+    .jataka-bridge .jb-en h4 { color: var(--fg); font-size: 1em; margin: 0.75rem 0 0.35rem; font-weight: 600; }
+    .jataka-bridge .jb-en p { margin: 0.45rem 0; }
+    .pali {
+      font-family: "Times New Roman", "Noto Serif", "Source Serif 4", Georgia, serif;
+      font-size: var(--pali-size);
+      line-height: var(--pali-lh);
+      letter-spacing: var(--pali-track);
+    }
+    /* Beasts */
+    .beasts-wrap {
+      margin: 1rem 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .beasts-wrap .status-b { align-self: stretch; text-align: center; }
+    .beasts-rules {
+      font-size: var(--zh-size);
+      color: var(--muted);
+      border: 1px solid #444;
+      padding: 0.55rem 0.75rem;
+      margin: 0.65rem 0 0.75rem;
+      line-height: 1.65;
+    }
+    .beasts-rules strong { color: var(--fg); font-weight: 600; }
+    .grid4 {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(56px, 72px));
+      grid-template-rows: repeat(4, minmax(56px, 72px));
+      gap: 4px;
+      justify-content: center;
+    }
+    .cell-b {
+      border: 1px solid #666;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-size: var(--zh-size);
+      user-select: none;
+      cursor: default;
+    }
+    .cell-b.terrain { background: #1a1a1a; color: var(--muted); cursor: not-allowed; }
+    .cell-b.empty { cursor: pointer; }
+    .cell-b.empty:hover { outline: 1px solid var(--hi); }
+    .cell-b .glyph { font-size: 1.35rem; line-height: 1; }
+    .toolbar-b { display: flex; flex-wrap: wrap; gap: 6px; margin: 0.75rem 0; justify-content: center; }
+    .tool-b {
+      padding: 6px 10px;
+      border: 1px solid #666;
+      background: var(--bg);
+      color: var(--fg);
+      font: inherit;
+      font-size: var(--zh-size);
+      cursor: pointer;
+    }
+    .tool-b.active { outline: 2px solid var(--hi); }
+    .tool-b:hover { border-color: var(--fg); }
+    .actions-b { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+    .status-b { margin-top: 0.6rem; min-height: 2.2rem; font-size: var(--zh-size); }
+    .status-b.ok { color: var(--ok); }
+    .status-b.err { color: var(--err); }
+    .status-b.hint { color: var(--hi); }
+    .beasts-done .cell-b.empty, .beasts-done .toolbar-b, .beasts-done .actions-b { pointer-events: none; opacity: 0.55; }
+    /* Tour */
+    .tour-layout {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: flex-start;
+      justify-content: center;
+    }
+    .tour-board-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 28rem;
+    }
+    .tour-board-col .status-t { align-self: stretch; text-align: center; }
+    .tour-board-wrap {
+      width: 100%;
+      max-width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      border: 1px solid #555;
+      background: rgba(68, 68, 72, 0.55);
+      backdrop-filter: blur(4px);
+      box-sizing: border-box;
+    }
+    .tour-board-hint {
+      font-size: var(--zh-size);
+      line-height: 1.6;
+      color: var(--muted);
+      padding: 0.55rem 0.7rem;
+      border-bottom: 1px solid #444;
+      text-align: left;
+    }
+    .tour-board-hint p { margin: 0.4rem 0; }
+    .tour-board-hint p:first-child { margin-top: 0; }
+    .tour-board-hint p:last-child { margin-bottom: 0; }
+    .tour-board-hint kbd {
+      font-family: ui-monospace, monospace;
+      font-size: 0.78em;
+      border: 1px solid #666;
+      padding: 0.05em 0.3em;
+    }
+    .board5 {
+      display: grid;
+      /* 固定轨道，避免嵌套 flex + min(vw) 在部分环境下算出0 导致整盘不可见 */
+      grid-template-columns: repeat(5, minmax(3.25rem, 1fr));
+      grid-template-rows: repeat(5, minmax(3.25rem, 1fr));
+      width: 100%;
+      max-width: 22rem;
+      min-height: 12rem;
+      margin: 0 auto;
+      gap: 4px;
+      border: none;
+      padding: 6px;
+      box-sizing: border-box;
+    }
+    .cell-t {
+      border: 1px solid #444;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: max(var(--letter-min), clamp(0.75em, 2.2vw, 1em));
+      position: relative;
+      color: var(--muted);
+    }
+    .cell-t.trap { color: #a88; }
+    .cell-t.sage { color: var(--ok); font-weight: 600; }
+    .cell-t.sage.visited-sage { color: #6a8a6a; }
+    .cell-t.visited:not(.player-here) { opacity: 0.45; }
+    .cell-t.can-move { cursor: pointer; outline: 1px solid var(--hi); }
+    .cell-t.can-move:hover { background: #222; }
+    .cell-t.player-here { outline: 2px solid var(--hi); color: var(--fg); }
+    .cell-t .player-mark { font-size: 1.05em; font-weight: 700; }
+    .status-t { margin-top: 0.6rem; padding: 0.5rem; border: 1px solid #444; font-size: var(--zh-size); min-height: 2.5rem; }
+    .status-t.warn { border-color: #864; }
+    /* Choice */
+    .choice-opt {
+      display: block;
+      width: 100%;
+      text-align: left;
+      margin: 0.4rem 0;
+      padding: 0.55rem 0.65rem;
+      background: var(--bg);
+      color: var(--fg);
+      border: 1px solid #666;
+      font: inherit;
+      cursor: pointer;
+    }
+    .choice-opt:hover { outline: 1px solid var(--hi); }
+    .choice-opt kbd { margin-right: 0.5rem; color: var(--muted); }
+    #choice-feedback { margin-top: 0.75rem; min-height: 1.5rem; color: var(--muted); }
+    #choice-feedback.bad { color: var(--err); }
+    /* Highlight */
+    #pali-line-wrap {
+      font-size: var(--pali-size);
+      line-height: var(--pali-lh);
+      letter-spacing: var(--pali-track);
+      margin: 1rem 0;
+      word-break: break-word;
+    }
+    #pali-line-wrap .tok { padding: 0.08em 0.12em; margin: 0 0.05em; }
+    #pali-line-wrap .tok.hl { background: transparent; color: #fff; text-decoration: underline; }
+    #sasassa-block .step { display: none; }
+    #sasassa-block .step.is-active { display: block; }
+    #sasassa-block #finale { display: none; margin-top: 1.25rem; }
+    #sasassa-block #finale.is-visible { display: block; }
+    table.sg { width: 100%; border-collapse: collapse; font-size: var(--pali-size); line-height: var(--pali-lh); margin: 0.5rem 0; }
+    table.sg th, table.sg td { border: 1px solid #555; padding: 0.45rem 0.55rem; text-align: left; }
+    table.sg caption { text-align: left; font-weight: 600; color: var(--muted); margin: 0.5rem 0 0.25rem; font-size: 1em; }
+    .riddle-s { text-align: center; margin: 0.75rem 0; letter-spacing: 0.06em; font-size: clamp(1.02rem, 2.5vw, 1.18rem); line-height: 1.75; }
+    input[type="text"].sg-in {
+      width: 100%; max-width: 20rem;
+      padding: 0.45rem 0.5rem;
+      background: var(--bg); color: var(--fg);
+      border: 1px solid #888; font: inherit;
+    }
+    input[type="text"].sg-in.error { border-color: var(--err); }
+    .options-sg label { display: flex; gap: 0.5rem; margin: 0.35rem 0; cursor: pointer; font-size: max(var(--zh-size), clamp(0.98rem, 2.1vw, 1.1rem)); line-height: 1.55; }
+    #step-sg-2 > p { font-size: max(var(--zh-size), clamp(0.98rem, 2.15vw, 1.1rem)); line-height: 1.65; }
+    .feedback-sg { margin-top: 0.5rem; padding: 0.45rem; border: 1px solid #444; font-size: var(--zh-size); }
+    .feedback-sg.ok { border-color: #484; color: var(--ok); }
+    .feedback-sg.bad { border-color: #844; color: var(--err); }
+    .hint-sg { display: none; margin-top: 0.5rem; font-size: var(--zh-size); color: var(--muted); }
+    .hint-sg.is-visible { display: block; }
+    .poem-end { text-align: center; line-height: 2; margin: 1rem 0; letter-spacing: 0.05em; }
+    #stage-ending .poem-end { font-size: clamp(1.08rem, 2.8vw, 1.32rem); line-height: 1.85; }
+    #stage-ending #ending-pali {
+      font-size: var(--pali-size);
+      line-height: var(--pali-lh);
+      letter-spacing: var(--pali-track);
+    }
+    #ending-text { white-space: pre-wrap; margin: 1rem 0; }
+    .achievement {
+      margin-top: 1.25rem;
+      padding: 0.75rem;
+      border: 2px solid var(--hi);
+      color: var(--hi);
+      text-align: center;
+      font-size: 1.05rem;
+      letter-spacing: 0.15em;
+    }
+    details.sg-details { margin: 0.75rem 0; color: var(--muted); font-size: max(var(--zh-size), clamp(0.92rem, 1.85vw, 1.05rem)); line-height: 1.65; }
+    details.sg-details summary { color: var(--fg); font-size: 1.05em; }
+    h2.sg-h { font-size: clamp(1.05rem, 2.2vw, 1.22rem); font-weight: 600; margin: 1rem 0 0.5rem; border-bottom: 1px solid #444; padding-bottom: 0.25rem; }
+    #finale > h2.sg-h { font-size: clamp(1.1rem, 2.6vw, 1.28rem); }
+    #finale .poem-end { font-size: clamp(1.1rem, 2.8vw, 1.34rem); line-height: 1.85; }
+    #finale > p.pali { font-size: var(--pali-size); line-height: var(--pali-lh); letter-spacing: var(--pali-track); }
+    #finale h3.sg-finale-sub { font-size: clamp(1.02rem, 2.3vw, 1.18rem); margin: 0.75rem 0 0.35rem; }
+    #finale .sg-finale-note { font-size: clamp(0.95rem, 2.05vw, 1.08rem); color: var(--muted); margin: 0 0 0.5rem; line-height: 1.65; }
+    #finale .gloss-h3.sg-h { font-size: clamp(1rem, 2.15vw, 1.12rem); }
+    #finale table.sg { font-size: var(--pali-size); line-height: var(--pali-lh); }
+
+    /* Terminal theme override — 汉字黑体 */
+    :root {
+      --bg: rgba(90, 90, 94, 0.5);
+      --fg: #fff;
+      --muted: #a8a8a8;
+      --err: #cfcfcf;
+      --ok: #cfcfcf;
+      --hi: #fff;
+      --border: #666;
+      --pali-size: var(--letter-min);
+      --pali-lh: 1.85;
+      --pali-track: 0.02em;
+    }
+    html, body {
+      font-family: var(--font-zh-hei);
+    }
+    .narrative, .status-b, .status-t, .feedback-sg, table.sg th, table.sg td {
+      border-radius: 0 !important;
+      box-shadow: none !important;
+    }
+    .btn-continue, .choice-opt, .tool-b {
+      background: rgba(78, 78, 82, 0.55);
+      backdrop-filter: blur(3px);
+      color: #fff;
+      border: 1px solid #777;
+      border-radius: 0;
+    }
+    body {
+      letter-spacing: 0.04em;
+      text-transform: none;
+    }
+    h1, h2, h3, button, .narrative, .muted, .status-b, .status-t, .feedback-sg {
+      letter-spacing: 0.04em;
+      text-transform: none;
+    }
+    body, body * {
+      color: #fff !important;
+    }
+    /* Global shell background: keep chapter backdrop consistent */
+    html,
+    body {
+      min-height: 100%;
+      min-height: 100dvh;
+      background-color: #4a4034;
+      background-image: url("../assets/final-chapter-bg.png");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+    }
+  </style>
+  <link rel="stylesheet" href="../assets/immersive-shell.css" />
+  <script src="../assets/journey-bookmark.js"></script>
+</head>
+<body data-chapter="moon">
+<script src="../assets/stage-bg.js"></script>
+  <div class="forest-deco" aria-hidden="true" id="forest-deco"></div>
+  <div id="mission-bar"><strong>0.</strong> 序章 · 林中的诗句 <span id="mission-sub">0.1</span></div>
+  <div class="shell">
+    <div id="live" class="sr-only" aria-live="polite"></div>
+
+    <section id="stage-prologue" class="stage active">
+      <div class="narrative">
+        <span class="pali">Na sasassa til&#257; atthi na mugg&#257; n&#257;pi ta&#7751;&#7693;ul&#257;, imin&#257; aggin&#257; pakka&#7745; mama&#7745; bhutv&#257; vane vas&#257; &apos;ti.</span>
+
+        这是古昔兔王对帝释天所说的话——无上布施的最后一句：不求回报，乃至不计其身。
+
+        你若能解其深意，便知真正的布施不在于所有，而在于舍离所执；此即菩萨道初起之步行。
+
+        随后，你面前浮现出一片古老的森林——四善友同在，布萨将临。你须完成三项考验，在林中亲证：无施舍之资者，亦能施一切所必要之物。
+ <span class="tri">▼</span>
+      </div>
+      <button type="button" class="btn-continue" id="btn-prologue-next">继续（Enter）</button>
+    </section>
+
+    <section id="stage-beasts" class="stage">
+      <p style="color:var(--muted);font-size:var(--zh-size);">明日是布萨日（Uposatha）。兔王叮嘱水獭、豺狼和猴子：我夜观月相，明日若有乞士前来，当从自己的食物中布施，有大功德——此法乃古昔诸圣贤之传统。三友各自觅食归来，各回各自住处；你思及自己所食为草，连胡麻与绿豆也没有，如何布施于人？虽无奈，也只好回住处——每行每列各一只，且各与所宜地形相邻。</p>
+      <p class="beasts-rules">
+        <strong>提示</strong>：灰格为地形，不可落子。空格里放齐四兽各一只；同一行或同一列不可有两只。<br />
+        每只须与其<strong>对应地形</strong>在上下左右中至少一格<strong>相接</strong>——<br />
+        兔—山脚　猴—林缘　&#35962;—村边　&#27700;&#29549;—河边
+      </p>
+      <div class="beasts-wrap" id="beasts-root">
+        <div id="beasts-grid" class="grid4" aria-label="四兽方阵"></div>
+        <div class="toolbar-b" role="group" aria-label="选择动物">
+          <button type="button" class="tool-b" data-tool="rabbit"><span class="glyph">兔</span></button>
+          <button type="button" class="tool-b" data-tool="monkey"><span class="glyph">猴</span></button>
+          <button type="button" class="tool-b" data-tool="jackal"><span class="glyph">&#35962;</span></button>
+          <button type="button" class="tool-b" data-tool="otter"><span class="glyph">&#27700;&#29549;</span></button>
+          <button type="button" class="tool-b" data-tool="erase">擦除</button>
+        </div>
+        <div class="actions-b">
+          <button type="button" class="btn-continue" id="beasts-check">检查</button>
+          <button type="button" class="btn-continue" id="beasts-reset">全部清空</button>
+        </div>
+        <div id="beasts-status" class="status-b" role="status"></div>
+      </div>
+      <div id="beasts-after" class="narrative" hidden>
+        四友到齐，持斋食以待。次日……
+        <span class="tri">▼</span>
+      </div>
+      <button type="button" class="btn-continue" id="btn-beasts-next" hidden>继续</button>
+    </section>
+
+    <section id="stage-tour" class="stage">
+      <p style="color:var(--muted);font-size:var(--zh-size);">帝释天宝座由于兔王它们的功德而发热,决心一探究竟，他化身为疲惫的婆罗门，走入林间。帝释须拜访&#27700;&#29549;、&#35962;、&#20820;、&#29492;四位智者各一次；不可重复踏格，亦不可踏入落叶陷阱。<strong>须恰好用18 步走完唯一最短路线</strong>，否则请重置再试。</p>
+      <div class="tour-layout">
+        <div class="tour-board-col">
+          <div class="tour-board-wrap">
+            <div class="tour-board-hint">
+              <p>从东南角 (5,5) 出发。点击与当前格相邻的可走格移动；或 <kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd>。</p>
+              <p>黄框为帝释所在。须<strong>同时满足</strong>：四智者各访一次、总步数恰好 18、路线与唯一最短解完全一致，方可继续。</p>
+            </div>
+            <div id="tour-board" class="board5" aria-label="巡礼棋盘"></div>
+          </div>
+          <div class="actions-b" style="margin-top:0.5rem;">
+            <button type="button" class="btn-continue" id="tour-reset">重置</button>
+          </div>
+          <div id="tour-status" class="status-t" role="status"></div>
+        </div>
+      </div>
+      <div id="tour-after" class="narrative" hidden>
+        三友均通过考验,向婆罗门布施,然而均未被接受.婆罗门终于来到兔王面前。
+        <span class="tri">▼</span>
+      </div>
+      <button type="button" class="btn-continue" id="btn-tour-next" hidden>继续</button>
+    </section>
+
+    <section id="stage-choice" class="stage">
+      <div class="narrative">
+        婆罗门合十问：「智者，我欲持斋修沙门法，可有食物布施？」
+
+        兔王心中波澜起伏……
+      </div>
+      <button type="button" class="choice-opt" data-choice="A"><kbd>A</kbd> 「我只有野草，请你去别处吧。」</button>
+      <button type="button" class="choice-opt" data-choice="B"><kbd>B</kbd> 「你且去捡柴生火，我将自己投入火中，熟后食我身肉。」</button>
+      <button type="button" class="choice-opt" data-choice="C"><kbd>C</kbd> 「明日我再去寻些胡麻和米给你。」</button>
+      <p id="choice-feedback" role="status"></p>
+    </section>
+
+    <section id="stage-highlight" class="stage">
+      <p style="color:var(--muted);">兔王开口。偈颂一字字亮起——仍无汉译。</p>
+      <div id="pali-line-wrap" class="pali" aria-live="polite"></div>
+      <p id="highlight-hint" class="tri" style="margin-top:1rem;">▼偈颂逐词高亮结束后，请点击下方进入下一页</p>
+      <button type="button" class="btn-continue" id="btn-highlight-next" hidden>进入下一页</button>
+    </section>
+
+    <section id="stage-sasassa" class="stage">
+      <p style="color:var(--muted);">此时，句中 <span class="pali">sasassa</span> 闪烁着谜之光。</p>
+      <div id="sasassa-block">
+        <p id="progress-label-sg">进度：<strong>第 1 / 2 步</strong></p>
+        <div class="step is-active" data-step="1" id="step-sg-1">
+          <h2 class="sg-h">第 1 步 · 谜面</h2>
+          <p>谜面说的是哪种动物？（填汉字；巴利词根常写作 <span class="pali">sasa</span>）</p>
+          <div class="riddle-s">月宫有影，林中舍身；没有胡麻，只献自身。</div>
+          <label class="sr-only" for="guess-animal">谜底动物</label>
+          <input type="text" id="guess-animal" class="sg-in" autocomplete="off" placeholder="输入一两个汉字即可" maxlength="24" />
+          <div style="margin-top:0.5rem;display:flex;gap:0.5rem;flex-wrap:wrap;">
+            <button type="button" class="btn-continue" id="btn-check-sg-1">检查</button>
+            <button type="button" class="btn-continue" id="btn-hint-sg-1">提示</button>
+          </div>
+          <div class="hint-sg" id="hint-sg-1" role="note">想想《兔本生》：月中的影子、林火前跳入火中的是谁？</div>
+          <div class="feedback-sg" id="fb-sg-1" hidden></div>
+        </div>
+        <div class="step" data-step="2" id="step-sg-2">
+          <h2 class="sg-h">第 2 步 · 材料与选择</h2>
+          <details class="sg-details" open><summary>甲 / 乙 / 丙 对照表</summary>
+            <table class="sg" id="table-jia"><caption>甲</caption><tbody>
+              <tr><td class="pali">purisassa</td><td>男人的</td></tr>
+              <tr><td class="pali">gāmassa</td><td>村庄的</td></tr>
+              <tr><td class="pali">corassa</td><td>盗贼的</td></tr>
+              <tr><td class="pali">migarassa</td><td>鹿的</td></tr>
+            </tbody></table>
+            <table class="sg"><caption>乙</caption><tbody>
+              <tr><td class="pali">purisena</td><td>以男人</td></tr>
+              <tr><td class="pali">gāmena</td><td>以村庄；经村庄</td></tr>
+              <tr><td class="pali">corena</td><td>以盗贼</td></tr>
+              <tr><td class="pali">migena</td><td>以鹿</td></tr>
+              <tr><td class="pali">rukkhena</td><td>以树</td></tr>
+            </tbody></table>
+            <table class="sg"><caption>丙</caption><tbody>
+              <tr><td class="pali">rukkhamhi</td><td>在树下</td></tr>
+              <tr><td class="pali">gāmasmiṃ</td><td>在村里</td></tr>
+              <tr><td class="pali">nagare</td><td>在城里</td></tr>
+              <tr><td class="pali">vane</td><td>在林中</td></tr>
+              <tr><td class="pali">pabbate</td><td>在山上</td></tr>
+            </tbody></table>
+          </details>
+          <p>你已经从谜面知道 <span class="pali">sasa</span> 指什么。那么 <span class="pali">sasassa</span> 在译法上最接近下面哪一条？</p>
+          <div class="options-sg" id="sasassa-meaning">
+            <label><input type="radio" name="sasassa-mean" value="poss" /> 兔子的</label>
+            <label><input type="radio" name="sasassa-mean" value="inst" /> 以兔；用兔</label>
+            <label><input type="radio" name="sasassa-mean" value="loc" /> 在兔那里；在兔处</label>
+          </div>
+          <div style="margin-top:0.5rem;">
+            <button type="button" class="btn-continue" id="btn-check-sg-2">揭晓偈颂与词语对照</button>
+          </div>
+          <div class="feedback-sg" id="fb-sg-2" hidden></div>
+        </div>
+        <section id="finale" class="finale">
+          <h2 class="sg-h">偈颂汉译</h2>
+          <div class="poem-end">
+            兔无胡麻与绿豆，<br />
+            亦无米粒可充饥。<br />
+            以此烈火烤我身，<br />
+            汝食之后于林栖。
+          </div>
+          <p class="pali" style="margin:0.75rem 0;">Na sasassa til&#257; atthi na mugg&#257; n&#257;pi ta&#7751;&#7693;ul&#257;, imin&#257; aggin&#257; pakka&#7745; mama&#7745; bhutv&#257; vane vas&#257; &apos;ti.</p>
+          <h3 class="sg-h sg-finale-sub">词语对照（按诗句顺序）</h3>
+          <p class="sg-finale-note">一句诗里几字，巴利语常多词；下表按义对齐。</p>
+          <p class="gloss-h3 sg-h" style="margin-top:0.75rem">第一句 · 兔无胡麻与绿豆</p>
+          <table class="sg">
+            <tbody>
+              <tr><th class="pali" style="width:40%">巴利</th><th>汉语</th></tr>
+              <tr><td class="pali">na</td><td>无</td></tr>
+              <tr><td class="pali">sasassa</td><td>兔</td></tr>
+              <tr><td class="pali">tilā</td><td>胡麻</td></tr>
+              <tr><td class="pali">atthi</td><td>（表「有」；与 na 合用为「无」）</td></tr>
+              <tr><td class="pali">na</td><td>无</td></tr>
+              <tr><td class="pali">muggā</td><td>绿豆</td></tr>
+              <tr><td class="pali">（两句并列；诗用「与」）</td><td>与</td></tr>
+            </tbody>
+          </table>
+          <p class="gloss-h3 sg-h">第二句 · 亦无米粒可充饥</p>
+          <table class="sg">
+            <tbody>
+              <tr><th class="pali">巴利</th><th>汉语</th></tr>
+              <tr><td class="pali">nāpi</td><td>亦无（na + api）</td></tr>
+              <tr><td class="pali">ta&#7751;&#7693;ul&#257;</td><td>米粒</td></tr>
+              <tr><td class="pali">（承上「无有」）</td><td>可充饥</td></tr>
+            </tbody>
+          </table>
+          <p class="gloss-h3 sg-h">第三句 · 以此烈火烤我身</p>
+          <table class="sg">
+            <tbody>
+              <tr><th class="pali">巴利</th><th>汉语</th></tr>
+              <tr><td class="pali">iminā</td><td>以此</td></tr>
+              <tr><td class="pali">agginā</td><td>烈火（火）</td></tr>
+              <tr><td class="pali">pakkaṃ</td><td>烤（已烤熟者）</td></tr>
+              <tr><td class="pali">mamaṃ</td><td>我；身</td></tr>
+            </tbody>
+          </table>
+          <p class="gloss-h3 sg-h">第四句 · 汝食之后于林栖</p>
+          <table class="sg">
+            <tbody>
+              <tr><th class="pali">巴利</th><th>汉语</th></tr>
+              <tr><td class="pali">bhutvā</td><td>食；之后（食已）</td></tr>
+              <tr><td class="pali">vane</td><td>林栖</td></tr>
+              <tr><td class="pali">vasā</td><td>住</td></tr>
+              <tr><td class="pali">（命令式对听者）</td><td>汝</td></tr>
+              <tr><td class="pali">'ti</td><td>（引语收束）</td></tr>
+            </tbody>
+          </table>
+          <button type="button" class="btn-continue" id="btn-finale-to-ending" style="margin-top:1rem;">继续 · 结局</button>
+        </section>
+      </div>
+    </section>
+
+    <section id="stage-ending" class="stage">
+      <div id="ending-text"></div>
+      <button type="button" class="btn-continue" id="btn-ending-next-page" hidden>进入下一页</button>
+      <div class="poem-end" id="ending-poem" style="display:none;">
+        兔无胡麻与绿豆，<br />
+        更无米粒可充饥。<br />
+        以此烈火烤我身，<br />
+        汝食之后于林栖。
+      </div>
+      <p class="pali" id="ending-pali" style="display:none;margin:1rem 0;">Na sasassa til&#257; atthi na mugg&#257; n&#257;pi ta&#7751;&#7693;ul&#257;, imin&#257; aggin&#257; pakka&#7745; mama&#7745; bhutv&#257; vane vas&#257; &apos;ti.</p>
+      <div id="achievement-box" class="achievement" style="display:none;">成就解锁：舍身之月</div>
+      <details class="jataka-bridge" id="moon-jataka-chapter-end" hidden>
+        <summary>Śākajātaka · 《兔本生》巴利语节选与英译（全章回首）</summary>
+        <div class="jb-body">
+          <p style="margin:0 0 1rem;color:var(--muted);line-height:1.65">通章后再读本生原文摘录与英译，或能与前文叙事豁然相应。</p>
+          <h4 class="jb-en" style="margin:0.75rem 0 0.35rem;font-size:1em;color:var(--fg)">一、Jetavana 因缘（施一切必要物）</h4>
+          <p class="jb-pali" lang="pi">Satta me rohitā macchā ti.</p>
+          <div class="jb-en">
+            <p><em>Jātaka of the Hare — Of Charity and the Moon.</em> &ldquo;Seven rohu fish I have,&rdquo; so sang the Otter—</p>
+            <p>The Master, dwelling at Jetavana, spake thus concerning the gift of all necessaries.</p>
+            <p>For in Sāvatthī, it is said, a certain householder prepared a gift of all necessaries for the Order with the Buddha at its head. He built a pavilion at his door, invited the Buddha and the monks, seated them on fair seats, gave them food of various excellent flavours, and for seven days he invited them, saying, &ldquo;Come again tomorrow, come again tomorrow.&rdquo; And on the seventh day, he gave all necessaries to the five hundred monks with the Buddha at their head.</p>
+            <p>Then the Master, having finished his meal, made a thanksgiving: &ldquo;Householder, it is fitting that thou shouldst feel joy and gladness. For this giving of alms is the tradition of the wise men of old. They, indeed, giving up their very lives to beggars who came, gave even their own flesh.&rdquo; And at the householder&rsquo;s request, He told a story of the past.</p>
+          </div>
+          <h4 class="jb-en" style="margin:1rem 0 0.35rem;font-size:1em;color:var(--fg)">二、过去世 · 林中四友与布萨</h4>
+          <p class="jb-pali" lang="pi">Atīte Bārāṇasiyaṁ Brahmadatte rajjaṁ kārente Bodhisatto sasa-yoniyaṁ nibbattitvā araññe vasati. Tassa pana araññassa ekato pabbata-pādo ekato nadī ekato paccantagāmako. Apare pissa tayo sahāyā ahamsu — vānaro ca sigālo ca uddo ca. Sāyaṃ te sannipatanti.</p>
+          <div class="jb-en">
+            <p>Long ago, when Brahmadatta reigned in Benares, the Bodhisatta was born as a hare and lived in the forest. That forest had on one side a mountain foot, on one side a river, and on one side a border village. And he had three friends: a monkey, a jackal, and an otter. These four wise creatures lived together, each seeking his own food in his own feeding-ground, and at evening they would meet together.</p>
+            <p>The wise hare taught the Dhamma to the other three, saying: &ldquo;Alms should be given, virtue should be kept, the Uposatha day should be observed.&rdquo; And they accepted his teaching.</p>
+            <p>Now one day the Bodhisatta looked up at the sky and saw the moon. Knowing that the next day was the Uposatha, he said to the others: &ldquo;Tomorrow is the Uposatha. Do you three take upon yourselves the precepts and keep the fast. Alms given in virtue bring great fruit. Therefore, when a beggar comes, give from the food you would eat, and then eat yourselves.&rdquo;</p>
+          </div>
+        </div>
+      </details>
+      <button type="button" class="btn-continue" id="btn-go-ending-final" style="display:none;">下一节</button>
+    </section>
+  </div>
+
+  <section id="transition3end-overlay" class="chapter-transition-overlay" hidden aria-hidden="true">
+    <div class="chapter-transition-card">
+      <div id="transition3endText" class="chapter-transition-type"></div>
+      <button type="button" class="btn-continue" id="btn-after-transition3end" hidden>进入下一页</button>
+    </div>
+  </section>
+
+  <script>
+(function () {
+  var jp = { test: false, entry: 0 };
+  try {
+    var params = new URLSearchParams(window.location.search);
+    jp.test = params.get("test") === "1";
+    jp.entry = parseInt(params.get("entry") || "0", 10) || 0;
+  } catch (e) {}
+
+  function getJourneyProgress() {
+    var n = 0;
+    try {
+      n = parseInt(localStorage.getItem("siddharthaJourneyProgress") || "0", 10) || 0;
+    } catch (e) {}
+    return n;
+  }
+
+  var progress = getJourneyProgress();
+  if (jp.entry >= 3) {
+    try {
+      localStorage.setItem("siddharthaJourneyProgress", "3");
+    } catch (e) {}
+  }
+  progress = getJourneyProgress();
+
+  if (!jp.test) {
+    if (progress < 1 && jp.entry < 3) {
+      window.location.href = "../prologue/index.html";
+      return;
+    }
+    if (progress < 2 && jp.entry < 3) {
+      window.location.href = "./执水之鸦.html";
+      return;
+    }
+    if (progress < 3 && jp.entry < 3) {
+      window.location.href = "./花染衣-咒缚之华-全篇文字游戏.html";
+      return;
+    }
+  }
+
+  if (typeof journeyNotifyPage === "function") {
+    journeyNotifyPage("moon", window.location.search ? window.location.search.slice(1) : "");
+  }
+
+  var STAGES = ["prologue", "beasts", "tour", "choice", "highlight", "sasassa", "ending"];
+  var stageIndex = 0;
+  var perfectTour = false;
+  var highlightTimer = null;
+  var endingLineTimer = null;
+  var endingTypingDone = false;
+  var live = document.getElementById("live");
+  function announce(msg) { live.textContent = msg; }
+
+  var missionMap = {
+    prologue: { main: "月兔之戒", sub: "0.1" },
+    beasts: { main: "月兔之戒", sub: "1.1" },
+    tour: { main: "月兔之戒", sub: "2.1" },
+    choice: { main: "月兔之戒", sub: "2.2" },
+    highlight: { main: "月兔之戒", sub: "2.3" },
+    sasassa: { main: "月兔之戒", sub: "3.1" },
+    ending: { main: "月兔之戒", sub: "4.1" }
+  };
+
+  function setMission(id) {
+    var m = missionMap[id];
+    if (!m) return;
+    document.getElementById("mission-bar").innerHTML = "<strong>" + m.main + "</strong> " + m.sub;
+  }
+
+  function showStage(name) {
+    STAGES.forEach(function (s) {
+      var el = document.getElementById("stage-" + s);
+      if (el) el.classList.toggle("active", s === name);
+    });
+    setMission(name);
+    announce("进入：" + name);
+    if (window.setStageBackground) window.setStageBackground(name);
+  }
+
+  function goStage(name) {
+    if (name !== "ending") {
+      var o3 = document.getElementById("transition3end-overlay");
+      if (o3) {
+        o3.hidden = true;
+        o3.setAttribute("aria-hidden", "true");
+      }
+      document.body.classList.remove("chapter-transition-on");
+    }
+    stageIndex = STAGES.indexOf(name);
+    showStage(name);
+    if (name !== "highlight" && highlightTimer) {
+      clearInterval(highlightTimer);
+      highlightTimer = null;
+    }
+    if (name !== "ending" && endingLineTimer) {
+      clearTimeout(endingLineTimer);
+      endingLineTimer = null;
+    }
+    if (name !== "ending") endingTypingDone = false;
+    if (name === "tour") initTour();
+    if (name === "highlight") startPaliHighlight();
+    if (name === "sasassa") resetSasassa();
+    if (name === "ending") runEnding();
+    if (typeof journeySaveStage === "function") journeySaveStage("moon", name);
+  }
+  try {
+    window.__moonGoStage = goStage;
+  } catch (eMoonHook) {}
+
+  function nextStage() {
+    if (stageIndex < STAGES.length - 1) {
+      stageIndex++;
+      goStage(STAGES[stageIndex]);
+    }
+  }
+
+  /* Forest background */
+  (function fillForest() {
+    var rows = [];
+    for (var r = 0; r < 28; r++) {
+      var line = "";
+      for (var c = 0; c < 80; c++) {
+        var x = (r + c) % 7;
+        if (x === 0) line += "树";
+        else if (x === 1) line += "林";
+        else if (x === 2) line += "道";
+        else if (x === 3) line += "石";
+        else line += "·";
+      }
+      rows.push(line);
+    }
+    document.getElementById("forest-deco").textContent = rows.join("\n");
+  })();
+
+  document.getElementById("btn-prologue-next").addEventListener("click", function () {
+    goStage("beasts");
+  });
+
+  /* ========== Beasts ========== */
+  var TERRAIN = {
+    mountain: { label: "山脚" },
+    forest: { label: "林缘" },
+    village: { label: "村边" },
+    river: { label: "河边" }
+  };
+  var ANIMALS = {
+    rabbit: { label: "\u5154", terrain: "mountain" },
+    monkey: { label: "\u7334", terrain: "forest" },
+    jackal: { label: "\u8c7a", terrain: "village" },
+    otter: { label: "\u6c34\u736d", terrain: "river" }
+  };
+  var TERRAIN_CELLS = [
+    { r: 0, c: 0, key: "mountain" },
+    { r: 0, c: 2, key: "forest" },
+    { r: 1, c: 1, key: "village" },
+    { r: 2, c: 2, key: "forest" },
+    { r: 2, c: 3, key: "mountain" },
+    { r: 3, c: 1, key: "river" }
+  ];
+  var terrainAt = new Map();
+  TERRAIN_CELLS.forEach(function (t) {
+    terrainAt.set(t.r + "," + t.c, t.key);
+  });
+  var placement = [];
+  for (var br = 0; br < 4; br++) {
+    placement[br] = [];
+    for (var bc = 0; bc < 4; bc++) placement[br][bc] = null;
+  }
+  var selectedTool = null;
+  var beastsDone = false;
+  var gridEl = document.getElementById("beasts-grid");
+  var statusEl = document.getElementById("beasts-status");
+
+  function neighbors4(r, c) {
+    var out = [];
+    if (r > 0) out.push([r - 1, c]);
+    if (r < 3) out.push([r + 1, c]);
+    if (c > 0) out.push([r, c - 1]);
+    if (c < 3) out.push([r, c + 1]);
+    return out;
+  }
+
+  function renderBeasts() {
+    gridEl.innerHTML = "";
+    for (var r = 0; r < 4; r++) {
+      for (var c = 0; c < 4; c++) {
+        var cell = document.createElement("div");
+        cell.className = "cell-b";
+        cell.dataset.r = String(r);
+        cell.dataset.c = String(c);
+        var tKey = terrainAt.get(r + "," + c);
+        if (tKey) {
+          cell.classList.add("terrain");
+          cell.innerHTML = "<span class=\"label\">" + TERRAIN[tKey].label + "</span>";
+        } else {
+          cell.classList.add("empty");
+          var a = placement[r][c];
+          if (a) {
+            var info = ANIMALS[a];
+            cell.innerHTML = "<span class=\"glyph\">" + info.label + "</span>";
+          } else {
+            cell.innerHTML = "<span class=\"label\" style=\"opacity:.35\">空</span>";
+          }
+          cell.addEventListener("click", onBeastCellClick);
+        }
+        gridEl.appendChild(cell);
+      }
+    }
+  }
+
+  function setBeastStatus(msg, cls) {
+    statusEl.textContent = msg || "";
+    statusEl.className = "status-b" + (cls ? " " + cls : "");
+  }
+
+  function countPlacements() {
+    var counts = { rabbit: 0, monkey: 0, jackal: 0, otter: 0 };
+    var n = 0;
+    for (var r = 0; r < 4; r++) {
+      for (var c = 0; c < 4; c++) {
+        if (placement[r][c]) {
+          counts[placement[r][c]]++;
+          n++;
+        }
+      }
+    }
+    return { counts: counts, total: n };
+  }
+
+  function validateBeasts() {
+    var issues = [];
+    var rows = [0, 0, 0, 0];
+    var cols = [0, 0, 0, 0];
+    var seen = {};
+    for (var r = 0; r < 4; r++) {
+      for (var c = 0; c < 4; c++) {
+        var a = placement[r][c];
+        if (!a) continue;
+        rows[r]++;
+        cols[c]++;
+        if (rows[r] > 1) issues.push("第 " + (r + 1) + " 行多于一只。");
+        if (cols[c] > 1) issues.push("第 " + (c + 1) + " 列多于一只。");
+        if (seen[a]) issues.push(ANIMALS[a].label + " 出现了多次。");
+        seen[a] = true;
+        var need = ANIMALS[a].terrain;
+        var okAdj = neighbors4(r, c).some(function (pair) {
+          return terrainAt.get(pair[0] + "," + pair[1]) === need;
+        });
+        if (!okAdj) {
+          issues.push(ANIMALS[a].label + "（" + (r + 1) + "," + (c + 1) + "）未与对应地形四邻。");
+        }
+      }
+    }
+    var cp = countPlacements();
+    if (cp.total < 4) {
+      issues.push("请放满四只动物再检查（当前 " + cp.total + " 只）。");
+    } else {
+      ["rabbit", "monkey", "jackal", "otter"].forEach(function (k) {
+        if (cp.counts[k] === 0) issues.push("缺少 " + ANIMALS[k].label + "。");
+      });
+    }
+    var uniq = {};
+    issues.forEach(function (x) { uniq[x] = true; });
+    return Object.keys(uniq);
+  }
+
+  function onBeastSolved() {
+    if (beastsDone) return;
+    beastsDone = true;
+    document.getElementById("beasts-root").classList.add("beasts-done");
+    document.getElementById("beasts-after").hidden = false;
+    document.getElementById("btn-beasts-next").hidden = false;
+    announce("第一关完成");
+  }
+
+  function onBeastCellClick(ev) {
+    var el = ev.currentTarget;
+    var r = parseInt(el.dataset.r, 10);
+    var c = parseInt(el.dataset.c, 10);
+    if (!selectedTool) {
+      if (placement[r][c]) {
+        placement[r][c] = null;
+        setBeastStatus("已清除该格动物。", "");
+        renderBeasts();
+        return;
+      }
+      setBeastStatus("请先选择动物再点空格放置；或点已放动物的格子可单独清除。", "hint");
+      return;
+    }
+    if (selectedTool === "erase") {
+      placement[r][c] = null;
+      setBeastStatus("已清除该格动物。", "");
+      renderBeasts();
+      return;
+    }
+    placement[r][c] = selectedTool;
+    setBeastStatus("已放置 " + ANIMALS[selectedTool].label + "。", "");
+    renderBeasts();
+    maybeAutoCheckBeasts();
+  }
+
+  function maybeAutoCheckBeasts() {
+    var cp = countPlacements();
+    if (cp.total !== 4) return;
+    if (validateBeasts().length === 0) {
+      setBeastStatus("—— 会合成功！正解唯一。 ——", "ok");
+      onBeastSolved();
+    }
+  }
+
+  document.querySelectorAll("#stage-beasts .tool-b").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var t = btn.getAttribute("data-tool");
+      selectedTool = t;
+      document.querySelectorAll("#stage-beasts .tool-b").forEach(function (b) {
+        b.classList.toggle("active", b === btn);
+      });
+      if (t === "erase") setBeastStatus("点击格子可擦除该格动物。", "");
+      else setBeastStatus("已选：" + ANIMALS[t].label + "，点击空位放置。", "");
+    });
+  });
+
+  document.getElementById("beasts-check").addEventListener("click", function () {
+    var v = validateBeasts();
+    if (v.length === 0) {
+      setBeastStatus("全部正确，斋日前四友已到齐。", "ok");
+      onBeastSolved();
+    } else {
+      setBeastStatus(v.join(" "), "err");
+    }
+  });
+
+  document.getElementById("beasts-reset").addEventListener("click", function () {
+    for (var r = 0; r < 4; r++) {
+      for (var c = 0; c < 4; c++) placement[r][c] = null;
+    }
+    document.getElementById("beasts-root").classList.remove("beasts-done");
+    document.getElementById("beasts-after").hidden = true;
+    document.getElementById("btn-beasts-next").hidden = true;
+    beastsDone = false;
+    setBeastStatus("已清空全部动物。", "");
+    renderBeasts();
+  });
+
+  document.getElementById("btn-beasts-next").addEventListener("click", function () {
+    goStage("tour");
+  });
+
+  renderBeasts();
+  setBeastStatus("选择动物后点空位放置；不选工具时点已放格可单独清除。", "hint");
+
+  /* ========== Tour ========== */
+  var SIZE = 5;
+  var START = { r: 5, c: 5 };
+  var TRAPS = new Set(["1,4", "2,4", "3,4", "3,1"]);
+  var SAGES = [
+    { r: 5, c: 4, name: "\u6c34\u736d" },
+    { r: 4, c: 2, name: "\u8c7a" },
+    { r: 1, c: 5, name: "\u7334" },
+    { r: 2, c: 1, name: "\u5154" }
+  ];
+  var OPTIMAL_LEN = 18;
+  var OPTIMAL_PATH = [
+    [5, 5], [5, 4], [5, 3], [5, 2], [4, 2], [3, 2], [2, 2], [2, 1],
+    [1, 1], [1, 2], [1, 3], [2, 3], [3, 3], [4, 3], [4, 4], [4, 5],
+    [3, 5], [2, 5], [1, 5]
+  ];
+  var sageAt = new Map();
+  SAGES.forEach(function (s) { sageAt.set(s.r + "," + s.c, s); });
+  var boardEl = document.getElementById("tour-board");
+  var statusTour = document.getElementById("tour-status");
+  var player = { r: 5, c: 5 };
+  var visited = new Set(["5,5"]);
+  var visitedSages = new Set();
+  var path = [[5, 5]];
+  var moves = 0;
+  var tourInited = false;
+
+  function keyTour(r, c) { return r + "," + c; }
+
+  function inBounds(r, c) {
+    return r >= 1 && r <= SIZE && c >= 1 && c <= SIZE;
+  }
+
+  function neighborsTour(r, c) {
+    return [[r - 1, c], [r + 1, c], [r, c - 1], [r, c + 1]].filter(function (p) {
+      return inBounds(p[0], p[1]);
+    });
+  }
+
+  function isTourWin() {
+    return visitedSages.size === SAGES.length;
+  }
+
+  function pathsEqual(a, b) {
+    if (a.length !== b.length) return false;
+    for (var i = 0; i < a.length; i++) {
+      if (a[i][0] !== b[i][0] || a[i][1] !== b[i][1]) return false;
+    }
+    return true;
+  }
+
+  function setTourStatus(html, warn) {
+    statusTour.className = "status-t" + (warn ? " warn" : "");
+    statusTour.innerHTML = html;
+  }
+
+  function tryMoveTour(nr, nc) {
+    var k = keyTour(nr, nc);
+    if (TRAPS.has(k)) {
+      setTourStatus("落叶陷阱不可踏入。", true);
+      return;
+    }
+    if (visited.has(k)) {
+      setTourStatus("不可重复踏入同一格。", true);
+      return;
+    }
+    visited.add(k);
+    player = { r: nr, c: nc };
+    path.push([nr, nc]);
+    moves++;
+    var sg = sageAt.get(k);
+    if (sg) visitedSages.add(k);
+    renderTour();
+    if (isTourWin()) {
+      perfectTour = moves === OPTIMAL_LEN && pathsEqual(path, OPTIMAL_PATH);
+      if (perfectTour) {
+        setTourStatus("<strong>圆满！</strong>你用 <strong>" + moves + "</strong> 步完成，与唯一最短解一致。", false);
+        document.getElementById("tour-after").hidden = false;
+        document.getElementById("btn-tour-next").hidden = false;
+        announce("完成");
+      } else if (moves === OPTIMAL_LEN) {
+        setTourStatus("已拜访四方，但<strong>路线</strong>与唯一最短解不同。请点击<strong>重置</strong>，重走 18 步唯一路径。", true);
+      } else {
+        setTourStatus("已拜访四方，共 <strong>" + moves + "</strong> 步。须恰好 <strong>" + OPTIMAL_LEN + "</strong> 步且路线与唯一解一致。请点击<strong>重置</strong>再试。", true);
+      }
+    } else {
+      setTourStatus("步数：<strong>" + moves + "</strong>。目标总步数：<strong>" + OPTIMAL_LEN + "</strong>，且终局须与唯一最短路线一致。", false);
+    }
+  }
+
+  function resetTour() {
+    player = { r: START.r, c: START.c };
+    visited = new Set([keyTour(START.r, START.c)]);
+    visitedSages = new Set();
+    path = [[START.r, START.c]];
+    moves = 0;
+    document.getElementById("tour-after").hidden = true;
+    document.getElementById("btn-tour-next").hidden = true;
+    setTourStatus("步数：<strong>0</strong>。目标：拜访四位智者，且总步数恰好 <strong>" + OPTIMAL_LEN + "</strong>、路线与唯一最短解一致。", false);
+    renderTour();
+  }
+
+  function renderTour() {
+    boardEl.innerHTML = "";
+    for (var r = 1; r <= SIZE; r++) {
+      for (var c = 1; c <= SIZE; c++) {
+        var k = keyTour(r, c);
+        var cell = document.createElement("div");
+        cell.className = "cell-t";
+        cell.dataset.r = String(r);
+        cell.dataset.c = String(c);
+        var sage = sageAt.get(k);
+        var isTrap = TRAPS.has(k);
+        if (isTrap) cell.classList.add("trap");
+        if (sage) cell.classList.add("sage");
+        if (r === START.r && c === START.c) cell.classList.add("start-mark");
+
+        var label = "";
+        if (sage) label = sage.name;
+        else if (isTrap) label = "陷";
+        else label = "·";
+        cell.appendChild(document.createTextNode(label));
+
+        if (visited.has(k)) cell.classList.add("visited");
+        if (sage && visitedSages.has(k)) cell.classList.add("visited-sage");
+
+        var here = player.r === r && player.c === c;
+        if (here) {
+          cell.classList.add("player-here");
+          var mark = document.createElement("span");
+          mark.className = "player-mark";
+          mark.textContent = "帝";
+          cell.appendChild(mark);
+        }
+
+        var can = !isTourWin() && neighborsTour(player.r, player.c).some(function (p) {
+          return p[0] === r && p[1] === c;
+        });
+        if (can && !TRAPS.has(k) && !visited.has(k)) {
+          cell.classList.add("can-move");
+          (function (rr, cc) {
+            cell.addEventListener("click", function () {
+              tryMoveTour(rr, cc);
+            });
+          })(r, c);
+        }
+        boardEl.appendChild(cell);
+      }
+    }
+  }
+
+  function initTour() {
+    if (!tourInited) {
+      tourInited = true;
+      document.getElementById("tour-reset").addEventListener("click", resetTour);
+      document.addEventListener("keydown", onTourKey);
+    }
+    resetTour();
+  }
+
+  function onTourKey(e) {
+    if (STAGES[stageIndex] !== "tour" || isTourWin()) return;
+    var map = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] };
+    var d = map[e.key];
+    if (!d) return;
+    e.preventDefault();
+    var nr = player.r + d[0];
+    var nc = player.c + d[1];
+    if (!inBounds(nr, nc)) return;
+    var cand = boardEl.querySelector('.can-move[data-r="' + nr + '"][data-c="' + nc + '"]');
+    if (cand) tryMoveTour(nr, nc);
+  }
+
+  document.getElementById("btn-tour-next").addEventListener("click", function () {
+    goStage("choice");
+  });
+
+  /* ========== Choice ========== */
+  document.querySelectorAll(".choice-opt").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var ch = btn.getAttribute("data-choice");
+      var fb = document.getElementById("choice-feedback");
+      fb.className = "";
+      if (ch === "B") {
+        fb.textContent = "";
+        goStage("highlight");
+        return;
+      }
+      fb.className = "bad";
+      if (ch === "A") fb.textContent = "兔王摇头：「野草非汝所需之斋粮……布施不在物丰，而在心净。」再思。";
+      else fb.textContent = "兔王默然：「明日或迟……乞士饥肠已鸣，不可再拖。」婆罗门眼中仍有饥色。再思。";
+    });
+  });
+
+  /* ========== Pali highlight ========== */
+  var PALI_SENTENCE = "Na sasassa til\u0101 atthi na mugg\u0101 n\u0101pi ta\u1E47\u1E0Dul\u0101, imin\u0101 aggin\u0101 pakka\u1E41 mama\u1E41 bhutv\u0101 vane vas\u0101 'ti.";
+  var paliTokens = PALI_SENTENCE.split(/\s+/);
+
+  function startPaliHighlight() {
+    var btnHn = document.getElementById("btn-highlight-next");
+    if (btnHn) {
+      btnHn.hidden = true;
+      btnHn.onclick = null;
+    }
+    var wrap = document.getElementById("pali-line-wrap");
+    wrap.innerHTML = "";
+    paliTokens.forEach(function (tok, i) {
+      var sp = document.createElement("span");
+      sp.className = "tok";
+      sp.textContent = tok + (i < paliTokens.length - 1 ? " " : "");
+      sp.dataset.i = String(i);
+      wrap.appendChild(sp);
+    });
+    var idx = 0;
+    var els = wrap.querySelectorAll(".tok");
+    if (highlightTimer) clearInterval(highlightTimer);
+    function tick() {
+      els.forEach(function (el, j) {
+        el.classList.toggle("hl", j === idx);
+      });
+      announce("高亮：" + (paliTokens[idx] || ""));
+      idx++;
+      if (idx >= els.length) {
+        clearInterval(highlightTimer);
+        highlightTimer = null;
+        if (btnHn) {
+          btnHn.hidden = false;
+          btnHn.onclick = function () {
+            btnHn.hidden = true;
+            btnHn.onclick = null;
+            goStage("sasassa");
+          };
+        }
+      }
+    }
+    tick();
+    highlightTimer = setInterval(tick, 520);
+  }
+
+  /* ========== Sasassa ========== */
+  var currentSg = 1;
+  var stepsSg = [document.getElementById("step-sg-1"), document.getElementById("step-sg-2")];
+
+  function setProgressSg() {
+    document.getElementById("progress-label-sg").innerHTML = "进度：<strong>第 " + currentSg + " / 2 步</strong>";
+    stepsSg.forEach(function (el) {
+      el.classList.toggle("is-active", Number(el.dataset.step) === currentSg);
+    });
+    announce("第 " + currentSg + " 步");
+  }
+
+  function resetSasassa() {
+    currentSg = 1;
+    document.getElementById("guess-animal").value = "";
+    document.getElementById("guess-animal").classList.remove("error");
+    document.querySelectorAll('input[name="sasassa-mean"]').forEach(function (r) { r.checked = false; });
+    document.getElementById("fb-sg-1").hidden = true;
+    document.getElementById("fb-sg-2").hidden = true;
+    document.getElementById("hint-sg-1").classList.remove("is-visible");
+    document.getElementById("finale").classList.remove("is-visible");
+    setProgressSg();
+    setTimeout(function () { document.getElementById("guess-animal").focus(); }, 100);
+  }
+
+  function showFbSg(id, ok, text) {
+    var el = document.getElementById(id);
+    el.hidden = false;
+    el.className = "feedback-sg " + (ok ? "ok" : "bad");
+    el.textContent = text;
+  }
+
+  document.getElementById("btn-hint-sg-1").addEventListener("click", function () {
+    document.getElementById("hint-sg-1").classList.add("is-visible");
+  });
+
+  document.getElementById("btn-check-sg-1").addEventListener("click", function () {
+    var input = document.getElementById("guess-animal");
+    var v = input.value.trim();
+    input.classList.remove("error");
+    if (!v) {
+      input.classList.add("error");
+      showFbSg("fb-sg-1", false, "请填一个字或词。");
+      return;
+    }
+    if (v.indexOf("兔") === -1) {
+      input.classList.add("error");
+      showFbSg("fb-sg-1", false, "谜底里要出现「动物」哦。再想一下谜面。");
+      return;
+    }
+    showFbSg("fb-sg-1", true, "对。巴利语里常写作 sasa，指兔。");
+    currentSg = 2;
+    setTimeout(function () { setProgressSg(); }, 400);
+  });
+
+  document.getElementById("btn-check-sg-2").addEventListener("click", function () {
+    var picked = document.querySelector('input[name="sasassa-mean"]:checked');
+    if (!picked) {
+      showFbSg("fb-sg-2", false, "请先为 sasassa 选一个答案。");
+      return;
+    }
+    if (picked.value !== "poss") {
+      showFbSg("fb-sg-2", false, "再对照甲、乙、丙三组碎片的样式。");
+      return;
+    }
+    document.getElementById("finale").classList.add("is-visible");
+    showFbSg("fb-sg-2", true, "对了。下方是汉译偈颂与逐词对照。");
+    announce("谜题完成。");
+  });
+
+  document.getElementById("btn-finale-to-ending").addEventListener("click", function () {
+    goStage("ending");
+  });
+
+  /* ========== Ending ========== */
+  function buildEndingFullText() {
+    var parts = [
+      "兔王三次抖擞身体，跃入火中。火焰却如冰窟般清凉——帝释以神通试其心，知其无染。",
+      "帝释天现出原形，赞叹其布施，以山汁在月轮上绘出兔相：",
+      "「兔智者，愿你的功德历劫显明，照彻众生菩提心。」从此，月亮上有了玉兔的影子。",
+      "祇园精舍中，佛陀讲完本生，声如和风：",
+      "「居士，你应生喜悦——布施一切必要之物，正是古昔智者们的传统。兔王即我，水獭是阿难，豺狼是目犍连，猴子是舍利弗。」"
+    ];
+    var t = parts.join("\n\n");
+    if (perfectTour) t += "\n\n（你达成了圆满巡礼：十八步唯一最短路径。）";
+    return t;
+  }
+
+  function finalizeEnding() {
+    if (endingTypingDone) return;
+    endingTypingDone = true;
+    if (endingLineTimer) {
+      clearTimeout(endingLineTimer);
+      endingLineTimer = null;
+    }
+    var o3 = document.getElementById("transition3end-overlay");
+    if (o3) {
+      o3.hidden = false;
+      o3.setAttribute("aria-hidden", "false");
+      document.body.classList.add("chapter-transition-on");
+    }
+    playTransition3End();
+  }
+
+  function revealEndingAfterTransition() {
+    var o3 = document.getElementById("transition3end-overlay");
+    if (o3) {
+      o3.hidden = true;
+      o3.setAttribute("aria-hidden", "true");
+    }
+    document.body.classList.remove("chapter-transition-on");
+    document.getElementById("ending-poem").style.display = "block";
+    document.getElementById("ending-pali").style.display = "block";
+    document.getElementById("achievement-box").style.display = "block";
+    document.getElementById("btn-go-ending-final").style.display = "inline-block";
+    var mjEnd = document.getElementById("moon-jataka-chapter-end");
+    if (mjEnd) mjEnd.hidden = false;
+    try {
+      localStorage.setItem("moonRabbitOathAchievement", "1");
+      localStorage.setItem("siddharthaJourneyProgress", "4");
+    } catch (e) {}
+    announce("结局完成。成就：舍身之月");
+  }
+
+  function skipEndingTyping() {
+    if (endingTypingDone) return;
+    document.getElementById("ending-text").textContent = buildEndingFullText();
+    var btnN = document.getElementById("btn-ending-next-page");
+    if (btnN) btnN.hidden = true;
+    finalizeEnding();
+  }
+  try {
+    window.__moonSkipEndingTyping = skipEndingTyping;
+  } catch (eMoonEndHook) {}
+
+  function runEnding() {
+    endingTypingDone = false;
+    if (endingLineTimer) {
+      clearTimeout(endingLineTimer);
+      endingLineTimer = null;
+    }
+    var o3 = document.getElementById("transition3end-overlay");
+    if (o3) {
+      o3.hidden = true;
+      o3.setAttribute("aria-hidden", "true");
+    }
+    document.body.classList.remove("chapter-transition-on");
+    document.getElementById("ending-poem").style.display = "none";
+    document.getElementById("ending-pali").style.display = "none";
+    document.getElementById("achievement-box").style.display = "none";
+    document.getElementById("btn-go-ending-final").style.display = "none";
+    var mjEnd = document.getElementById("moon-jataka-chapter-end");
+    if (mjEnd) mjEnd.hidden = true;
+    var lines = buildEndingFullText();
+    var box = document.getElementById("ending-text");
+    box.textContent = lines;
+    var btnN = document.getElementById("btn-ending-next-page");
+    if (btnN) {
+      btnN.hidden = false;
+      btnN.textContent = "进入下一页";
+    }
+  }
+
+  /* Enter to continue prologue only when no input focused */
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Enter") return;
+    var tag = document.activeElement && document.activeElement.tagName;
+    if (tag === "INPUT" || tag === "TEXTAREA" || tag === "BUTTON") return;
+    if (STAGES[stageIndex] === "prologue") {
+      e.preventDefault();
+      goStage("beasts");
+    }
+  });
+
+  document.getElementById("btn-go-ending-final").addEventListener("click", function () {
+    var q = new URLSearchParams();
+    q.set("entry", "4");
+    if (jp.test) q.set("test", "1");
+    var qs = q.toString();
+    if (typeof journeyNotifyPage === "function") journeyNotifyPage("ending", qs);
+    window.location.href = "../ending/end.html?" + qs;
+  });
+
+  document.getElementById("btn-after-transition3end").addEventListener("click", function () {
+    revealEndingAfterTransition();
+  });
+
+  var transition3endText = document.getElementById("transition3endText");
+  var transition3endTimer = null;
+  var transition3endContent = "月光将你托起，送回那片旷野。你身中百日之寒渐散，面容一日日返年轻——像时光沿着轮回之轮倒行。\n\n但你不再误以为倒行即是重来。那只是终幕前，最后一重「无我」的试炼尚未写完。";
+  function playTransition3End() {
+    if (transition3endTimer) {
+      clearInterval(transition3endTimer);
+      transition3endTimer = null;
+    }
+    transition3endText.textContent = transition3endContent;
+    var btnAfter = document.getElementById("btn-after-transition3end");
+    if (btnAfter) {
+      btnAfter.hidden = false;
+      btnAfter.textContent = "进入下一页";
+    }
+  }
+
+  document.addEventListener("keydown", function (e) {
+    if (STAGES[stageIndex] !== "choice") return;
+    var map = { "1": "A", "2": "B", "3": "C" };
+    var ch = map[e.key];
+    if (!ch) return;
+    var btn = document.querySelector('.choice-opt[data-choice="' + ch + '"]');
+    if (btn) btn.click();
+  });
+
+  document.getElementById("btn-ending-next-page").addEventListener("click", function () {
+    if (endingTypingDone) return;
+    finalizeEnding();
+  });
+
+  var moonStart = "prologue";
+  if (typeof journeyShouldRestore === "function" && journeyShouldRestore("moon")) {
+    var ms = typeof journeyGetStage === "function" ? journeyGetStage("moon") : null;
+    if (ms && STAGES.indexOf(ms) >= 0) moonStart = ms;
+  }
+  goStage(moonStart);
+})();
+  </script>
+  <script src="../assets/gear-neon-corners.js"></script>
+  <script src="../assets/gear-neon-skip.js"></script>
+</body>
+</html>

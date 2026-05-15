@@ -1,0 +1,1595 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>咒缚之华</title>
+  <link rel="stylesheet" href="../assets/indian-pixel-frame.css" />
+  <link rel="stylesheet" href="../assets/stage-bg.css" />
+  <link rel="stylesheet" href="../assets/gear-neon-shell.css" />
+  <style>
+    :root {
+      --bg: rgba(90, 90, 94, 0.5);
+      --fg: #e8e8e8;
+      --dim: #8a8a8a;
+      --hi: #e6e600;
+      --ok: #7fd47f;
+      --bad: #e07070;
+      --border: #333;
+      --pali-size: var(--letter-min);
+      --pali-lh: 1.85;
+      --pali-track: 0.02em;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; background: transparent; color: var(--fg); }
+    body {
+      font-family: var(--font-zh-hei);
+      font-size: var(--zh-size);
+      line-height: 1.55;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .wg-wrap { position: relative; z-index: 1; width: var(--game-column); margin: 1.1rem auto; padding: 0.9rem; background: var(--game-panel-bg); border: var(--game-panel-border); outline: none; box-shadow: none; }
+    .scene { display: none; background: transparent; }
+    .scene.active { display: block; }
+    .deco { display: none !important; }
+    h1 {
+      font-size: clamp(1.38em, 3.8vw, 1.82em);
+      font-weight: 400;
+      letter-spacing: 0.2em;
+      margin: 0 0 0.75rem;
+      color: var(--fg);
+      text-align: center;
+    }
+    h2 { text-align: center; }
+    .subh { font-size: var(--zh-size); color: var(--dim); letter-spacing: 0.12em; margin-bottom: 1rem; }
+    .block {
+      white-space: pre-wrap;
+      word-break: break-word;
+      border-left: 2px solid var(--border);
+      padding: 0.5rem 0 0.5rem 0.85rem;
+      margin: 0.85rem 0;
+      line-height: 1.75;
+    }
+    .pali-open {
+      font-family: "Times New Roman", "Noto Serif", "Source Serif 4", Georgia, serif;
+      font-size: var(--pali-size);
+      line-height: var(--pali-lh);
+      letter-spacing: var(--pali-track);
+      margin: 1rem 0 1.25rem;
+      padding: 0.75rem 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .pali,
+    td.pali,
+    th.pali,
+    .quiz-cipher,
+    .mantra-context,
+    #wg-repair,
+    pre.clues,
+    .clues-pre,
+    .gloss-body,
+    .mantra-reward table.gloss,
+    #scene-mantra .options label {
+      font-family: "Times New Roman", "Noto Serif", "Source Serif 4", serif;
+      font-size: var(--pali-size);
+      line-height: var(--pali-lh);
+      letter-spacing: var(--pali-track);
+    }
+    .mantra-reward pre {
+      font-family: "Times New Roman", "Noto Serif", "Source Serif 4", Georgia, serif;
+      font-size: var(--pali-size);
+      line-height: var(--pali-lh);
+      letter-spacing: var(--pali-track);
+    }
+    .btn {
+      display: inline-block;
+      margin: 0.5rem 0.5rem 0 0;
+      padding: 0.35rem 0.9rem;
+      font: inherit;
+      cursor: pointer;
+      color: var(--bg);
+      background: var(--fg);
+      border: 1px solid var(--fg);
+    }
+    .btn:hover { filter: brightness(1.1); }
+    .btn.outline {
+      color: var(--fg);
+      background: transparent;
+      border-color: var(--dim);
+    }
+    .btn:focus-visible { outline: 2px solid var(--hi); outline-offset: 2px; }
+    .jataka-bridge { margin: 1rem 0; padding: 0.55rem 0.7rem; border: 1px solid rgba(196, 165, 116, 0.35); background: rgba(18, 16, 12, 0.55); font-size: var(--zh-size); }
+    .jataka-bridge summary { cursor: pointer; color: #c4a574; font-weight: 600; letter-spacing: 0.04em; list-style-position: outside; }
+    .jataka-bridge .jb-body { margin-top: 0.6rem; padding-top: 0.6rem; border-top: 1px solid var(--border); }
+    .jataka-bridge .jb-pali { font-family: "Times New Roman", "Noto Serif", "Source Serif 4", Georgia, serif; font-size: var(--pali-size); line-height: var(--pali-lh); letter-spacing: var(--pali-track); color: var(--fg); white-space: normal; margin: 0 0 0.75rem; }
+    .jataka-bridge .jb-en { color: var(--dim); line-height: 1.72; }
+    .jataka-bridge .jb-en h4 { color: var(--fg); font-size: 1em; margin: 0.75rem 0 0.35rem; font-weight: 600; }
+    .jataka-bridge .jb-en p { margin: 0.45rem 0; }
+    /* Mantra quiz */
+    .quiz-top { font-size: var(--zh-size); color: var(--dim); margin-bottom: 0.75rem; }
+    .quiz-mantra-round { display: none; }
+    .quiz-mantra-round.is-active { display: block; }
+    #scene-mantra .quiz-mantra-round .quiz-slide {
+      display: block;
+      margin: 0.85rem 0;
+      padding-bottom: 0.85rem;
+      border-bottom: 1px solid var(--border);
+    }
+    #scene-mantra .quiz-mantra-round .quiz-slide:last-child { border-bottom: none; }
+    .quiz-round-shared { margin: 0 0 0.15rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border); }
+    .quiz-q-sub { font-weight: 600; margin: 0 0 0.35rem; color: var(--fg); font-size: var(--zh-size); }
+    .quiz-q { font-weight: 600; margin: 0 0 0.5rem; color: var(--fg); }
+    .quiz-cipher-ref { font-size: var(--zh-size); color: var(--dim); margin: 0.25rem 0; }
+    .quiz-cipher, .mantra-context {
+      margin: 0.35rem 0;
+      word-break: break-word;
+    }
+    .current-blank { color: var(--hi); }
+    .opt-note { font-size: var(--zh-size); color: var(--dim); margin: 0.5rem 0 0.35rem; }
+    .options label {
+      display: block;
+      margin: 0.2rem 0;
+      padding: 0.25rem 0.35rem;
+      cursor: pointer;
+      border: 1px solid transparent;
+    }
+    .options label:hover { background: rgba(68, 68, 72, 0.55); }
+    .options label.correct { border-color: var(--ok); color: var(--ok); }
+    .options label.wrong { border-color: var(--bad); color: var(--bad); }
+    .quiz-nav { margin-top: 1rem; display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+    #wg-score { min-height: 1.4em; font-size: var(--zh-size); color: var(--dim); margin-top: 0.5rem; }
+    .mantra-reward {
+      display: none;
+      margin-top: 1.25rem;
+      padding-top: 0.85rem;
+      border-top: 1px solid var(--border);
+      font-size: var(--zh-size);
+      line-height: 1.65;
+      color: var(--dim);
+    }
+    .mantra-reward.is-visible { display: block; }
+    .mantra-reward h3 { font-size: var(--zh-size); font-weight: 600; color: var(--fg); margin: 0 0 0.5rem; letter-spacing: 0.06em; }
+    .mantra-reward pre { margin: 0.35rem 0; white-space: pre-wrap; word-break: break-word; }
+    /* Garden */
+    #scene-garden { outline: none; }
+    #scene-garden:focus-visible { outline: 1px dashed var(--dim); outline-offset: 6px; }
+    .g-stats { display: flex; flex-wrap: wrap; gap: 1rem; font-size: var(--zh-size); color: var(--dim); margin: 0.5rem 0; }
+    .g-stats strong { color: var(--fg); }
+    .g-map-label { font-size: var(--zh-size); color: var(--dim); margin-bottom: 0.35rem; }
+    .g-grid {
+      display: inline-grid;
+      grid-template-columns: auto repeat(5, minmax(2.35rem, 2.85rem));
+      grid-template-rows: auto repeat(5, minmax(2.2rem, 2.65rem));
+      gap: 2px;
+      border: 1px solid #444;
+      padding: 4px;
+      background: #050505;
+    }
+    .g-col-h, .g-row-h {
+      display: flex; align-items: center; justify-content: center;
+      font-size: var(--letter-min); color: #555; user-select: none;
+    }
+    .g-cell {
+      border: 1px solid #222;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      font-size: var(--zh-size); line-height: 1.1; position: relative;
+    }
+    .g-cell .sub { font-size: var(--zh-size); color: #555; margin-top: 2px; }
+    .g-cell.blocked { background: rgba(58, 58, 62, 0.55); color: #666; }
+    .g-cell.los { background: #2a1515; box-shadow: inset 0 0 0 1px rgba(180,60,60,0.2); }
+    .g-cell.player { outline: 2px solid var(--hi); outline-offset: -2px; z-index: 1; }
+    .glyph-guard { color: #a898c8; }
+    .glyph-flower { color: #e8a0c0; }
+    .glyph-player { color: var(--hi); font-weight: 700; }
+    .glyph-ent { color: var(--dim); }
+    .g-log {
+      border: 1px solid var(--border);
+      min-height: 5rem; max-height: 12rem; overflow-y: auto;
+      padding: 0.45rem 0.5rem; font-size: var(--zh-size); color: var(--dim); margin-top: 0.5rem;
+    }
+    .g-log .e { color: var(--bad); }
+    .g-log .ok { color: var(--ok); }
+    .g-rule { font-size: var(--zh-size); color: var(--dim); margin: 0.5rem 0; line-height: 1.65; }
+    .g-map-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      margin: 0.85rem 0 1.1rem;
+    }
+    #scene-garden {
+      font-size: 1.14rem;
+    }
+    #scene-garden h1 {
+      font-size: 1.2rem;
+    }
+    #scene-garden .cipher-intro,
+    #scene-garden .g-rules,
+    #scene-garden .g-stats,
+    #scene-garden .g-log,
+    #scene-garden .quiz-nav {
+      font-size: 1em;
+    }
+    #scene-garden .g-map-label {
+      font-size: 0.95em;
+      text-align: center;
+      width: 100%;
+    }
+    #scene-garden .g-grid {
+      grid-template-columns: auto repeat(5, minmax(2.65rem, 3.2rem));
+      grid-template-rows: auto repeat(5, minmax(2.5rem, 3.05rem));
+    }
+    #scene-garden .g-col-h,
+    #scene-garden .g-row-h {
+      font-size: 0.88em;
+    }
+    #scene-garden .g-cell {
+      font-size: 1.08rem;
+    }
+    #scene-garden .g-cell .sub {
+      font-size: 0.82em;
+    }
+    kbd {
+      display: inline-block; padding: 0.05em 0.3em; margin: 0 0.08em;
+      font-size: 0.85em; border: 1px solid #444; background: rgba(72, 72, 76, 0.55); backdrop-filter: blur(3px); color: var(--hi);
+    }
+    /* Gatha */
+    .repair-label { font-size: var(--zh-size); color: var(--dim); margin: 0.5rem 0 0.25rem; }
+    .repair-wrap { outline: 2px solid var(--hi); outline-offset: 4px; background: rgba(72, 72, 76, 0.52); backdrop-filter: blur(4px); padding: 0.45rem; }
+    #wg-repair {
+      display: block; width: 100%; min-height: 5.5rem; margin: 0; padding: 0.5rem;
+      font-family: "Times New Roman", "Noto Serif", "Source Serif 4", Georgia, serif;
+      font-size: var(--pali-size);
+      line-height: var(--pali-lh);
+      letter-spacing: var(--pali-track);
+      color: var(--fg); background: rgba(90, 90, 94, 0.52); backdrop-filter: blur(4px);
+      border: 1px solid #333; resize: vertical;
+    }
+    #wg-repair:focus { outline: none; border-color: var(--hi); }
+    #wg-gatha-fb { margin-top: 0.65rem; min-height: 1.3em; font-size: var(--zh-size); }
+    #wg-gatha-fb.ok { color: var(--ok); }
+    #wg-gatha-fb.bad { color: var(--bad); }
+    #wg-winGloss { display: none; margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid var(--border); font-size: var(--zh-size); color: var(--dim); }
+    #wg-winGloss.on { display: block; }
+    .clues-pre { white-space: pre-wrap; word-break: break-word; border-left: 2px solid var(--border); padding-left: 0.65rem; margin: 0.5rem 0; }
+    #scene-gatha > h2.wg-h2 { text-align: center; }
+    #scene-gatha pre.clues {
+      display: block;
+      width: max-content;
+      max-width: 100%;
+      margin: 0.35rem auto 0.65rem;
+      padding: 0.5rem 0.65rem;
+      font-family: "Times New Roman", "Noto Serif", "Source Serif 4", Georgia, serif;
+      white-space: pre;
+      overflow-x: auto;
+      border-left: 2px solid var(--border);
+      text-align: left;
+      box-sizing: border-box;
+    }
+    .verse-zh-label { font-size: var(--zh-size); color: var(--dim); margin: 1rem 0 0.35rem; }
+    .verse-zh { margin: 0; padding: 0.5rem 0 0; border-top: 1px solid var(--border); font-size: var(--zh-size); line-height: 1.85; white-space: pre-line; color: var(--fg); }
+    .wg-jump { font-size: var(--zh-size); color: var(--dim); margin: 0.35rem 0 1rem; }
+    .wg-jump a { color: var(--hi); text-decoration: none; }
+    .wg-jump a:hover { text-decoration: underline; }
+    .wg-panel { margin: 1rem 0; padding-bottom: 0.85rem; border-bottom: 1px solid #1a1a1a; }
+    .wg-h2 { font-size: var(--zh-size); font-weight: 600; color: var(--fg); margin: 0 0 0.45rem; letter-spacing: 0.14em; }
+    .wg-h3 { font-size: var(--zh-size); color: var(--dim); margin: 0.65rem 0 0.3rem; }
+    .wg-cipher-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem 1.25rem;
+      align-items: start;
+    }
+    .wg-cipher-block {
+      min-width: 0;
+    }
+    .wg-cipher-block .wg-h3 {
+      margin-top: 0;
+    }
+    .wg-cipher-block .wg-table-wrap {
+      margin: 0.25rem 0 0;
+    }
+    @media (max-width: 56rem) {
+      .wg-cipher-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .wg-table-wrap { overflow-x: auto; margin: 0.35rem 0; }
+    .wg-table { width: 100%; border-collapse: collapse; font-size: var(--pali-size); line-height: var(--pali-lh); }
+    .wg-table th, .wg-table td { border: 1px solid #333; padding: 0.32rem 0.5rem; text-align: left; vertical-align: top; }
+    .wg-table th { color: var(--hi); font-weight: 600; }
+    .sans { font-family: "Times New Roman", "Noto Serif", "Source Serif 4", Georgia, serif; }
+    .cipher-intro { font-size: var(--zh-size); color: var(--dim); line-height: 1.7; margin: 0.35rem 0; }
+    .mantra-reward table.gloss { width: 100%; border-collapse: collapse; margin: 0.45rem 0; }
+    .mantra-reward .gloss td { border: 1px solid #333; padding: 0.25rem 0.4rem; vertical-align: top; }
+    .mantra-reward .gloss td:first-child { font-family: "Times New Roman", "Noto Serif", serif; white-space: nowrap; }
+    .mantra-reward .gloss-block { font-size: var(--zh-size); color: var(--dim); margin: 0.35rem 0; }
+    .verse-translation { font-size: var(--zh-size); line-height: 1.85; color: var(--fg); margin: 0.45rem 0 0; }
+    .verse-translation p { margin: 0.35rem 0; }
+    .g-rules { font-size: var(--zh-size); color: var(--dim); line-height: 1.75; margin: 0.5rem 0 0.75rem; border: 1px solid #333; padding: 0.55rem 0.65rem; background: rgba(72, 72, 76, 0.55); backdrop-filter: blur(3px); }
+    .g-rules strong { color: var(--fg); }
+    .g-legend { font-size: var(--zh-size); color: #666; margin: 0.35rem 0; font-family: inherit; white-space: pre-wrap; }
+    footer { margin-top: 2rem; font-size: var(--zh-size); color: #444; text-align: center; }
+
+    /* Terminal theme override — 汉字黑体 */
+    :root {
+      --bg: rgba(90, 90, 94, 0.5);
+      --fg: #fff;
+      --dim: #a8a8a8;
+      --hi: #fff;
+      --ok: #cfcfcf;
+      --bad: #cfcfcf;
+      --border: #555;
+      --pali-size: var(--letter-min);
+      --pali-lh: 1.85;
+      --pali-track: 0.02em;
+    }
+    body {
+      font-family: var(--font-zh-hei);
+    }
+    .btn, .btn.outline {
+      background: rgba(78, 78, 82, 0.55);
+      backdrop-filter: blur(3px);
+      color: #fff;
+      border: 1px solid #777;
+      border-radius: 0;
+    }
+    section, .g-rules, .repair-wrap, .g-log, .wg-table th, .wg-table td {
+      border-radius: 0 !important;
+      box-shadow: none !important;
+    }
+    body {
+      letter-spacing: 0.04em;
+      text-transform: none;
+    }
+    h1, h2, h3, button, .block, .cipher-intro, .verse-translation, .muted {
+      letter-spacing: 0.04em;
+      text-transform: none;
+    }
+    body, body * {
+      color: #fff !important;
+    }
+    /* Global shell background: keep chapter backdrop consistent */
+    html,
+    body {
+      min-height: 100%;
+      min-height: 100dvh;
+      background-color: #4a4034;
+      background-image: url("../assets/final-chapter-bg.png");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+    }
+  </style>
+  <link rel="stylesheet" href="../assets/immersive-shell.css" />
+  <script src="../assets/journey-bookmark.js"></script>
+</head>
+<body data-chapter="flower">
+<script src="../assets/stage-bg.js"></script>
+  <div class="wg-wrap">
+    <pre class="deco" aria-hidden="true">　花　　　花　　花　　　　　花
+　　　花　　　　　　　花　　　　花
+　花　　　　　花　　　　　　　　　</pre>
+
+    <!-- 开篇：记诵介绍词 + 巴利偈（偈文不设逐句汉译） -->
+    <section id="scene-verse" class="scene active" aria-label="开篇">
+      <h1>咒缚之华</h1>
+      <p class="subh" style="margin-bottom:0.35rem;text-align:center"><strong>1. Puppharattajātaka</strong>（花染衣本生）</p>
+      <div class="pali-open" lang="pi">
+        Na idaṃ dukkhaṃ aduṃ dukkhaṃ yaṃ maṃ tudati vāyaso<br />
+        yaṃ sāmā puppharattena kattikaṃ nānubhossatīti.
+      </div>
+      <div class="block">这是古昔那位因爱欲而夜闯国王的花园、最终被刺在矛上的男子，临死前对乌鸦所说的话。偈云：身被啄刺尚非真苦，不得与伊人共度节期，才是刺入心中的毒箭。你若能解其深意，便知爱欲如何遮蔽智慧，执著如何埋伏于微末之欢。</div>
+      <div class="block">随后，你将被带入波罗奈城的过去世——那也是本生因缘的另一扇门。三项考验等你：咒语、花园、偈颂；步步皆是对「爱欲如毒箭」的亲历。</div>
+      <p class="block" style="border-left-color:#444">▼</p>
+      <button type="button" class="btn" data-go="scene-act1a">下一节</button>
+    </section>
+
+    <!-- 第一幕（上）→ 吠陀谜题 -->
+    <section id="scene-act1a" class="scene" aria-label="第一幕">
+      <h1>贫贱夫妻百事哀</h1>
+      <div class="block">很久以前，波罗奈城由梵授王统治。菩萨投生为天神，护佑此城。城里有一个穷人，他深爱着一位女子，但那女子对他十分冷淡——爱欲已在他心中生根，却不得回应。一日，他从游方婆罗门那里学得三首《阿闼婆吠陀》中的爱咒。他决定冒险一试，欲以咒力缚住另一人的心。</div>
+      <button type="button" class="btn" data-go="scene-mantra">下一节</button>
+    </section>
+
+    <!-- 谜题一：吠陀缺字 — 含原 pali-vedic-mantra-puzzle 密表、档案、九题与奖励全文 -->
+    <section id="scene-mantra" class="scene" aria-label="谜题·吠陀咒语">
+      <h1>谜题 · 吠陀缺字</h1>
+      <p class="block" style="border-left-color:#444">他把《阿达婆吠陀》里的句子用「巴利式密写」抄了下来。对照密表推断规则，在缺字处还原吠陀咒语原文。</p>
+      <p class="wg-jump">跳转：<a href="#wg-step1">密表</a> · <a href="#wg-step3">解谜</a></p>
+
+      <div id="wg-step1" class="wg-panel">
+        <h2 class="wg-h2">密表：样例对</h2>
+        <p class="cipher-intro">截获的双栏片段：左为巴利密写体，右为原本。自行推断如何从一栏推到另一栏。</p>
+        <div class="wg-cipher-grid">
+        <div class="wg-cipher-block"><h3 class="wg-h3">第一组</h3>
+        <div class="wg-table-wrap"><table class="wg-table"><thead><tr><th>密写</th><th>原本</th><th>义</th></tr></thead><tbody class="sans">
+          <tr><td>dhamma</td><td>dharma</td><td>法</td></tr>
+          <tr><td>kamma</td><td>karma</td><td>业</td></tr>
+          <tr><td>sappa</td><td>sarpa</td><td>蛇</td></tr>
+          <tr><td>kalla</td><td>kalya</td><td>健康的</td></tr>
+          <tr><td>salla</td><td>śalya</td><td>箭镞</td></tr>
+          <tr><td>dubbala</td><td>durbala</td><td>虚弱的</td></tr>
+          <tr><td>nibbāna</td><td>nirvāṇa</td><td>涅槃</td></tr>
+          <tr><td>paṇṇa</td><td>parṇa</td><td>羽毛</td></tr>
+          <tr><td>kummala</td><td>kulmala</td><td>箭杆连接部</td></tr>
+          <tr><td>saññata</td><td>saṃnata</td><td>弯下的</td></tr>
+          <tr><td>khatta</td><td>kṣatra</td><td>刹帝利</td></tr>
+          <tr><td>akkhi</td><td>akṣi</td><td>眼睛</td></tr>
+          <tr><td>khīra</td><td>kṣīra</td><td>乳</td></tr>
+          <tr><td>duddha</td><td>dugdha</td><td>乳</td></tr>
+          <tr><td>sabba</td><td>sarva</td><td>一切</td></tr>
+          <tr><td>dibba</td><td>divya</td><td>天界的</td></tr>
+          <tr><td>abbha</td><td>abhra</td><td>云</td></tr>
+        </tbody></table></div>
+        <details class="wg-hint-drop">
+          <summary>提示一</summary>
+          <p class="cipher-intro">原文里有时是“硬碰硬”的连写，到了密写常被磨成更顺口的样子，最显眼的记号就是双写成对。<strong>玩家口令：</strong>看到密写里双写并肩，先回想原词是不是曾经挤作一团。</p>
+        </details>
+        </div>
+        <div class="wg-cipher-block"><h3 class="wg-h3">第二组</h3>
+        <div class="wg-table-wrap"><table class="wg-table"><thead><tr><th>密写</th><th>原本</th><th>义</th></tr></thead><tbody class="sans">
+          <tr><td>saraṇa</td><td>śaraṇa</td><td>庇护所</td></tr>
+          <tr><td>sīla</td><td>śīla</td><td>戒行</td></tr>
+          <tr><td>soka</td><td>śoka</td><td>忧愁</td></tr>
+          <tr><td>dosa</td><td>doṣa</td><td>过失</td></tr>
+          <tr><td>visa</td><td>viṣa</td><td>毒药</td></tr>
+        </tbody></table></div>
+        <details class="wg-hint-drop">
+          <summary>提示二</summary>
+          <p class="cipher-intro">密写常把两位“嘶声兄弟”都写成同一个 <span class="sans">s</span>。往回找原文时，要把它们分认回去。<strong>玩家口令：</strong>密写只见 <span class="sans">s</span>，不等于原文也只剩一个 <span class="sans">s</span>。</p>
+        </details>
+        </div>
+        <div class="wg-cipher-block"><h3 class="wg-h3">第三组</h3>
+        <div class="wg-table-wrap"><table class="wg-table"><thead><tr><th>密写</th><th>原本</th><th>义</th></tr></thead><tbody class="sans">
+          <tr><td>vajira</td><td>vajra</td><td>金刚</td></tr>
+          <tr><td>ariya</td><td>arya</td><td>圣者</td></tr>
+          <tr><td>purisa</td><td>puruṣa</td><td>人</td></tr>
+          <tr><td>karuṇa</td><td>karuṇā</td><td>悲悯</td></tr>
+          <tr><td>sirimā</td><td>śrīmān</td><td>具吉祥者</td></tr>
+          <tr><td>garuḷa</td><td>garuḍa</td><td>金翅鸟</td></tr>
+          <tr><td>jalita</td><td>jvalita</td><td>燃烧的</td></tr>
+        </tbody></table></div>
+        <details class="wg-hint-drop">
+          <summary>提示三</summary>
+          <p class="cipher-intro">原文里若连写太紧，密写常会“塞一小步”把它拆开，读起来更顺。<strong>玩家口令：</strong>密写里多出来的那一小步，可能只是为了把一团挤字拆开。</p>
+        </details>
+        </div>
+        <div class="wg-cipher-block"><h3 class="wg-h3">第四组</h3>
+        <div class="wg-table-wrap"><table class="wg-table"><thead><tr><th>密写</th><th>原本</th><th>义</th></tr></thead><tbody class="sans">
+          <tr><td>kata</td><td>kṛta</td><td>做的</td></tr>
+          <tr><td>hadaya</td><td>hṛdaya</td><td>心脏</td></tr>
+          <tr><td>pathavī</td><td>pṛthivī</td><td>大地</td></tr>
+          <tr><td>uju</td><td>ṛju</td><td>正直的</td></tr>
+          <tr><td>accha</td><td>ṛkṣa</td><td>熊</td></tr>
+          <tr><td>diṭṭhi</td><td>dṛṣṭi</td><td>见解</td></tr>
+          <tr><td>mata</td><td>mṛta</td><td>死的</td></tr>
+        </tbody></table></div>
+        <details class="wg-hint-drop">
+          <summary>提示四</summary>
+          <p class="cipher-intro">在密写这一侧，<span class="sans">ṛ</span> 往往不直接露面，常由 <span class="sans">a/u/i</span> 代站其位；回原文时要优先把它请回。<strong>玩家口令：</strong>见到 <span class="sans">ka/ha/pa/di</span> 这类位置，先试还成 <span class="sans">kṛ/hṛ/pṛ/dṛ</span>。</p>
+        </details>
+        </div>
+        </div>
+
+      <div id="wg-corpus" class="wg-panel"></div>
+      </div>
+
+      <h2 id="wg-step3" class="wg-h2" style="margin-top:1rem">解谜</h2>
+           <p class="cipher-intro">每条咒语占<strong>两行</strong>：<strong>上一行</strong>是此人用巴利式密写抄下的连写；<strong>下一行</strong>是同一条咒的<strong>吠陀咒语原文</strong>，但留有缺字。请按<strong>词位一一对照</strong>从上推下，并以<strong>两行对照方式</strong>阅读。共 9 处缺字，分属三条咒语；每条咒语 3 处，四选一。请<strong>先为该咒三道题各选一项</strong>，再点「核对」。<strong>该咒三道全对</strong>后才会显示该咒的逐词义与雅译，并进入下一条咒语。</p>
+      <div class="quiz-top">咒语 <strong id="wg-quizNum">1</strong> / 3 · <span id="wg-quizTitle"></span></div>
+
+      <div class="quiz-mantra-round is-active" data-mantra-round="0">
+        <div class="quiz-round-shared">
+          <p class="quiz-cipher-ref">巴利式密写（可能形式，与下栏吠陀咒语原文缺字逐词对应）：</p>
+          <p class="quiz-cipher sans"><strong>ādhīpaṇṇāṃ kāmasallāṃ isuṃ saṃkappakummalāṃ · tāṃ susaññatāṃ katvā kāmo vijjhatu tvā hadaye</strong></p>
+          <p class="quiz-cipher-ref">吠陀咒语原文（缺字，与上栏逐词对齐）：</p>
+          <p class="mantra-context sans"><strong><span class="current-blank">__(1)__</span> kā́maśalyām <span class="current-blank">__(2)__</span> saṃkalpákulmalām</strong><br /><strong>tā́ṃ <span class="current-blank">__(3)__</span> kṛtvā́ kā́mo vidhyatu tvā́ hr̥ dí</strong></p>
+          <p class="opt-note">请为下列三处空各选一项（选出一致的词形）。</p>
+        </div>
+        <div class="quiz-slide" data-step="0" data-q="m1-1">
+          <p class="quiz-q-sub">空 (1)</p>
+          <div class="options" data-q="m1-1">
+            <label><input type="radio" name="m1-1" value="A" /> A. ā́dhīpanṇāṃ</label>
+            <label><input type="radio" name="m1-1" value="B" /> B. ā́dhīparṇāṃ</label>
+            <label><input type="radio" name="m1-1" value="C" /> C. ā́dhīparṇām</label>
+            <label><input type="radio" name="m1-1" value="D" /> D. ā́dhīparṇaṃ</label>
+          </div>
+        </div>
+        <div class="quiz-slide" data-step="1" data-q="m1-2">
+          <p class="quiz-q-sub">空 (2)</p>
+          <div class="options" data-q="m1-2">
+            <label><input type="radio" name="m1-2" value="A" /> A. íṣāṃ</label>
+            <label><input type="radio" name="m1-2" value="B" /> B. isuṃ</label>
+            <label><input type="radio" name="m1-2" value="C" /> C. ī́ṣuṃ</label>
+            <label><input type="radio" name="m1-2" value="D" /> D. íṣum</label>
+          </div>
+        </div>
+        <div class="quiz-slide" data-step="2" data-q="m1-3">
+          <p class="quiz-q-sub">空 (3)</p>
+          <div class="options" data-q="m1-3">
+            <label><input type="radio" name="m1-3" value="A" /> A. susañnatāṃ</label>
+            <label><input type="radio" name="m1-3" value="B" /> B. susaṃṃatāṃ</label>
+            <label><input type="radio" name="m1-3" value="C" /> C. susaṃtatāṃ</label>
+            <label><input type="radio" name="m1-3" value="D" /> D. susaṃnatāṃ</label>
+          </div>
+        </div>
+      </div>
+      <div class="quiz-mantra-round" data-mantra-round="1">
+        <div class="quiz-round-shared">
+          <p class="quiz-cipher-ref">巴利式密写（可能形式，与下栏吠陀咒语原文缺字逐词对应）：</p>
+          <p class="quiz-cipher sans"><strong>yā plīhānaṃ sosayati kāmasyesuḥ susaññatā · prācīnapakkhā vyosā tayā vijjhāmi tvā hadaye</strong></p>
+          <p class="quiz-cipher-ref">吠陀咒语原文（缺字，与上栏逐词对齐）：</p>
+          <p class="mantra-context sans"><strong>yā́ plīhā́naṃ śoṣáyati <span class="current-blank">__(1)__</span> súsaṃnatā</strong><br /><strong>prācī́napakṣā <span class="current-blank">__(2)__</span> táyā <span class="current-blank">__(3)__</span> tvā́ hr̥ dí</strong></p>
+          <p class="opt-note">请为下列三处空各选一项（选出与密写规律一致的词形）。</p>
+        </div>
+        <div class="quiz-slide" data-step="3" data-q="m2-1">
+          <p class="quiz-q-sub">空 (1)</p>
+          <div class="options" data-q="m2-1">
+            <label><input type="radio" name="m2-1" value="A" /> A. kā́masyeṣuḥ</label>
+            <label><input type="radio" name="m2-1" value="B" /> B. kā́masyelu</label>
+            <label><input type="radio" name="m2-1" value="C" /> C. kā́masyeṣo</label>
+            <label><input type="radio" name="m2-1" value="D" /> D. kā́masyesuḥ</label>
+          </div>
+        </div>
+        <div class="quiz-slide" data-step="4" data-q="m2-2">
+          <p class="quiz-q-sub">空 (2)</p>
+          <div class="options" data-q="m2-2">
+            <label><input type="radio" name="m2-2" value="A" /> A. vyòṣu</label>
+            <label><input type="radio" name="m2-2" value="B" /> B. vyòṣā</label>
+            <label><input type="radio" name="m2-2" value="C" /> C. viyòṣā</label>
+            <label><input type="radio" name="m2-2" value="D" /> D. byòṣā</label>
+          </div>
+        </div>
+        <div class="quiz-slide" data-step="5" data-q="m2-3">
+          <p class="quiz-q-sub">空 (3)</p>
+          <div class="options" data-q="m2-3">
+            <label><input type="radio" name="m2-3" value="A" /> A. vidhyā́mi</label>
+            <label><input type="radio" name="m2-3" value="B" /> B. vijjhā́ma</label>
+            <label><input type="radio" name="m2-3" value="C" /> C. vidhyánti</label>
+            <label><input type="radio" name="m2-3" value="D" /> D. vidhyámti</label>
+          </div>
+        </div>
+      </div>
+      <div class="quiz-mantra-round" data-mantra-round="2">
+        <div class="quiz-round-shared">
+          <p class="quiz-cipher-ref">巴利式密写（可能形式，与下栏吠陀咒语原文缺字逐词对应）：</p>
+          <p class="quiz-cipher sans"><strong>vy assā mitrāvaruṇā hadasa cittāni asyatam · atha enaṃ akatuṃ katvā mama eva kataṃ vase</strong></p>
+          <p class="quiz-cipher-ref">吠陀咒语原文（缺字，与上栏逐词对齐）：</p>
+          <p class="mantra-context sans"><strong>vy àsyai mitrā́varuṇau hr̥-dáś cittā́ny asyatam</strong><br /><strong>átha enā́m <span class="current-blank">__(1)__</span> <span class="current-blank">__(2)__</span> máma-evá <span class="current-blank">__(3)__</span> váśe</strong></p>
+          <p class="opt-note">请为下列三处空各选一项（选出与密写规律一致的词形）。</p>
+        </div>
+        <div class="quiz-slide" data-step="6" data-q="m3-1">
+          <p class="quiz-q-sub">空 (1)</p>
+          <div class="options" data-q="m3-1">
+            <label><input type="radio" name="m3-1" value="A" /> A. akrtúṃ</label>
+            <label><input type="radio" name="m3-1" value="B" /> B. akutúṃ</label>
+            <label><input type="radio" name="m3-1" value="C" /> C. akrātúṃ</label>
+            <label><input type="radio" name="m3-1" value="D" /> D. akṛtúṃ</label>
+          </div>
+        </div>
+        <div class="quiz-slide" data-step="7" data-q="m3-2">
+          <p class="quiz-q-sub">空 (2)</p>
+          <div class="options" data-q="m3-2">
+            <label><input type="radio" name="m3-2" value="A" /> A. kṛtvā́</label>
+            <label><input type="radio" name="m3-2" value="B" /> B. kttvā́</label>
+            <label><input type="radio" name="m3-2" value="C" /> C. kattvā́</label>
+            <label><input type="radio" name="m3-2" value="D" /> D. klitvā́</label>
+          </div>
+        </div>
+        <div class="quiz-slide" data-step="8" data-q="m3-3">
+          <p class="quiz-q-sub">空 (3)</p>
+          <div class="options" data-q="m3-3">
+            <label><input type="radio" name="m3-3" value="A" /> A. kṛṇutaṃ</label>
+            <label><input type="radio" name="m3-3" value="B" /> B. kṛṇutáṃ</label>
+            <label><input type="radio" name="m3-3" value="C" /> C. karṇutáṃ</label>
+            <label><input type="radio" name="m3-3" value="D" /> D. kuṇotá</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="quiz-nav">
+        <button type="button" class="btn" id="wg-nextBtn">核对</button>
+      </div>
+      <p id="wg-score" aria-live="polite"></p>
+
+      <div class="mantra-reward" id="wg-reward-m1">
+        <h3>咒语一已通过 · AV 3.25.2 雅译</h3>
+        <p class="gloss-block">吠陀语词形与义</p>
+        <table class="gloss"><tbody class="sans">
+          <tr><td>ā́dhīparṇāṃ</td><td>箭羽（宾格，咒中箭术意象）</td></tr>
+          <tr><td>kā́maśalyāṃ</td><td>爱欲之箭（宾格）</td></tr>
+          <tr><td>íṣuṃ</td><td>箭（宾格）</td></tr>
+          <tr><td>saṃkalpákulmalāṃ</td><td>箭杆接榫处（宾格）</td></tr>
+          <tr><td>tā́ṃ</td><td>那</td></tr>
+          <tr><td>súsaṃnatāṃ</td><td>已充分弯引的（宾格）</td></tr>
+          <tr><td>kṛtvā́</td><td>做了之后（独立式）</td></tr>
+          <tr><td>kā́maḥ</td><td>爱欲（主格）</td></tr>
+          <tr><td>vidhyatu</td><td>愿贯穿（第三人称祈愿）</td></tr>
+          <tr><td>tvā́</td><td>你（宾格）</td></tr>
+          <tr><td>hr̥ dí</td><td>在心中（方位格）</td></tr>
+        </tbody></table>
+        <p class="gloss-block" style="margin-top:0.75rem">吠陀爱咒 · 雅译</p>
+        <div class="verse-translation">
+          <p><strong>以渴为羽，以欲为镞，以执为颈，此矢既成。</strong></p>
+          <p><strong>吾已挽弓，引满待发。愿彼爱神，射汝心中。</strong></p>
+        </div>
+      </div>
+      <div class="mantra-reward" id="wg-reward-m2">
+        <h3>咒语二已通过 · AV 3.25.3— 逐词与雅译</h3>
+        <p class="gloss-block">吠陀语词形与义</p>
+        <table class="gloss"><tbody class="sans">
+          <tr><td>yā́</td><td>那（阴性主格，关系代词）</td></tr>
+          <tr><td>plīhā́naṃ</td><td>脾脏（宾格）</td></tr>
+          <tr><td>śoṣáyati</td><td>使枯干、消竭（动词）</td></tr>
+          <tr><td>kā́masyeṣuḥ</td><td>爱欲之箭（主格复合）</td></tr>
+          <tr><td>súsaṃnatā</td><td>弯引妥当的（主格阴性）</td></tr>
+          <tr><td>prācī́napakṣā</td><td>朝东（随句读）</td></tr>
+          <tr><td>vyòṣā</td><td>火速（注家常释为姜类）</td></tr>
+          <tr><td>táyā</td><td>由彼（阴性具格）</td></tr>
+          <tr><td>vidhyāmi</td><td>我贯穿（第一人称）</td></tr>
+          <tr><td>tvā́</td><td>你（宾格）</td></tr>
+          <tr><td>hr̥ dí</td><td>在心中</td></tr>
+        </tbody></table>
+        <p class="gloss-block" style="margin-top:0.75rem">吠陀爱咒 · 雅译</p>
+        <div class="verse-translation">
+          <p><strong>彼箭既直，爱欲所生。令脾枯竭，疾飞如焚。</strong></p>
+          <p><strong>前羽后焰，销骨蚀魂。我执此矢，贯汝心门。</strong></p>
+        </div>
+      </div>
+      <div class="mantra-reward" id="wg-reward-m3">
+        <h3>咒语三已通过 · AV 3.25.6（祷双神篇 · 伏令归顺）— 逐词与雅译</h3>
+        <p class="gloss-block">吠陀语词形与义</p>
+        <table class="gloss"><tbody class="sans">
+          <tr><td>vy</td><td>分写（常作 vi，与下一词连读）</td></tr>
+          <tr><td>àsyai</td><td>向她（与格）</td></tr>
+          <tr><td>mitrā́varuṇau</td><td>密特拉与伐楼拿两位神（双数主格）</td></tr>
+          <tr><td>hr̥-dáś</td><td>从心中（接后续辅音的形式）</td></tr>
+          <tr><td>cittā́ny</td><td>心念（中性复数宾格）</td></tr>
+          <tr><td>asyatam</td><td>你们二位请为之（双数祈使）</td></tr>
+          <tr><td>átha</td><td>于是</td></tr>
+          <tr><td>enā́m</td><td>此女（宾格）</td></tr>
+          <tr><td>akṛtúṃ</td><td>无意志之人</td></tr>
+          <tr><td>kṛtvā́</td><td>做了之后</td></tr>
+          <tr><td>máma</td><td>我的</td></tr>
+          <tr><td>eva</td><td>正是</td></tr>
+          <tr><td>kṛṇutaṃ</td><td>使其处于</td></tr>
+          <tr><td>váśe</td><td>在支配之下（位格）</td></tr>
+        </tbody></table>
+        <p class="gloss-block" style="margin-top:0.75rem">吠陀爱咒三章 · 雅译</p>
+        <div class="verse-translation">
+          <p><strong>密陀罗兮伐楼那，双神听我祈请言：</strong></p>
+          <p><strong>驱彼心中诸谋计，散其意乱与情缠。</strong></p>
+          <p><strong>然后使其失魂魄，无力无智无主权。</strong></p>
+          <p><strong>置之于我掌中域，永为奴属在跟前。</strong></p>
+        </div>
+      </div>
+
+      <button type="button" class="btn" id="wg-btn-mantra-done" style="display:none;margin-top:1rem" data-go="scene-act1b">下一节</button>
+    </section>
+
+    <section id="scene-act1b" class="scene" aria-label="第一幕续">
+      <h1>第一幕（续）</h1>
+      <div class="block">次日，女子果然性情大变，眼中燃着爱火，主动投入他的怀抱，不久便嫁给了他。</div>
+      <button type="button" class="btn" data-go="scene-act2">下一节</button>
+    </section>
+
+    <section id="scene-act2" class="scene" aria-label="第二幕">
+      <h1>第二幕 · 迦刺底迦夜巡节</h1>
+      <div class="block">婚后不久，迦刺底迦夜巡节将至。妻子对他说：「夫君，我要穿番红花染的红衣，再披一件外衣，依偎在你的怀里，一起过节。」
+
+穷人惊道：「贤妻，我们是穷人，哪里弄得到番红花？你穿干净的旧衣服去玩吧。」
+
+妻子生气地说：「没有番红花染的衣服，我就不去玩。你要是做不到，就带别的女人去好了！」
+
+穷人哀求：「你为什么这样折磨我？我们真的没有番红花啊。」
+
+妻子微笑地说：「人若有欲望，什么办不到？国王的花园里不是种满了番红花吗？」
+
+穷人摇头：「那个花园如同罗刹守护的莲池，守卫森严，根本无法靠近。你不要想这些了，知足吧。」
+
+妻子却道：「夫君，只要人有欲望，就没有不能去的地方。」
+
+穷人喃喃道：「好吧，贤妻，你别担心了。」</div>
+      <button type="button" class="btn" data-go="scene-act3a">下一节</button>
+    </section>
+
+    <section id="scene-act3a" class="scene" aria-label="第三幕前">
+      <h1>第三幕 · 潜行花园</h1>
+      <div class="block">夜深人静，穷人舍命出城，来到国王的番红花园外。高墙耸立，栅栏密布。他听见守卫巡逻的脚步声。他深吸一口气，翻过栅栏，落入花圃之间。</div>
+      <button type="button" class="btn" data-go="scene-garden">下一节</button>
+    </section>
+
+    <!-- 谜题二：番红花园（与原番红花园单页规则、盘面一致） -->
+    <section id="scene-garden" class="scene" tabindex="-1" aria-label="谜题·花园">
+      <pre class="deco" aria-hidden="true" style="color:#2a2a2a">　　花　　花　花
+　　花　　花　　　　　花　　　　　　　花
+　　　花　　　　　　花　　　　　　　　　</pre>
+      <h1>谜题 · 番红花园</h1>
+      <p class="cipher-intro" style="margin-bottom:0.65rem"></p>
+      <div class="g-rules">
+        <p><strong>盘面</strong>：5×5 格，行 1–5 自上向下，列 1–5 自左向右。南中 (5,3)，为入口亦出口。<strong>衛</strong> 占格不可踩，共三处：(2,2)、(2,4)、(4,3)。初视向：<strong>G1 北 · G2 东 · G3 西</strong>。</p>
+        <p><strong>视线</strong>：从守卫格朝视向伸出，逐格直到园界；射线<strong>穿过其他守卫格仍延伸</strong>。地图标出「本步移动<strong>之前</strong>」全体守卫的视场合集，供你对照。</p>
+        <p><strong>一步之内（须同时满足）</strong>：<br />
+        ① 用<strong>移动前</strong>视线判断：<strong>目标格</strong>不得落在任一视线内。<br />
+        ② 你走入目标格；若踩 <strong>花</strong> 且该丛未采，染料 +1。<br />
+        ③ 若目标是 <strong>口</strong> 且染料不足 3：本局<strong>立即失败</strong>（衣裳不够）。<br />
+        ④ 每走一步,三名守卫同时<strong>顺时针</strong>转 90°（北→东→南→西）。用<strong>旋转后</strong>视向判断：你<strong>停留格</strong>不得在任一望场内，否则本步失败（被看见）。</p>
+        <p><strong>胜利</strong>：染料 3，且站在 <strong>口</strong>。<strong>失败</strong>：点「重置」重来。</p>
+        <p><strong>操作</strong>：<kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> 或 <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd>；<kbd>R</kbd> 重置。
+      </div>
+      <div class="g-stats" aria-live="polite">
+        <span>步数 <strong id="wg-stat-steps">0</strong></span>
+        <span>染料 <strong id="wg-stat-dye">0</strong>/3</span>
+        <span><strong id="wg-stat-state">潜行中</strong></span>
+      </div>
+      <div class="g-map-wrap">
+        <p class="g-map-label">列 1—5　行 1—5</p>
+        <div id="wg-grid" class="g-grid" role="grid" aria-label="花园"></div>
+      </div>
+      <div class="quiz-nav">
+        <button type="button" class="btn outline" id="wg-garden-reset">重置</button>
+        <button type="button" class="btn" id="wg-garden-continue" hidden>进入下一页</button>
+      </div>
+      <div id="wg-garden-log" class="g-log" role="log" aria-live="polite"></div>
+    </section>
+
+    <section id="scene-act3b" class="scene" aria-label="第三幕后">
+      <h1>第三幕（续）</h1>
+      <div class="block">你采得三丛红花，揣入怀中，小心翼翼走回栅栏边，翻墙而出——
+
+「啪啦！」栅栏被他踩断，发出巨响。
+
+「有贼！」守卫们蜂拥而至。穷人拼命奔逃，但月光下守卫抓住了他。</div>
+      <button type="button" class="btn" data-go="scene-act4a">下一节</button>
+    </section>
+
+    <section id="scene-act4a" class="scene" aria-label="第四幕">
+      <h1>第四幕 · 受刑与偈颂</h1>
+      <div class="block">国王听闻此事，怒道：「敢偷王花！将他钉在矛上。」
+
+行刑日，穷人被反绑双臂，押出城外。他们将他钉在一根高高的木矛上，竖在荒野。
+
+鲜血顺着矛杆流下。乌鸦闻腥而来，栖息在他头上，用矛尖般尖利的喙啄他的眼睛。
+
+穷人忽然仰天大笑，笑声凄厉。他忘却了肉身的痛苦，心中只有那失去的幻影。他用最后的力气，诵出一首巴利偈颂——
+
+后世写本却错了几个字。请据线索改到能读通，再点「验证」。</div>
+      <button type="button" class="btn" data-go="scene-gatha">下一节</button>
+    </section>
+
+    <!-- 谜题三：偈颂修复（与原 pali-puppharatta-gatha-repair.html 一致） -->
+    <section id="scene-gatha" class="scene" aria-label="谜题·偈颂">
+      <pre class="deco" aria-hidden="true" style="color:#2a2a2a">　　花　　花　花
+　　花　　花　　　　　花　　　　　　　花
+　花　　　　　花　　　　　　　　　</pre>
+      <h1>谜题 · 偈颂修复</h1>
+      <p class="cipher-intro">抄本把若干词写错。对照下方「语言线索」</p>
+      <h2 class="wg-h2" style="margin-top:0.75rem">语言线索</h2>
+      <pre class="clues">dussīla　　 susīla　　 无戒／具戒
+na gacchati　　　　　——　他不去
+“dukkhaṃ” iti āha　　　——　他说：“苦”
+dubbaca　　 suvaca　　 难教／易教
+na khādāmi　　　——　我不吃
+“sukhaṃ” iti vadati　　　——　他说：“快乐”
+dukkara　　 sukara　　 难作／易作
+na passāmi　　　　　 ——　我不见
+“gacchāmi” ti vadati　　 ——　他说：“我去”
+dujjana　　 sujjana　　恶人／善人
+na karoti　　　　　　——　他不做
+dukkha　　　sukha　　　苦／乐
+na jānāmi　　——　我不知
+duccarita　 sucarita　 恶行／善行
+na icchāmi　　　　　 ——　我不欲
+“na karissāmī” ti āha　　——　他说：“我将不做”
+na bhāsati　　　　　 ——　他不说
+na labhati　　　　　 ——　他不得
+……</pre>
+      <p class="repair-label">修复区（可编辑）</p>
+      <div class="repair-wrap">
+        <textarea id="wg-repair" spellcheck="false" autocomplete="off">Na idaṃ sukkhaṃ aduṃ sukkhaṃ yaṃ maṃ tudati vāyaso, yaṃ sāmā puppharattena kattikaṃ nānubhossatīti.</textarea>
+      </div>
+      <div class="quiz-nav">
+        <button type="button" class="btn" id="wg-btn-verify">验证</button>
+        <button type="button" class="btn outline" id="wg-btn-gatha-reset">还原误句</button>
+      </div>
+      <p id="wg-gatha-fb" aria-live="polite"></p>
+      <p class="verse-zh-label">诗句汉译</p>
+      <pre class="verse-zh" aria-label="诗句汉译">鸦啄吾身未足悲，
+所悲黑姝花染衣。
+不得共度迦底夜，
+空留遗恨刺心脾</pre>
+      <div id="wg-winGloss">
+        <h3 style="font-size:var(--zh-size);font-weight:400;color:var(--dim);letter-spacing:0.08em;margin:0 0 0.5rem">偈颂词语（验证通过后显示）</h3>
+        <pre class="gloss-body" style="margin:0;white-space:pre-wrap;word-break:break-word;border-left:2px solid var(--hi);padding-left:0.65rem">na　　　　　不；非
+idaṃ　　　　此（中性近指）
+dukkhaṃ　　苦；令人悲苦者（中性宾格，句中两见）
+aduṃ　　　　彼；那个（中性宾格）
+yaṃ　　所……者；……之事（关系代词，中性宾格）
+maṃ　　我（宾格）
+tudati　　　啄；刺（动词，三单）
+vāyaso　　　乌鸦
+yaṃ　　　　那；后者（第二从句，中性宾格）
+sāmā　　　　肤色黝黑的女子
+puppharattena　以花染衣；着花染之服（具格）
+kattikaṃ　　迦刺底迦节之夜巡庆典
+na　　　　　不（否定）
+anubhossati　能同享；能共度；能一同领受
+iti　　引语收束（“曰”“云”之类）</pre>
+      </div>
+      <button type="button" class="btn" id="wg-btn-after-gatha" style="display:none;margin-top:1rem" data-go="scene-act4b">继续</button>
+    </section>
+
+    <section id="scene-act4b" class="scene" aria-label="第四幕终">
+      <h1>第四幕（终）</h1>
+      <div class="block">诵罢，他气绝身亡。因临死时心中仍贪恋女人，死后堕入地狱——爱欲之业，不因肉身消亡而消散。</div>
+      <button type="button" class="btn" data-go="scene-act5">下一节</button>
+    </section>
+
+    <section id="scene-act5" class="scene" aria-label="第五幕">
+      <h1>第五幕 · 结语</h1>
+      <div class="block">佛陀讲完这个故事，对比丘说：「那时的夫妻，就是如今的你与你的前妻。你因她堕地狱，今又为她出家不安。爱欲如毒箭，当速舍离；勿以出家之衣，掩未断之惑。」
+
+比丘闻法，当下断除执着，证得初果。
+
+</div>
+      <details class="jataka-bridge" id="wg-jataka-chapter-end">
+        <summary>Jātaka No. 147 · 《本生经》巴利语节选与英译（全章回首）</summary>
+        <div class="jb-body">
+          <p style="margin:0 0 1rem;color:var(--dim);line-height:1.65">通章后再读本生原文摘录与英译，或能与前文叙事豁然相应。</p>
+          <h4 class="jb-en" style="margin:0.75rem 0 0.35rem;font-size:1em;color:var(--fg)">一、Jetavana 因缘</h4>
+          <p class="jb-pali" lang="pi">Na idaṃ dukkhaṃ aduṃ dukkhaṃ yaṃ maṃ tudati vāyaso,<br />yaṃ sāmā puppharattena kattikaṃ nānubhossatīti.</p>
+          <div class="jb-en">
+            <p><em>Jātaka No. 147: The Dyer of Flowers — Of Pains and Perfumed Robes.</em> &ldquo;This is not pain, that is not pain,&rdquo; so ran the mournful cry—</p>
+            <p>The Master, dwelling at Jetavana, spake thus concerning a certain monk who had fallen into the grip of longing.</p>
+            <p>For the Blessed One said unto him: &ldquo;Is it true, O monk, that thou art consumed by yearning?&rdquo;</p>
+            <p>&ldquo;It is true, O Lord,&rdquo; replied the monk.</p>
+            <p>&ldquo;And who,&rdquo; asked the Master, &ldquo;hath brought thee to this pass?&rdquo;</p>
+            <p>&ldquo;My former wife, O Lord,&rdquo; he answered. &ldquo;Sweet is the touch of her hand, and without her I cannot live.&rdquo;</p>
+            <p>Then the Master spake: &ldquo;O monk, this woman hath wrought thee naught but woe. In times past, too, because of her, thou wast impaled upon a stake. Even as thou didst breathe thy last, lamenting for her, thou didst fall into hell. Why, then, dost thou long for her again?&rdquo; And so saying, He revealed the story of bygone days.</p>
+          </div>
+          <h4 class="jb-en" style="margin:1rem 0 0.35rem;font-size:1em;color:var(--fg)">二、过去世 · 节期与贫者</h4>
+          <p class="jb-pali" lang="pi">Atīte Bārāṇasiyaṁ Brahmadatte rajjaṁ kārente Bodhisatto ākāsaṭṭhadevatā ahosi. Atha Bārāṇasiyaṁ kattikarattivārachaṇo sampatto hoti, nagaraṁ devanagaraṁ viya alaṃkariṃsu, sabbo jano chaṇakīḷānissito ahosi. Ekassa pana duggatamanussassa ekam eva ghanasāṭakayugaṁ ahosi, so taṁ sudhotaṁ dhovāpetvā obhañjāpetvā satavalikaṁ sahassavalikaṁ kāretvā ṭhapesi.</p>
+          <div class="jb-en">
+            <p>Long ago, when Brahmadatta reigned in Benares, the Bodhisatta dwelt as a deity in the sky.</p>
+            <p>Now in that city, the festival of the Kattika night had come. The townsfolk adorned the city as if it were a heavenly abode, and all gave themselves to merrymaking.</p>
+            <p>But there was a poor man who possessed but a single suit of thick cloth. He had it washed, folded into a hundred and a thousand pleats, and laid it by.</p>
+          </div>
+          <h4 class="jb-en" style="margin:1rem 0 0.35rem;font-size:1em;color:var(--fg)">三、妻求番红花衣</h4>
+          <p class="jb-pali" lang="pi">Atha naṁ bhariyā evam āha: &ldquo;icchām&rsquo; ahaṁ sāmi kusumbharattaṁ nivāsetvā ekaṁ pārupitvā tava kaṇṭhē laggā kattikarattivāraṁ caritun&rdquo; ti. &ldquo;Bhadde, kuto amhākaṁ daliddānaṁ kusumbhaṁ, suddhavatthaṁ nivāsetvā kīḷāhī&rdquo; ti. &ldquo;Kusumbharattaṁ alabhamānā chaṇakīḷaṁ na kīḷissāma, tvaṁ aññaṁ itthiṁ gahetvā kīḷassū&rdquo; ti.</p>
+          <div class="jb-en">
+            <p>Then his wife spake: &ldquo;My lord, I wish to wear a robe dyed with saffron, and a mantle over it, and clinging to thy neck, to keep the Kattika festival.&rdquo;</p>
+            <p>&ldquo;Good wife,&rdquo; said he, &ldquo;we are poor. Where should we find saffron? Put on thy plain garment and go play.&rdquo;</p>
+            <p>&ldquo;If I cannot have a saffron-dyed robe,&rdquo; she cried, &ldquo;I will not keep the feast. Take some other woman and go without me!&rdquo;</p>
+          </div>
+          <h4 class="jb-en" style="margin:1rem 0 0.35rem;font-size:1em;color:var(--fg)">四、夜赴王园</h4>
+          <p class="jb-pali" lang="pi">Iti so tāya punappuna kathentiyā kilesavasena vacanaṃ gahetvā &ldquo;hotu bhadde, mā cintayitthā&rdquo; ti taṃ samassāsetvā rattibhāge jīvitaṃ pariccajitvā nagarā nikkhamitvā rañño kusumbhavatthuṃ gantvā vatiṃ madditvā antovatthuṃ pāvisi.</p>
+          <div class="jb-en">
+            <p>Thus, overcome by the power of his passion, he yielded to her words. &ldquo;So be it, good wife; fret no more,&rdquo; he said.</p>
+            <p>And so, at dead of night, he forsook his very life, stole forth from the city, and came to the king&rsquo;s saffron-garden. He brake through the fence and entered the inner ground.</p>
+          </div>
+          <h4 class="jb-en" style="margin:1rem 0 0.35rem;font-size:1em;color:var(--fg)">五、捕获与处刑</h4>
+          <p class="jb-pali" lang="pi">Ārakkhamanussā vatisaddaṁ sutvā &ldquo;coro&rdquo; ti parivāretvā gahetvā paribhāsitvā koṭṭetvā bandhi. Pabhātāya rattiyā rañño dassesuṁ. Rājā &ldquo;gacchatha, naṁ sūle uttāsethā&rdquo; ti āha. Atha naṁ pacchābāhaṁ bandhitvā nagarā nikkhamitvā sūle uttāsesuṁ. Balavavedanā vattanti, kākā sīse nilīyitvā kaṇayaggasadisehi tuṇḍehi akkhīni vijjhanti.</p>
+          <div class="jb-en">
+            <p>The watchmen heard the sound upon the fence. &ldquo;A thief!&rdquo; they cried, and they surrounded him, seized him, reviled him, beat him, and bound him.</p>
+            <p>When morning broke, they brought him before the king. And the king said: &ldquo;Go, impale him upon a stake.&rdquo;</p>
+            <p>So they bound his arms behind his back, and as the drum of doom was beaten, they led him forth from the city and set him on the spike.</p>
+            <p>Then came great agony. Crows settled upon his head and pecked at his eyes with beaks as sharp as spear-points.</p>
+          </div>
+          <h4 class="jb-en" style="margin:1rem 0 0.35rem;font-size:1em;color:var(--fg)">六、桩上偈颂</h4>
+          <p class="jb-pali" lang="pi">Na idaṃ dukkhaṃ aduṃ dukkhaṃ yaṃ maṃ tudati vāyaso,<br />yaṃ sāmā puppharattena kattikaṃ nānubhossatīti.</p>
+          <div class="jb-en">
+            <p>Yet even such torment he heeded not. He thought only of that woman, and lamenting, he spake this verse:</p>
+            <p>&ldquo;This is not pain, that crow that pecks at me is not the pain;<br />But that my dark-skinned love, in flower-dyed robe, should not with me keep Kattika&rsquo;s night—that, that is pain indeed.&rdquo;</p>
+          </div>
+          <h4 class="jb-en" style="margin:1rem 0 0.35rem;font-size:1em;color:var(--fg)">七、命终</h4>
+          <p class="jb-pali" lang="pi">So tathārūpam pi dukkhaṃ amanasikaritvā tam eva itthiṃ anussaritvā imaṃ gāthaṃ āha. Evaṃ so tassā itthiyā anussaraṇena kālaṃ katvā niraye nibbatti.</p>
+          <div class="jb-en">
+            <p>So he, lamenting for that woman, died and was reborn in hell.</p>
+          </div>
+          <h4 class="jb-en" style="margin:1rem 0 0.35rem;font-size:1em;color:var(--fg)">八、本生对应</h4>
+          <p class="jb-pali" lang="pi">Tadā yā itthī sā etarahi purāṇadutiyikā; yo puriso so etarahi bhikkhu; yā ākāsaṭṭhadevatā sā ahaṃ ahosīti.</p>
+          <div class="jb-en">
+            <p>Then the Master, having taught this truth, linked the birth-story: &ldquo;The husband and wife of that time are now this monk and his former wife; and the deity who stood in the sky was I myself.&rdquo;</p>
+          </div>
+        </div>
+      </details>
+      <button type="button" class="btn outline" data-go="scene-verse">回到开篇</button>
+    </section>
+
+    <footer></footer>
+  </div>
+
+  <section id="transition23-overlay" class="chapter-transition-overlay" hidden aria-hidden="true">
+    <div class="chapter-transition-card">
+      <div id="transition23Text" class="chapter-transition-type"></div>
+      <button type="button" class="btn btn-wg" id="btn-go-level3">下一节</button>
+    </div>
+  </section>
+
+  <script>
+(function () {
+  "use strict";
+  var jp = { test: false, entry: 0 };
+  try {
+    var params = new URLSearchParams(window.location.search);
+    jp.test = params.get("test") === "1";
+    jp.entry = parseInt(params.get("entry") || "0", 10) || 0;
+  } catch (e) {}
+
+  function getJourneyProgress() {
+    var n = 0;
+    try {
+      n = parseInt(localStorage.getItem("siddharthaJourneyProgress") || "0", 10) || 0;
+    } catch (e) {}
+    return n;
+  }
+
+  var progress = getJourneyProgress();
+  if (jp.entry >= 2) {
+    try {
+      localStorage.setItem("siddharthaJourneyProgress", "2");
+    } catch (e) {}
+  }
+  progress = getJourneyProgress();
+
+  if (!jp.test) {
+    if (progress < 1 && jp.entry < 2) {
+      window.location.href = "../prologue/index.html";
+      return;
+    }
+    if (progress < 2 && jp.entry < 2) {
+      window.location.href = "./执水之鸦.html";
+      return;
+    }
+  }
+
+  if (typeof journeyNotifyPage === "function") {
+    journeyNotifyPage("flower", window.location.search ? window.location.search.slice(1) : "");
+  }
+
+  function hideTransition23Overlay() {
+    var o = document.getElementById("transition23-overlay");
+    if (o) {
+      o.hidden = true;
+      o.setAttribute("aria-hidden", "true");
+    }
+    document.body.classList.remove("chapter-transition-on");
+  }
+
+  var wgAct5AutoTimer = null;
+  function showScene(id) {
+    if (typeof journeySaveStage === "function") journeySaveStage("flower", id);
+    if (wgAct5AutoTimer) {
+      clearTimeout(wgAct5AutoTimer);
+      wgAct5AutoTimer = null;
+    }
+    if (id !== "scene-act5") {
+      hideTransition23Overlay();
+    }
+    var nodes = document.querySelectorAll(".scene");
+    for (var i = 0; i < nodes.length; i++) {
+      nodes[i].classList.remove("active");
+    }
+    var el = document.getElementById(id);
+    if (el) {
+      el.classList.add("active");
+      if (id === "scene-garden") {
+        el.focus({ preventScroll: true });
+        if (window.wgGardenReset) window.wgGardenReset();
+      }
+      if (id === "scene-act5") {
+        hideTransition23Overlay();
+        wgAct5AutoTimer = setTimeout(function () {
+          wgAct5AutoTimer = null;
+          var act5 = document.getElementById("scene-act5");
+          if (!act5 || !act5.classList.contains("active")) return;
+          var o23 = document.getElementById("transition23-overlay");
+          if (o23 && o23.hidden) {
+            o23.hidden = false;
+            o23.setAttribute("aria-hidden", "false");
+            document.body.classList.add("chapter-transition-on");
+            playTransition23();
+          }
+        }, 1800);
+      }
+    }
+    window.scrollTo(0, 0);
+    if (window.setStageBackground) window.setStageBackground(id);
+  }
+  try {
+    window.__flowerShowScene = showScene;
+  } catch (eFlowerHook) {}
+
+  if (typeof journeyShouldRestore === "function" && journeyShouldRestore("flower")) {
+    var fs = typeof journeyGetStage === "function" ? journeyGetStage("flower") : null;
+    if (fs && document.getElementById(fs) && document.getElementById(fs).classList.contains("scene")) {
+      showScene(fs);
+    }
+  }
+
+  document.querySelectorAll("[data-go]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      showScene(btn.getAttribute("data-go"));
+    });
+  });
+
+  var transition23Text = document.getElementById("transition23Text");
+  var transition23Timer = null;
+  var transition23Content = "月光洒下。你抬头，看见月亮上有一只兔子的影子——那是《兔本生》里菩萨舍身布施后，帝释天镌在月轮上的记号。\n\n「有人为占有堕地狱，有人以无我布施升月。此一关，试看哪一种路，更近解脱。」";
+  function playTransition23() {
+    if (transition23Timer) clearInterval(transition23Timer);
+    transition23Text.textContent = "";
+    var i = 0;
+    transition23Timer = setInterval(function () {
+      i += 1;
+      transition23Text.textContent = transition23Content.slice(0, i);
+      if (i >= transition23Content.length) {
+        clearInterval(transition23Timer);
+        transition23Timer = null;
+      }
+    }, 30);
+  }
+
+  document.getElementById("btn-go-level3").addEventListener("click", function () {
+    hideTransition23Overlay();
+    try {
+      localStorage.setItem("siddharthaJourneyProgress", "3");
+    } catch (e) {}
+    var q = new URLSearchParams();
+    q.set("entry", "3");
+    if (jp.test) q.set("test", "1");
+    window.location.href = "./月兔之誓.html?" + q.toString();
+  });
+
+  /* ---------- 吠陀九题：三条咒语各 3 题，组内一次选完再「核对」 ---------- */
+  (function () {
+    var KEY = {
+      "m1-1": "B",
+      "m1-2": "C",
+      "m1-3": "D",
+      "m2-1": "A",
+      "m2-2": "B",
+      "m2-3": "C",
+      "m3-1": "D",
+      "m3-2": "A",
+      "m3-3": "B"
+    };
+    var ROUNDS = [
+      { title: "咒语一（AV 3.25.2）· 三处缺字", qids: ["m1-1", "m1-2", "m1-3"], indices: [0, 1, 2] },
+      { title: "咒语二（AV 3.25.3）· 三处缺字", qids: ["m2-1", "m2-2", "m2-3"], indices: [3, 4, 5] },
+      { title: "咒语三（AV 3.25.6）· 三处缺字", qids: ["m3-1", "m3-2", "m3-3"], indices: [6, 7, 8] }
+    ];
+    var slides = Array.prototype.slice.call(document.querySelectorAll("#scene-mantra .quiz-slide"));
+    var mantraRound = 0;
+    var solved = slides.map(function () { return false; });
+    var roundWraps = Array.prototype.slice.call(document.querySelectorAll("#scene-mantra .quiz-mantra-round"));
+    var numEl = document.getElementById("wg-quizNum");
+    var titleEl = document.getElementById("wg-quizTitle");
+    var verifyBtn = document.getElementById("wg-nextBtn");
+    var scoreEl = document.getElementById("wg-score");
+    var doneBtn = document.getElementById("wg-btn-mantra-done");
+    var r1 = document.getElementById("wg-reward-m1");
+    var r2 = document.getElementById("wg-reward-m2");
+    var r3 = document.getElementById("wg-reward-m3");
+
+    var CORRECT_LETTER = {};
+    function shuffleArray(arr) {
+      for (var i = arr.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var t = arr[i];
+        arr[i] = arr[j];
+        arr[j] = t;
+      }
+      return arr;
+    }
+    var CORRECT_OPTION_INDEX = {
+      "m1-1": 1, "m1-2": 2, "m1-3": 3,
+      "m2-1": 0, "m2-2": 1, "m2-3": 2,
+      "m3-1": 3, "m3-2": 0, "m3-3": 1
+    };
+    function orderItemsEvenABCD(items, qid) {
+      var target = CORRECT_OPTION_INDEX[qid];
+      if (target === undefined) {
+        shuffleArray(items);
+        return items;
+      }
+      var correct = [];
+      var wrongs = [];
+      items.forEach(function (item) {
+        if (item.isCorrect) correct.push(item);
+        else wrongs.push(item);
+      });
+      var out = [];
+      var w = 0;
+      for (var i = 0; i < 4; i++) {
+        if (i === target) out.push(correct[0]);
+        else out.push(wrongs[w++]);
+      }
+      return out;
+    }
+    function slideIndexForQid(qid) {
+      for (var i = 0; i < slides.length; i++) {
+        if (slides[i].getAttribute("data-q") === qid) return i;
+      }
+      return -1;
+    }
+    function rebuildOptionLabels() {
+      CORRECT_LETTER = {};
+      slides.forEach(function (slide) {
+        var qid = slide.getAttribute("data-q");
+        if (!qid || !Object.prototype.hasOwnProperty.call(KEY, qid)) return;
+        var correctLetter = KEY[qid];
+        var box = slide.querySelector(".options");
+        if (!box) return;
+        var labels = Array.prototype.slice.call(box.querySelectorAll("label"));
+        var items = labels.map(function (lab) {
+          var inp = lab.querySelector("input");
+          var letter = inp.value;
+          var raw = lab.textContent.replace(/\s+/g, " ").trim();
+          var m = raw.match(/^([A-D])\.\s*(.+)$/);
+          var text = m ? m[2].trim() : raw;
+          return { text: text, isCorrect: letter === correctLetter };
+        });
+        items = orderItemsEvenABCD(items, qid);
+        items.forEach(function (item, i) {
+          item.newLetter = String.fromCharCode(65 + i);
+          if (item.isCorrect) CORRECT_LETTER[qid] = item.newLetter;
+        });
+        box.innerHTML = "";
+        items.forEach(function (item) {
+          var lab = document.createElement("label");
+          var inp = document.createElement("input");
+          inp.type = "radio";
+          inp.name = qid;
+          inp.value = item.newLetter;
+          lab.appendChild(inp);
+          lab.appendChild(document.createTextNode(" " + item.newLetter + ". " + item.text));
+          box.appendChild(lab);
+        });
+      });
+    }
+
+    function updateRewards() {
+      if (solved[0] && solved[1] && solved[2]) r1.classList.add("is-visible");
+      if (solved[3] && solved[4] && solved[5]) r2.classList.add("is-visible");
+      if (solved[6] && solved[7] && solved[8]) r3.classList.add("is-visible");
+      doneBtn.style.display = solved[8] ? "inline-block" : "none";
+    }
+
+    function hideRewards() {
+      [r1, r2, r3].forEach(function (el) { el.classList.remove("is-visible"); });
+      doneBtn.style.display = "none";
+    }
+
+    function clearMarks(qid) {
+      document.querySelectorAll('#scene-mantra .options[data-q="' + qid + '"] label').forEach(function (el) {
+        el.classList.remove("correct", "wrong");
+      });
+    }
+
+    function refreshLocked() {
+      slides.forEach(function (slide, idx) {
+        slide.querySelectorAll('.options input[type="radio"]').forEach(function (inp) {
+          inp.disabled = solved[idx];
+        });
+      });
+    }
+
+    function showMantraRound(r) {
+      mantraRound = Math.max(0, Math.min(2, r));
+      roundWraps.forEach(function (w, i) {
+        w.classList.toggle("is-active", i === mantraRound);
+      });
+      numEl.textContent = String(mantraRound + 1);
+      titleEl.textContent = ROUNDS[mantraRound].title;
+      refreshLocked();
+      updateRewards();
+      if (solved[8]) {
+        verifyBtn.disabled = true;
+        verifyBtn.textContent = "已完成";
+        scoreEl.textContent = "恭喜，三咒九处全部通过！";
+        return;
+      }
+      verifyBtn.disabled = false;
+      verifyBtn.textContent = "核对";
+      var rd = ROUNDS[mantraRound];
+      var allSolved = rd.indices.every(function (si) { return solved[si]; });
+      if (allSolved && mantraRound < 2) {
+        scoreEl.textContent = "本咒已通过。请继续下一条咒语。";
+      } else if (allSolved && mantraRound === 2) {
+        scoreEl.textContent = "恭喜，三咒九处全部通过！";
+      } else {
+        scoreEl.textContent = "请为本咒三道题各选一项，然后点「核对」。";
+      }
+    }
+
+    function verifyCurrentRound() {
+      if (solved[8]) return;
+      var rd = ROUNDS[mantraRound];
+      var qids = rd.qids;
+      var anyUnsolved = rd.indices.some(function (si) { return !solved[si]; });
+      if (!anyUnsolved) {
+        if (mantraRound < 2) showMantraRound(mantraRound + 1);
+        return;
+      }
+      qids.forEach(function (qid) { clearMarks(qid); });
+      for (var i = 0; i < qids.length; i++) {
+        var qid = qids[i];
+        var sel = document.querySelector('#scene-mantra .options[data-q="' + qid + '"] input:checked');
+        if (!sel) {
+          scoreEl.textContent = "请为本咒三道题各选一项，再点「核对」。";
+          return;
+        }
+      }
+      var allOk = true;
+      for (var j = 0; j < qids.length; j++) {
+        var qid2 = qids[j];
+        var sel2 = document.querySelector('#scene-mantra .options[data-q="' + qid2 + '"] input:checked');
+        var lab = sel2.closest("label");
+        if (sel2.value === CORRECT_LETTER[qid2]) lab.classList.add("correct");
+        else {
+          lab.classList.add("wrong");
+          allOk = false;
+        }
+      }
+      if (!allOk) {
+        scoreEl.textContent = "本咒有错误选项，请改正后再次点「核对」。";
+        return;
+      }
+      rd.indices.forEach(function (si) { solved[si] = true; });
+      refreshLocked();
+      updateRewards();
+      if (mantraRound < 2) {
+        scoreEl.textContent = "本咒全部正确！进入下一咒。";
+        showMantraRound(mantraRound + 1);
+      } else {
+        scoreEl.textContent = "恭喜，三咒九处全部通过！";
+        verifyBtn.disabled = true;
+        verifyBtn.textContent = "已完成";
+      }
+    }
+
+    rebuildOptionLabels();
+    verifyBtn.addEventListener("click", verifyCurrentRound);
+
+    document.getElementById("scene-mantra").addEventListener("change", function (e) {
+      var inp = e.target;
+      if (!inp.matches || !inp.matches('.options input[type="radio"]')) return;
+      var box = inp.closest(".options");
+      if (!box) return;
+      var qid = box.getAttribute("data-q");
+      var idx = slideIndexForQid(qid);
+      if (idx < 0 || solved[idx]) return;
+      clearMarks(qid);
+    });
+
+    var resetBtn = document.getElementById("wg-resetMantra");
+    if (resetBtn) {
+      resetBtn.addEventListener("click", function () {
+        mantraRound = 0;
+        solved = slides.map(function () { return false; });
+        rebuildOptionLabels();
+        document.querySelectorAll('#scene-mantra input[type="radio"]').forEach(function (r) {
+          r.checked = false;
+          r.disabled = false;
+        });
+        document.querySelectorAll("#scene-mantra .options label").forEach(function (el) {
+          el.classList.remove("correct", "wrong");
+        });
+        scoreEl.textContent = "";
+        hideRewards();
+        verifyBtn.disabled = false;
+        verifyBtn.textContent = "核对";
+        showMantraRound(0);
+      });
+    }
+
+    showMantraRound(0);
+  })();
+
+  /* ---------- 番红花园 ---------- */
+  (function () {
+    var N = 5;
+    var DIRS = [ [-1, 0], [0, 1], [1, 0], [0, -1] ];
+    var DIR_NAMES = ["北", "东", "南", "西"];
+    var DIR_ARROW = ["↑", "→", "↓", "←"];
+    var GUARD_CELLS = [ [1, 1], [1, 3], [3, 2] ];
+    var INITIAL_GUARD_DIR = [0, 1, 3];
+    var ENT = [4, 2];
+    var FLOWERS = [ [0, 2], [3, 4], [4, 0] ];
+
+    function keyCell(r, c) { return r + "," + c; }
+    function isBlocked(r, c) {
+      for (var i = 0; i < GUARD_CELLS.length; i++) {
+        var g = GUARD_CELLS[i];
+        if (g[0] === r && g[1] === c) return true;
+      }
+      return false;
+    }
+    function flowerIndex(r, c) {
+      for (var i = 0; i < FLOWERS.length; i++) {
+        if (FLOWERS[i][0] === r && FLOWERS[i][1] === c) return i;
+      }
+      return -1;
+    }
+    function rotIdx(d, k) { return ((d + k) % 4 + 4) % 4; }
+    function rayCells(gr, gc, di) {
+      var dr = DIRS[di][0], dc = DIRS[di][1];
+      var out = [];
+      var rr = gr + dr, cc = gc + dc;
+      while (rr >= 0 && rr < N && cc >= 0 && cc < N) {
+        out.push([rr, cc]);
+        rr += dr;
+        cc += dc;
+      }
+      return out;
+    }
+    function visibleSet(guardDirs) {
+      var vis = {};
+      for (var i = 0; i < GUARD_CELLS.length; i++) {
+        var g = GUARD_CELLS[i];
+        var cells = rayCells(g[0], g[1], guardDirs[i]);
+        for (var j = 0; j < cells.length; j++) {
+          vis[keyCell(cells[j][0], cells[j][1])] = true;
+        }
+      }
+      return vis;
+    }
+    function dirsAtTurn(t) {
+      return [
+        rotIdx(INITIAL_GUARD_DIR[0], t),
+        rotIdx(INITIAL_GUARD_DIR[1], t),
+        rotIdx(INITIAL_GUARD_DIR[2], t)
+      ];
+    }
+
+    var state = {
+      pr: ENT[0], pc: ENT[1], moves: 0, flowerMask: 0, over: false, won: false
+    };
+
+    function popcount(m) {
+      var n = 0;
+      while (m) { n += m & 1; m >>>= 1; }
+      return n;
+    }
+
+    function logLine(html, cls) {
+      var log = document.getElementById("wg-garden-log");
+      var p = document.createElement("div");
+      if (cls) p.className = cls;
+      p.innerHTML = html;
+      log.appendChild(p);
+      log.scrollTop = log.scrollHeight;
+    }
+    function clearLog() {
+      document.getElementById("wg-garden-log").innerHTML = "";
+    }
+
+    function renderGrid() {
+      var grid = document.getElementById("wg-grid");
+      grid.innerHTML = "";
+      var t = state.moves;
+      var dirsNow = dirsAtTurn(t);
+      var los = visibleSet(dirsNow);
+      var corner = document.createElement("div");
+      grid.appendChild(corner);
+      for (var c = 0; c < N; c++) {
+        var h = document.createElement("div");
+        h.className = "g-col-h";
+        h.textContent = String(c + 1);
+        grid.appendChild(h);
+      }
+      for (var r = 0; r < N; r++) {
+        var rh = document.createElement("div");
+        rh.className = "g-row-h";
+        rh.textContent = String(r + 1);
+        grid.appendChild(rh);
+        for (c = 0; c < N; c++) {
+          var cell = document.createElement("div");
+          cell.className = "g-cell";
+          if (los[keyCell(r, c)]) cell.classList.add("los");
+          if (r === ENT[0] && c === ENT[1]) cell.classList.add("ent");
+          if (isBlocked(r, c)) {
+            cell.classList.add("blocked");
+            var gi = 0;
+            for (var gs = 0; gs < GUARD_CELLS.length; gs++) {
+              if (GUARD_CELLS[gs][0] === r && GUARD_CELLS[gs][1] === c) { gi = gs; break; }
+            }
+            var gd = dirsNow[gi];
+            cell.innerHTML = '<span class="glyph-guard">衛</span><span class="sub">' + DIR_ARROW[gd] + DIR_NAMES[gd] + "</span>";
+          } else {
+            var fi = flowerIndex(r, c);
+            var picked = fi >= 0 && (state.flowerMask & (1 << fi));
+            if (fi >= 0 && !picked) {
+              cell.innerHTML = '<span class="glyph-flower">花</span>';
+            } else if (r === ENT[0] && c === ENT[1]) {
+              cell.innerHTML = '<span class="glyph-ent">口</span><span class="sub">门</span>';
+            } else {
+              cell.textContent = "·";
+            }
+            if (fi >= 0 && picked) cell.classList.add("flower-picked");
+          }
+          if (r === state.pr && c === state.pc) {
+            cell.classList.add("player");
+            var fiH = flowerIndex(r, c);
+            var pk = fiH >= 0 && (state.flowerMask & (1 << fiH));
+            if (fiH >= 0 && !pk) {
+              cell.innerHTML = '<span class="glyph-player">夫</span><span class="sub">花旁</span>';
+            } else if (r === ENT[0] && c === ENT[1]) {
+              cell.innerHTML = '<span class="glyph-player">夫</span><span class="sub">口</span>';
+            } else if (fiH >= 0 && pk) {
+              cell.innerHTML = '<span class="glyph-player">夫</span><span class="sub">已采</span>';
+            } else {
+              cell.innerHTML = '<span class="glyph-player">夫</span>';
+            }
+          }
+          grid.appendChild(cell);
+        }
+      }
+    }
+
+    function updateStats() {
+      document.getElementById("wg-stat-steps").textContent = String(state.moves);
+      document.getElementById("wg-stat-dye").textContent = String(popcount(state.flowerMask));
+      var el = document.getElementById("wg-stat-state");
+      el.textContent = state.over ? (state.won ? "脱身" : "已败") : "潜行中";
+    }
+
+    function fail(msg) {
+      state.over = true;
+      state.won = false;
+      logLine(msg, "e");
+      updateStats();
+      renderGrid();
+    }
+
+    function winGarden() {
+      state.over = true;
+      state.won = true;
+      logLine("三丛入手，你摸向栅栏……", "ok");
+      updateStats();
+      renderGrid();
+      var gc = document.getElementById("wg-garden-continue");
+      if (gc) gc.hidden = false;
+    }
+
+    function tryMove(dr, dc) {
+      if (state.over) return;
+      var nr = state.pr + dr;
+      var nc = state.pc + dc;
+      if (nr < 0 || nr >= N || nc < 0 || nc >= N) return;
+      if (isBlocked(nr, nc)) {
+        logLine("衛卒立足处，不可踏。", "e");
+        return;
+      }
+      var t = state.moves;
+      var losB = visibleSet(dirsAtTurn(t));
+      if (losB[keyCell(nr, nc)]) {
+        fail("踏入视线——已被看见。（按 R 重置）");
+        return;
+      }
+      var losA = visibleSet(dirsAtTurn(t + 1));
+      if (losA[keyCell(nr, nc)]) {
+        fail("守卫转过头来——仍落在视线上。（按 R 重置）");
+        return;
+      }
+      state.pr = nr;
+      state.pc = nc;
+      state.moves = t + 1;
+      var fi = flowerIndex(nr, nc);
+      if (fi >= 0 && !(state.flowerMask & (1 << fi))) {
+        state.flowerMask |= 1 << fi;
+        logLine("摘得番红一份。（" + popcount(state.flowerMask) + "/3）");
+      }
+      if (nr === ENT[0] && nc === ENT[1]) {
+        if (popcount(state.flowerMask) < 3) {
+          state.over = true;
+          state.won = false;
+          logLine("未满三份便回门口——她不肯罢休。（按 R 重置）", "e");
+          updateStats();
+          renderGrid();
+          return;
+        }
+        winGarden();
+        return;
+      }
+      var dname = dr === -1 ? "上" : dr === 1 ? "下" : dc === -1 ? "左" : "右";
+      logLine("向" + dname + "一步 →（" + (nr + 1) + "，" + (nc + 1) + "）");
+      updateStats();
+      renderGrid();
+    }
+
+    function resetGame() {
+      state = { pr: ENT[0], pc: ENT[1], moves: 0, flowerMask: 0, over: false, won: false };
+      clearLog();
+      logLine("立在门口（5，3）。");
+      updateStats();
+      renderGrid();
+    }
+
+    window.wgGardenReset = resetGame;
+    document.getElementById("wg-garden-reset").addEventListener("click", function () {
+      resetGame();
+      var gc = document.getElementById("wg-garden-continue");
+      if (gc) gc.hidden = true;
+      document.getElementById("scene-garden").focus({ preventScroll: true });
+    });
+
+    document.getElementById("wg-garden-continue").addEventListener("click", function () {
+      var gc = document.getElementById("wg-garden-continue");
+      if (gc) gc.hidden = true;
+      showScene("scene-act3b");
+    });
+
+    document.addEventListener("keydown", function (e) {
+      var st = document.getElementById("scene-garden");
+      if (!st || !st.classList.contains("active")) return;
+      var k = e.key.toLowerCase();
+      if (k === "r" && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        resetGame();
+        return;
+      }
+      if (k === "w" || e.key === "ArrowUp") { e.preventDefault(); tryMove(-1, 0); }
+      else if (k === "s" || e.key === "ArrowDown") { e.preventDefault(); tryMove(1, 0); }
+      else if (k === "a" || e.key === "ArrowLeft") { e.preventDefault(); tryMove(0, -1); }
+      else if (k === "d" || e.key === "ArrowRight") { e.preventDefault(); tryMove(0, 1); }
+    });
+
+    renderGrid();
+  })();
+
+  /* ---------- 偈颂修复 ---------- */
+  (function () {
+    var WRONG = "Na idaṃ sukkhaṃ aduṃ sukkhaṃ yaṃ maṃ tudati vāyaso, yaṃ sāmā puppharattena kattikaṃ nānubhossatīti.";
+    var EXPECTED = "Na idaṃ dukkhaṃ aduṃ dukkhaṃ yaṃ maṃ tudati vāyaso, yaṃ sāmā puppharattena kattikaṃ na anubhossati iti.";
+    var ta = document.getElementById("wg-repair");
+    var fb = document.getElementById("wg-gatha-fb");
+    var gloss = document.getElementById("wg-winGloss");
+    var after = document.getElementById("wg-btn-after-gatha");
+
+    function normalize(s) {
+      return String(s).replace(/\r\n/g, "\n").trim().replace(/\s+/g, " ");
+    }
+    function stripDot(s) { return s.replace(/\.\s*$/, ""); }
+
+    function verify() {
+      var n = normalize(ta.value);
+      fb.classList.remove("ok", "bad");
+      if (stripDot(n) === stripDot(normalize(EXPECTED))) {
+        fb.textContent = "偈颂已通。";
+        fb.classList.add("ok");
+        gloss.classList.add("on");
+        after.style.display = "inline-block";
+      } else {
+        gloss.classList.remove("on");
+        fb.textContent = "未通过。";
+        fb.classList.add("bad");
+        after.style.display = "none";
+      }
+    }
+
+    document.getElementById("wg-btn-verify").addEventListener("click", verify);
+    document.getElementById("wg-btn-gatha-reset").addEventListener("click", function () {
+      ta.value = WRONG;
+      fb.textContent = "";
+      fb.classList.remove("ok", "bad");
+      gloss.classList.remove("on");
+      after.style.display = "none";
+    });
+
+  })();
+  })();
+
+  if (window.setStageBackground) setStageBackground("scene-verse");
+</script>
+  <script src="../assets/gear-neon-corners.js"></script>
+  <script src="../assets/gear-neon-skip.js"></script>
+</body>
+</html>

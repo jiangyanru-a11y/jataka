@@ -1,0 +1,2446 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>衔水之鸦</title>
+  <link rel="stylesheet" href="../assets/indian-pixel-frame.css" />
+  <link rel="stylesheet" href="../assets/stage-bg.css" />
+  <link rel="stylesheet" href="../assets/gear-neon-shell.css" />
+  <style>
+
+:root { --bg:rgba(90,90,94,0.5); --fg:#fff; --muted:#bbb; --hi:#fff; --border:#444; --ok:#9f9; --bad:#f66;
+  --pali-size: var(--letter-min); --pali-lh:1.85; --pali-track:0.02em; }
+* { box-sizing: border-box; }
+html, body { margin:0; min-height:100vh; background:transparent; color:var(--fg);
+  font-family: var(--font-zh-hei);
+  font-size: var(--zh-size); line-height:1.6; }
+#mission-bar { position:relative; z-index:2; border:none; outline:none; box-shadow:none; border-bottom:1px solid rgba(196,165,116,0.2); background:var(--game-panel-bg); width:var(--game-column); margin:1.1rem auto 0; padding:0.45rem 0.75rem; font-size: var(--zh-size); color:var(--muted); text-align:center; }
+#mission-bar strong { color:var(--fg); font-size: clamp(1.22em, 3.2vw, 1.58em); font-weight: 700; letter-spacing: 0.03em; }
+.shell { width:var(--game-column); margin:0 auto 1.1rem; padding:0.8rem 0.9rem 1.2rem; position:relative; z-index:1; background:var(--game-panel-bg); border:var(--game-panel-border); outline:none; box-shadow:none; }
+/* Full-screen typographic scrim — hides the miniature background; keep off */
+.sea-deco { display: none !important; }
+.stage {
+  display:none;
+  background:transparent;
+}
+.stage.active { display:block; }
+.narrative { border:none; padding:1rem; margin:0.65rem 0; white-space:pre-wrap; }
+.narrative.tight { white-space:normal; }
+.pali, .pali-block .pali {
+  font-family: "Times New Roman", "Noto Serif", "Source Serif 4", Georgia, serif;
+  font-size: var(--pali-size);
+  line-height: var(--pali-lh);
+  letter-spacing: var(--pali-track);
+}
+.pali-block .pali { margin:0.35rem 0; }
+/* 开篇偈：与花染衣「pali-open」同规格；全篇 .pali 与此一致 */
+.pali-open {
+  font-family: "Times New Roman", "Noto Serif", "Source Serif 4", Georgia, serif;
+  font-size: var(--pali-size);
+  line-height: var(--pali-lh);
+  letter-spacing: var(--pali-track);
+  margin: 1rem 0 1.25rem;
+  padding: 0.75rem 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  white-space: normal;
+}
+.muted { color:var(--muted); }
+.small { font-size: var(--zh-size); }
+.scene-tag { color:var(--hi); font-size: var(--zh-size); margin:0.25rem 0 0.5rem; letter-spacing:0.06em; }
+.h-wg { font-size:1.05em; font-weight:600; border-bottom:1px solid #444; padding-bottom:0.35rem; margin:0.5rem 0; }
+.btn-wg { margin:0.5rem 0.15rem 0 0; padding:0.4rem 0.85rem; background:var(--bg); color:var(--fg);
+  border:1px solid var(--border); font:inherit; cursor:pointer; }
+.btn-wg:hover { outline:2px solid var(--hi); }
+.system-hint { font-size: var(--zh-size); color:var(--muted); border-left:3px solid var(--hi); padding-left:0.65rem; margin:0.75rem 0; }
+.bridge-win-banner { border-color:#666; }
+.finale-block { margin-top:1rem; }
+
+/* Hanoi puzzle — adapt to monochrome */
+.puzzle-hn .wrap { max-width:980px; margin:0 auto; display:grid; gap:10px; }
+.puzzle-hn .card { background:rgba(72,72,76,0.55); backdrop-filter:blur(4px); border:1px solid #444; border-radius:10px; padding:10px; color:var(--fg); }
+.puzzle-hn h1 { font-size:1.35em; color:var(--fg); margin:0 0 6px; }
+.puzzle-hn h2 { font-size:1.05em; color:var(--hi); margin:0 0 6px; }
+.puzzle-hn .meta, .puzzle-hn .tip { color:var(--muted); font-size: var(--zh-size); }
+.puzzle-hn .tag { border:1px solid #666; border-radius:999px; padding:2px 8px; font-size: var(--zh-size); }
+.puzzle-hn button { border:1px solid #666; background:#1a1a1a; color:var(--fg); border-radius:6px; padding:6px 10px; cursor:pointer; font-size: var(--letter-min); }
+.puzzle-hn button:hover { border-color:var(--hi); }
+.puzzle-hn .btns { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+.puzzle-hn .hanoi-board { display:flex; gap:10px; justify-content:center; align-items:flex-end; min-height:210px; padding:8px 4px 0; }
+.puzzle-hn .hanoi-peg { flex:1; max-width:220px; display:flex; flex-direction:column; align-items:center; min-width:0; }
+.puzzle-hn .peg-label { font-size:var(--zh-size); color:var(--hi); margin-bottom:6px; text-align:center; line-height:1.35; }
+.puzzle-hn .peg-stack { position:relative; width:100%; min-height:168px; display:flex; flex-direction:column-reverse; align-items:center; justify-content:flex-start; border-bottom:4px solid #555; cursor:pointer; padding-bottom:2px; box-sizing:border-box; }
+.puzzle-hn .peg-stack::before { content:""; position:absolute; bottom:0; left:50%; transform:translateX(-50%); width:10px; height:78%; background:#444; border-radius:4px 4px 0 0; z-index:0; }
+.puzzle-hn .peg-stack.peg-target { outline:2px dashed var(--hi); outline-offset:2px; }
+.puzzle-hn .peg-stack.shake { animation:hn-shake 0.35s ease; }
+@keyframes hn-shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-4px)} 75%{transform:translateX(4px)} }
+.puzzle-hn .hanoi-disk { position:relative; z-index:1; height:26px; margin-bottom:3px; border-radius:5px; border:1px solid; display:flex; align-items:center; justify-content:center; font-size:var(--zh-size); cursor:pointer; user-select:none; transition:outline 0.12s, transform 0.12s; }
+.puzzle-hn .hanoi-disk.selected { outline:2px solid var(--hi); outline-offset:2px; transform:translateY(-3px); }
+.puzzle-hn .disk-4 { width:94%; background:#3d2817; border-color:#7a5030; }
+.puzzle-hn .disk-3 { width:76%; background:#2a3540; border-color:#5a6a7a; }
+.puzzle-hn .disk-2 { width:58%; background:#3a3830; border-color:#6a6860; }
+.puzzle-hn .disk-1 { width:40%; background:#4a3520; border-color:#9a7538; }
+.puzzle-hn .log { background:rgba(90, 90, 94, 0.5); backdrop-filter: blur(4px); border:1px solid #333; color:#ddd; max-height:160px; overflow-y:auto; padding:6px 8px; font-size:var(--zh-size); }
+.puzzle-hn .log .ok { color:var(--ok); }
+.puzzle-hn .log .bad { color:var(--bad); }
+.puzzle-hn .hanoi-rules {
+  margin-top: 0.75rem;
+  padding-top: 0.65rem;
+  border-top: 1px solid #333;
+  font-size: var(--zh-size);
+  line-height: 1.68;
+  text-align: left;
+  max-width: 100%;
+  color: var(--muted);
+}
+.puzzle-hn .hanoi-rules h3 {
+  font-size: 1.05em;
+  font-weight: 600;
+  color: var(--fg);
+  margin: 0.85rem 0 0.35rem;
+  letter-spacing: 0.04em;
+}
+.puzzle-hn .hanoi-rules h3:first-child { margin-top: 0.25rem; }
+.puzzle-hn .hanoi-rules ul { margin: 0.35rem 0 0.55rem; padding-left: 1.15rem; }
+.puzzle-hn .hanoi-rules li { margin: 0.28rem 0; }
+.puzzle-hn .hn-teach-banner { margin-top:0.75rem; padding:0.65rem 0.75rem; border:1px solid #555; background:rgba(30,24,18,0.6); }
+
+/* 蛇梯 · 业径（衔水第二关） */
+.puzzle-sl { max-width:980px; margin:0 auto; }
+.puzzle-sl .sl-card { background:rgba(72,72,76,0.55); backdrop-filter:blur(4px); border:1px solid #444; border-radius:10px; padding:14px; color:var(--fg); margin-bottom:12px; }
+.puzzle-sl h1 { font-size:1.25em; margin:0 0 8px; color:var(--hi); }
+.puzzle-sl .sl-board-wrap { overflow-x:auto; padding:4px 0; }
+.puzzle-sl .sl-board {
+  display:grid;
+  grid-template-columns:repeat(5, minmax(52px, 1fr));
+  grid-template-rows:repeat(6, minmax(52px, 1fr));
+  gap:4px;
+  max-width:520px;
+  margin:0 auto 12px;
+}
+.puzzle-sl .sl-cell {
+  border:1px solid #555;
+  background:rgba(56,56,60,0.6); backdrop-filter:blur(3px);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  font-size:var(--zh-size);
+  line-height:1.25;
+  padding:2px;
+  user-select:none;
+}
+.puzzle-sl .sl-cell .sl-n { font-weight:700; color:var(--muted); font-size:0.75em; }
+.puzzle-sl .sl-cell .sl-t { font-size:0.68em; color:var(--fg); letter-spacing:0.02em; line-height:1.15; white-space:normal; max-width:100%; }
+.puzzle-sl .sl-start { outline:2px solid #6a9; outline-offset:-1px; }
+.puzzle-sl .sl-goal { outline:2px solid #c4a574; outline-offset:-1px; }
+.puzzle-sl .sl-way { border-color:#c4a574; background:#1a1610; }
+.puzzle-sl .sl-lad { border-color:#5a8a5a; background:#0f1810; }
+.puzzle-sl .sl-snake { border-color:#8a4545; background:#180f0f; }
+.puzzle-sl .sl-here { box-shadow:0 0 0 2px var(--fg) inset; background:#222; }
+.puzzle-sl .sl-trail { opacity:0.85; }
+.puzzle-sl .sl-ctrl { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:10px 0; }
+.puzzle-sl .sl-ctrl button { border:1px solid #666; background:#1a1a1a; color:var(--fg); padding:8px 12px; cursor:pointer; font:inherit; font-size:var(--zh-size); }
+.puzzle-sl .sl-ctrl button:hover { border-color:var(--hi); }
+.puzzle-sl .sl-ctrl .sl-step { min-width:3.2em; font-weight:700; }
+.puzzle-sl #sl-feedback { min-height:1.6em; margin-top:8px; font-size:var(--zh-size); }
+.puzzle-sl #sl-feedback.ok { color:var(--ok); }
+.puzzle-sl #sl-feedback.bad { color:var(--bad); }
+.puzzle-sl .sl-meta { color:var(--muted); font-size:var(--zh-size); line-height:1.65; margin-top:8px; }
+.puzzle-sl .sl-legend { display:flex; flex-wrap:wrap; gap:10px 16px; margin-top:10px; font-size:var(--zh-size); color:var(--muted); }
+.puzzle-sl .sl-legend span { display:inline-flex; align-items:center; gap:6px; }
+.puzzle-sl .sl-dot { width:10px; height:10px; border-radius:2px; border:1px solid #666; }
+
+/* Verse repair */
+.puzzle-cv .wrap { max-width:100%; width:100%; margin:0 auto; padding:0.65rem 0.2rem; box-sizing:border-box; }
+.puzzle-cv header { text-align:center; margin-bottom:1rem; }
+.puzzle-cv .cv-section-label { text-align:center; font-size:1.05em; font-weight:600; margin:0.15rem 0 0.85rem; color:var(--hi); letter-spacing:0.06em; }
+.puzzle-cv h1 { font-size:1.2em; color:var(--hi); }
+.puzzle-cv .lede { color:var(--muted); font-size: var(--zh-size); }
+.puzzle-cv section { background:rgba(72,72,76,0.55); backdrop-filter:blur(4px); border:1px solid #444; border-radius:8px; padding:1rem; margin-bottom:1rem; }
+.puzzle-cv section h2 { color:var(--hi); font-size:1.05em; border-bottom:1px solid #444; padding-bottom:0.35rem; }
+.puzzle-cv .pali { color:var(--fg); }
+.puzzle-cv .zh-note { color:var(--muted); border-left-color:var(--hi); }
+.puzzle-cv .wrong-layout { background:rgba(80,40,40,0.15); border-color:#633; }
+.puzzle-cv .wrong-poem h3 { color:var(--bad); }
+.puzzle-cv .particle-side { border-color:var(--hi); background:rgba(56,56,60,0.6); backdrop-filter:blur(3px); }
+.puzzle-cv .particle-token { color:var(--hi); }
+.puzzle-cv #cv-repair { background:rgba(90, 90, 94, 0.52); backdrop-filter: blur(4px); color:var(--fg); border-color:#666; }
+.puzzle-cv button { background:var(--fg); color:var(--bg); border:1px solid var(--fg); }
+.puzzle-cv button.secondary { background:transparent; color:var(--fg); }
+.puzzle-cv button.tertiary { background:transparent; color:var(--muted); border-color:#666; }
+.puzzle-cv #cv-feedback.ok { color:var(--ok); }
+.puzzle-cv #cv-feedback.bad { color:var(--bad); }
+.puzzle-cv .hint-panel { background:#141414; border-color:#444; color:var(--muted); }
+.puzzle-cv #cv-finale { border-top-color:var(--hi); }
+.puzzle-cv footer { color:var(--muted); font-size: var(--zh-size); }
+
+.jataka-bridge { margin:1rem 0; padding:0.55rem 0.7rem; border:1px solid rgba(196,165,116,0.35); background:rgba(18,16,12,0.55); font-size:var(--zh-size); }
+.jataka-bridge summary { cursor:pointer; color:#c4a574; font-weight:600; letter-spacing:0.04em; list-style-position:outside; }
+.jataka-bridge .jb-body { margin-top:0.6rem; padding-top:0.6rem; border-top:1px solid var(--border); }
+.jataka-bridge .jb-pali { font-family:"Times New Roman","Noto Serif","Source Serif 4",Georgia,serif; font-size:var(--pali-size); line-height:var(--pali-lh); letter-spacing:var(--pali-track); color:var(--fg); white-space:normal; margin:0 0 0.75rem; }
+.jataka-bridge .jb-en { color:var(--muted); line-height:1.72; }
+.jataka-bridge .jb-en h4 { color:var(--fg); font-size:1em; margin:0.75rem 0 0.35rem; font-weight:600; }
+.jataka-bridge .jb-en p { margin:0.45rem 0; }
+
+    :root {
+      --bg: #0f0f0f;
+      --panel: #1b1b1b;
+      --line: #383838;
+      --text: #f2f2f2;
+      --sub: #bcbcbc;
+      --accent: #ffd166;
+      --ok: #7ddc8b;
+      --bad: #ff9090;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 16px;
+      background: transparent;
+      color: var(--text);
+      font-family: var(--font-zh-hei);
+      font-size: var(--zh-size);
+    }
+    .wrap { max-width: 980px; margin: 0 auto; display: grid; gap: 12px; }
+    .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px; }
+    h1, h2, h3 { margin: 0 0 8px 0; }
+    h1 { font-size: 34px; line-height: 1.2; }
+    h2 { font-size: max(1.05em, var(--letter-min)); color: var(--accent); }
+    .meta { display: flex; flex-wrap: wrap; gap: 10px; color: var(--sub); font-size: 18px; }
+    .tag { border: 1px solid #666; border-radius: 999px; padding: 4px 12px; font-size: 18px; color: #ddd; }
+    .tip { color: var(--sub); font-size: var(--zh-size); }
+    .btns, .hand { display: flex; flex-wrap: wrap; gap: 8px; }
+    button {
+      border: 1px solid #666;
+      background: #2a2a2a;
+      color: var(--text);
+      border-radius: 8px;
+      padding: 8px 10px;
+      cursor: pointer;
+      font-size: var(--letter-min);
+    }
+    button:hover { border-color: var(--accent); }
+    button:disabled { opacity: .45; cursor: not-allowed; }
+
+    .table-wrap {
+      margin-top: 8px;
+      border: 1px solid #444;
+      border-radius: 14px;
+      background: radial-gradient(circle at 50% 45%, #242424, #171717 68%);
+      padding: 10px;
+    }
+    .table {
+      position: relative;
+      height: 360px;
+      border: 1px dashed #555;
+      border-radius: 12px;
+    }
+    .seat {
+      position: absolute;
+      min-width: 160px;
+      text-align: center;
+      font-size: var(--zh-size);
+      color: #ddd;
+    }
+    .seat .name { color: var(--accent); margin-bottom: 4px; }
+    .north { top: 8px; left: 50%; transform: translateX(-50%); }
+    .south { bottom: 8px; left: 50%; transform: translateX(-50%); }
+    .west { left: 10px; top: 50%; transform: translateY(-50%); }
+    .east { right: 10px; top: 50%; transform: translateY(-50%); }
+
+    .played {
+      margin-top: 3px;
+      min-height: 30px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .pcard {
+      border: 1px solid #707070;
+      border-radius: 8px;
+      min-width: 58px;
+      text-align: center;
+      padding: 5px 8px;
+      background: #202020;
+      transition: transform .25s ease, box-shadow .25s ease;
+      box-shadow: 0 0 0 rgba(255, 209, 102, 0);
+    }
+    .pcard.enter {
+      transform: scale(1.13);
+      box-shadow: 0 0 12px rgba(255, 209, 102, .6);
+    }
+    .hand-row-title { font-size: var(--zh-size); color: #ddd; margin: 8px 0 6px; }
+    .log {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      white-space: pre-wrap;
+      line-height: 1.42;
+      font-size: var(--letter-min);
+      max-height: 280px;
+      overflow: auto;
+      color: #f8f8f8;
+      background: #0f0f0f;
+      border: 1px solid #333;
+      border-radius: 10px;
+      padding: 10px;
+    }
+    .ok { color: var(--ok); }
+    .bad { color: var(--bad); }
+  
+
+    :root {
+      --bg: #f6f8fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --line: #d1d5db;
+      --primary: #2563eb;
+      --ok: #16a34a;
+      --bad: #dc2626;
+      --time: #fef3c7;
+      --place: #dbeafe;
+      --action: #dcfce7;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: var(--font-zh-hei);
+      font-size: var(--zh-size);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 20px;
+    }
+
+    .wrap {
+      max-width: 980px;
+      margin: 0 auto;
+      display: grid;
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+    }
+
+    h1, h2 {
+      margin: 0 0 10px;
+    }
+
+    h1 {
+      font-size: 24px;
+    }
+
+    h2 {
+      font-size: 18px;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: var(--zh-size);
+    }
+
+    ol {
+      margin: 8px 0 0 20px;
+      padding: 0;
+      display: grid;
+      gap: 4px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      margin-top: 10px;
+      font-size: var(--letter-min);
+    }
+
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 8px;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    th {
+      background: #f3f4f6;
+      font-weight: 700;
+    }
+
+    td.row-name {
+      font-weight: 700;
+      background: #f9fafb;
+      width: 22%;
+    }
+
+    .cell-btn {
+      width: 100%;
+      min-height: 42px;
+      border: 1px dashed #9ca3af;
+      border-radius: 8px;
+      background: #fff;
+      color: var(--text);
+      cursor: pointer;
+      padding: 8px;
+      font-size: var(--letter-min);
+    }
+
+    .cell-btn:hover {
+      border-color: var(--primary);
+    }
+
+    .cell-btn.empty {
+      color: #9ca3af;
+    }
+
+    .tag-time {
+      background: var(--time);
+    }
+
+    .tag-place {
+      background: var(--place);
+    }
+
+    .tag-action {
+      background: var(--action);
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .pill {
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: var(--letter-min);
+      border: 1px solid var(--line);
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    .btn {
+      border: 1px solid var(--line);
+      background: #fff;
+      padding: 9px 14px;
+      border-radius: 10px;
+      font-size: var(--letter-min);
+      cursor: pointer;
+    }
+
+    .btn.primary {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    #result {
+      margin-top: 10px;
+      font-weight: 700;
+      min-height: 24px;
+    }
+
+    #result.ok {
+      color: var(--ok);
+    }
+
+    #result.bad {
+      color: var(--bad);
+    }
+
+    dialog {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 0;
+      width: min(420px, calc(100vw - 24px));
+    }
+
+    dialog::backdrop {
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    .dialog-head {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      font-weight: 700;
+    }
+
+    .opts {
+      display: grid;
+      gap: 8px;
+      padding: 12px 14px 14px;
+    }
+
+    .opt-btn {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 9px 10px;
+      background: #fff;
+      text-align: left;
+      cursor: pointer;
+    }
+  
+
+    :root {
+      --bg: #f4f0e6;
+      --surface: #fffef8;
+      --ink: #1a1814;
+      --muted: #5a5548;
+      --accent: #6b5344;
+      --accent-soft: #b89a6e;
+      --border: #dcd4c4;
+      --ok: #2d5a3d;
+      --bad: #8b2942;
+      --radius: 10px;
+      --shadow: 0 8px 28px rgba(28, 25, 20, 0.07);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: var(--font-zh-hei);
+      font-size: var(--zh-size);
+      line-height: 1.65;
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse 100% 60% at 50% -15%, rgba(184, 154, 110, 0.2), transparent),
+        var(--bg);
+      min-height: 100vh;
+    }
+
+    .wrap {
+      max-width: 44rem;
+      margin: 0 auto;
+      padding: 2rem 1.15rem 3.5rem;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 1.75rem;
+    }
+
+    h1 {
+      font-size: clamp(1.35rem, 3.5vw, 1.75rem);
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      margin: 0 0 0.5rem;
+      color: var(--accent);
+    }
+
+    .lede {
+      color: var(--muted);
+      font-size: var(--zh-size);
+      max-width: 36em;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+
+    section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.35rem 1.2rem 1.5rem;
+      margin-bottom: 1.35rem;
+      box-shadow: var(--shadow);
+    }
+
+    section h2 {
+      font-size: 1.05em;
+      font-weight: 600;
+      margin: 0 0 0.85rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid rgba(184, 154, 110, 0.35);
+      color: var(--accent);
+    }
+
+    .pali {
+      font-family: "Noto Serif", Georgia, serif;
+      font-size: var(--pali-size);
+      line-height: var(--pali-lh);
+      letter-spacing: var(--pali-track);
+      margin: 0.35rem 0 0.65rem;
+      color: var(--ink);
+    }
+
+    .zh-note {
+      font-size: var(--zh-size);
+      color: var(--muted);
+      margin: 0 0 1.1rem;
+      padding-left: 0.65rem;
+      border-left: 3px solid var(--accent-soft);
+    }
+
+    .example-block {
+      margin: 1rem 0 1.25rem;
+    }
+
+    .example-block h3 {
+      font-size: var(--zh-size);
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      margin: 0 0 0.45rem;
+    }
+
+    .rule-soft {
+      font-size: var(--zh-size);
+      color: var(--muted);
+      margin: 0 0 1rem;
+      line-height: 1.7;
+    }
+
+    .wrong-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem 1.25rem;
+      align-items: start;
+      margin: 0.75rem 0 1rem;
+      padding: 1rem;
+      background: rgba(139, 41, 66, 0.06);
+      border: 1px solid rgba(139, 41, 66, 0.2);
+      border-radius: var(--radius);
+    }
+
+    @media (max-width: 640px) {
+      .wrong-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .wrong-poem h3 {
+      font-size: var(--zh-size);
+      font-weight: 600;
+      color: var(--bad);
+      margin: 0 0 0.5rem;
+      letter-spacing: 0.04em;
+    }
+
+    .wrong-lines {
+      font-family: "Noto Serif", Georgia, serif;
+      font-size: var(--pali-size);
+      line-height: var(--pali-lh);
+      letter-spacing: var(--pali-track);
+      margin: 0;
+      color: var(--ink);
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .verse-with-gloss {
+      margin: 0;
+      padding: 0 0 0 1.15rem;
+      list-style: decimal;
+    }
+
+    .verse-with-gloss li {
+      margin: 0.65rem 0;
+      padding-left: 0.35rem;
+    }
+
+    .verse-with-gloss .pali-line {
+      display: block;
+      font-family: "Noto Serif", Georgia, serif;
+      font-size: var(--pali-size);
+      line-height: var(--pali-lh);
+      letter-spacing: var(--pali-track);
+      color: var(--ink);
+    }
+
+    .verse-with-gloss .line-gloss {
+      display: block;
+      font-size: var(--zh-size);
+      color: var(--muted);
+      margin-top: 0.3rem;
+      line-height: 1.55;
+      padding-left: 0;
+      border-left: 2px solid var(--accent-soft);
+      padding-left: 0.55rem;
+    }
+
+    .particle-side {
+      min-width: 12.5rem;
+      padding: 0.65rem 0.75rem;
+      background: var(--surface);
+      border: 1px dashed var(--accent-soft);
+      border-radius: 8px;
+    }
+
+    .particle-side-title {
+      font-size: var(--zh-size);
+      font-weight: 600;
+      color: var(--muted);
+      margin: 0 0 0.65rem;
+      letter-spacing: 0.08em;
+    }
+
+    .particle-pick {
+      margin-bottom: 1rem;
+      padding-bottom: 0.85rem;
+      border-bottom: 1px dashed var(--border);
+    }
+
+    .particle-pick:last-of-type {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+
+    .particle-token {
+      font-family: "Noto Serif", Georgia, serif;
+      font-size: var(--pali-size);
+      font-weight: 600;
+      color: var(--accent);
+      margin: 0 0 0.35rem;
+    }
+
+    .particle-meaning {
+      font-size: var(--zh-size);
+      color: var(--ink);
+      line-height: 1.55;
+      margin: 0 0 0.55rem;
+    }
+
+    .particle-pick label {
+      display: block;
+      font-size: var(--zh-size);
+      color: var(--muted);
+      margin-bottom: 0.35rem;
+    }
+
+    .particle-pick select {
+      width: 100%;
+      font-family: var(--font-zh-hei);
+      font-size: var(--zh-size);
+      padding: 0.45rem 0.5rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--ink);
+    }
+
+    .particle-foot {
+      font-size: var(--zh-size);
+      color: var(--muted);
+      margin: 0.75rem 0 0;
+      line-height: 1.45;
+    }
+
+    .repair-label {
+      font-size: var(--zh-size);
+      color: var(--muted);
+      margin: 0 0 0.4rem;
+    }
+
+    .repair-wrap {
+      outline: 2px solid var(--accent-soft);
+      outline-offset: 3px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.65);
+    }
+
+    #cv-repair {
+      display: block;
+      width: 100%;
+      min-height: 7.5rem;
+      margin: 0;
+      padding: 0.65rem 0.75rem;
+      font-family: "Noto Serif", Georgia, serif;
+      font-size: var(--pali-size);
+      line-height: var(--pali-lh);
+      letter-spacing: var(--pali-track);
+      color: var(--ink);
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      resize: vertical;
+    }
+
+    #cv-repair:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      align-items: center;
+      margin-top: 0.9rem;
+    }
+
+    button {
+      font-family: var(--font-zh-hei);
+      font-size: var(--zh-size);
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      border: 1px solid var(--accent);
+      background: var(--accent);
+      color: #fffef8;
+      cursor: pointer;
+    }
+
+    button.secondary {
+      background: var(--surface);
+      color: var(--accent);
+    }
+
+    button.tertiary {
+      background: transparent;
+      border-color: var(--border);
+      color: var(--muted);
+    }
+
+    button:hover { filter: brightness(1.05); }
+
+    #cv-feedback {
+      margin-top: 0.85rem;
+      font-size: var(--zh-size);
+      min-height: 1.4em;
+    }
+
+    #cv-feedback.ok { color: var(--ok); }
+    #cv-feedback.bad { color: var(--bad); }
+
+    .hint-panel {
+      margin-top: 1rem;
+      padding: 0.75rem 0.9rem;
+      background: rgba(184, 154, 110, 0.12);
+      border-radius: 8px;
+      font-size: var(--zh-size);
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+
+    .hint-panel strong {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .hint-tier {
+      margin: 0.5rem 0 0;
+      padding-top: 0.5rem;
+      border-top: 1px dashed var(--border);
+    }
+
+    .hint-tier:first-of-type {
+      margin-top: 0.35rem;
+      padding-top: 0;
+      border-top: none;
+    }
+
+    #cv-finale {
+      display: none;
+      margin-top: 1.25rem;
+      padding-top: 1.1rem;
+      border-top: 2px solid rgba(184, 154, 110, 0.4);
+    }
+
+    #cv-finale.is-on {
+      display: block;
+    }
+
+    #cv-finale h3 {
+      font-size: var(--zh-size);
+      font-weight: 600;
+      color: var(--accent);
+      margin: 0 0 0.5rem;
+    }
+
+    .finale-poem {
+      font-family: "Noto Serif", Georgia, serif;
+      font-size: var(--pali-size);
+      line-height: 1.8;
+      margin: 0.5rem 0 0.85rem;
+      white-space: pre-line;
+    }
+
+    .verse-zh-label {
+      font-size: var(--zh-size);
+      color: var(--muted);
+      margin: 0.85rem 0 0.35rem;
+    }
+
+    .verse-zh {
+      margin: 0;
+      font-size: var(--zh-size);
+      line-height: 1.85;
+      white-space: pre-line;
+      color: var(--ink);
+    }
+
+    #cv-winGlossary {
+      display: none;
+      margin-top: 1.15rem;
+      padding-top: 0.85rem;
+      border-top: 1px solid var(--border);
+    }
+
+    #cv-winGlossary.is-on {
+      display: block;
+    }
+
+    #cv-winGlossary h4 {
+      font-size: var(--zh-size);
+      font-weight: 600;
+      color: var(--muted);
+      margin: 0 0 0.45rem;
+    }
+
+    #cv-winGlossary .gloss-body {
+      margin: 0;
+      font-size: var(--zh-size);
+      line-height: 1.65;
+      white-space: pre-wrap;
+      word-break: break-word;
+      border-left: 3px solid var(--accent-soft);
+      padding-left: 0.75rem;
+      color: var(--ink);
+    }
+
+    footer {
+      text-align: center;
+      font-size: var(--zh-size);
+      color: var(--muted);
+      margin-top: 2rem;
+    }
+
+    /* Terminal theme override — 汉字黑体；拉丁/巴利用 .pali 等衬线 */
+    html, body {
+      color: #fff !important;
+      font-family: var(--font-zh-hei) !important;
+      font-size: var(--zh-size) !important;
+    }
+    .narrative {
+      border: none !important;
+    }
+    .card, .puzzle-hn .card, .puzzle-cl .card, .puzzle-cv section, .table-wrap, .g-log, .hint-panel {
+      background: rgba(90, 90, 94, 0.5) !important;
+      backdrop-filter: blur(4px);
+      color: #fff !important;
+      border: 1px solid #2a2a2a !important;
+      box-shadow: none !important;
+      border-radius: 0 !important;
+    }
+    button, .btn-wg, .puzzle-hn button, .puzzle-cl .btn, .puzzle-cv button {
+      background: rgba(78, 78, 82, 0.55) !important;
+      backdrop-filter: blur(3px);
+      color: #fff !important;
+      border: 1px solid #777 !important;
+      border-radius: 0 !important;
+    }
+    .muted, .tip, .scene-tag, .rule-soft, .zh-note, .particle-foot, .line-gloss, .puzzle-hn .meta, .puzzle-hn .hanoi-rules, .puzzle-hn .hanoi-rules li, .puzzle-cl .muted {
+      color: #a8a8a8 !important;
+    }
+    .h-wg, h1, h2, .puzzle-hn h2, .puzzle-hn .hanoi-rules h3, .puzzle-cl h2, .puzzle-cv section h2 {
+      color: #fff !important;
+    }
+    body {
+      letter-spacing: 0.04em;
+      text-transform: none;
+    }
+    h1, h2, h3, h4, button, .narrative, .muted, .tip {
+      letter-spacing: 0.04em;
+      text-transform: none;
+    }
+    h1, h2, .h-wg {
+      text-align: center !important;
+    }
+    body, body * {
+      color: #fff !important;
+    }
+
+    /* 格律之喉 · 石上范例：与外壳同宽、加大可读性 */
+    .puzzle-cv h2#cv-sec-examples {
+      font-size: 1.12em;
+    }
+    .puzzle-cv section:has(#cv-sec-examples) {
+      padding: 1.2rem 1.05rem 1.45rem;
+    }
+    .puzzle-cv section:has(#cv-sec-examples) > .rule-soft {
+      font-size: 1.02em;
+      line-height: 1.75;
+    }
+    .puzzle-cv .example-block h3 {
+      font-size: 1.05em;
+    }
+    .puzzle-cv .example-block .pali {
+      font-size: var(--pali-size);
+      line-height: var(--pali-lh);
+      letter-spacing: var(--pali-track);
+    }
+    .puzzle-cv .example-block .zh-note {
+      font-size: 1.02em;
+      line-height: 1.8;
+    }
+  
+    /* Global shell background: keep chapter backdrop consistent */
+    html,
+    body {
+      min-height: 100%;
+      min-height: 100dvh;
+      background-color: #4a4034;
+      background-image: url("../assets/final-chapter-bg.png");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+    }
+  </style>
+  <link rel="stylesheet" href="../assets/immersive-shell.css" />
+  <script src="../assets/journey-bookmark.js"></script>
+</head>
+<body data-chapter="crow">
+<script src="../assets/stage-bg.js"></script>
+  <div class="sea-deco" aria-hidden="true">海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁
+鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海
+沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦
+酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙
+水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒
+浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水
+潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪
+礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮
+海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁
+鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海
+沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦
+酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙
+水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒
+浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水
+潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪
+礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮
+海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁
+鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海
+沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦
+酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙
+水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒
+浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水
+潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪
+礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮
+海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁
+鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海
+沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦
+酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙
+水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒
+浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水浪潮礁海鸦沙酒水</div>
+  <div id="mission-bar"><strong>0. 偈颂</strong></div>
+  <div class="shell">
+    <section id="stage-poem" class="stage active">
+      <p class="scene-tag" style="margin-top:0;margin-bottom:0.65rem"><strong>3. Kākajātaka</strong>（乌鸦本生）</p>
+      <div class="pali-open" lang="pi" aria-label="巴利诗句">
+        Api nū hanukā santā, mukhañ ca parisussati,<br />
+        oramāma na pārema, pūrat' eva mahodadhīti.
+      </div>
+      <div class="narrative tight" style="margin-top:0.85rem">
+        <p>这是古昔一群乌鸦在雌鸦被海浪卷走后，试图掏干大海时所发出的哀叹。佛以此喻「无益之行」：以有穷之身，欲填无穷之苦。</p>
+        <p style="margin:0.65rem 0 0">你若能解其深意，便知何为无益的执取，何为徒劳的爱恋。随后，你面前浮现出一片无边的海岸——那是本生因缘的入口。你须完成三项考验，在偈颂的字里行间，亲见「贪」如何叫人衔海而不自知。</p>
+      </div>
+      <button type="button" class="btn-wg" id="btn-go-grove">下一节</button>
+    </section>
+
+    <section id="stage-grove" class="stage">
+      <div class="narrative">
+
+
+此世，一群年老的比丘互相搂着脖子，泪流满面，徘徊在草棚之间。
+
+<strong>长老甲</strong>（哽咽）：
+「她的手艺……世间再无人能比啊……」
+
+<strong>长老乙</strong>（泣不成声）：
+「优婆夷……她走了……我们怎么办……」
+
+<strong>一位比丘</strong>（疑惑）：
+「诸位具寿，为何如此悲伤？出家之人，岂可仍恋世间烟火？」
+
+<strong>长老甲</strong>：
+「我们一位同修的往昔妻子日日为我们备汤备饭，如今……她病逝了。」
+
+<strong>一位比丘</strong>：
+「诸位出家人，为何还执着于旧日之缘？爱欲如毒箭，所射非皮肉，而是出离之心。」
+
+
+      </div>
+      <button type="button" class="btn-wg" id="btn-go-buddha">下一节</button>
+    </section>
+
+    <section id="stage-buddha" class="stage">
+      <div class="narrative">
+那位年长比丘的旧日是一位富有的家主。
+与几位好友听闻佛陀说法后，毅然出家:
+
+<strong>佛陀</strong>（在法座上）：
+「诸位，家如火宅，欲如毒器；三界无安，犹如火宅。若求出离，当断其根。」
+
+<strong>一位比丘</strong>（心中默念）：
+「我们老了……住在家里还有什么享受？不如出家，断苦边，求涅槃道。」
+
+他们将财富分给子女，泪别亲人，披上袈裟。
+      </div>
+      <button type="button" class="btn-wg" id="btn-go-sweet">下一节</button>
+    </section>
+
+    <section id="stage-sweet" class="stage">
+      <h2 class="h-wg">【下一节】</h2>
+      <div class="narrative">
+然而一位比丘与几位老比丘并没有精进修行,而是在僧团之外另外建屋居住,每日托钵乞食，却总是走向旧日之家,往往从妻儿家拿了饭,又到那位优婆夷家吃饭。
+
+
+
+直到那一天——
+
+<strong>长老丙</strong>（惊慌跑来）：
+「她病倒了！」
+
+赶到她家时，她已经闭目长辞。
+
+长老相拥徘徊而泣,众比丘在法堂议论纷纷.
+佛陀闻此,说起前世因缘——「尊者，此即汝昔日自取之事。」
+      </div>
+      <button type="button" class="btn-wg" id="btn-go-bridge">下一节</button>
+    </section>
+
+    <section id="stage-bridge" class="stage">
+      <h2 class="h-wg">下一节</h2>
+      <p class="scene-tag">过去世，海岸边。人们在祭祀龙神，留下丰盛的酒肉，乌鸦夫妇须将层层供品悄然搬离祭坛。</p>
+      <div class="narrative tight">
+<strong>雄鸦</strong>：「来，喝一口！这人间的东西，果然美味。」
+      </div>
+      <p class="system-hint"><strong>【系统】</strong>小游戏「<strong>供品之塔</strong>」共两关：先完成<strong>第一关 · 三层</strong>，再进入<strong>第二关 · 四层</strong>，全部迁至<strong>鸦巢</strong>柱。点击圆盘选中，再点目标柱移动；大层不得压小层。</p>
+
+    <div class="puzzle-hn">
+<div class="wrap">
+    <div class="card">
+      <h1>供品之塔</h1>
+      <div class="meta">
+        <span class="tag">柱：祭坛 · 礁石 · 鸦巢</span>
+        <span class="tag">供品：肉 &gt; 鱼 &gt; 奶 &gt; 酒</span>
+      </div>
+      <p class="tip" style="font-size:var(--zh-size);margin:0.35rem 0 0">通关条件：<strong>第一关（3 层）</strong>全部迁至鸦巢柱后，解锁<strong>第二关（4 层）</strong>；四层亦全部搬完则本段通关。</p>
+      <div class="hanoi-rules" lang="zh-Hans">
+        <h3>三根柱</h3>
+        <ul>
+          <li><strong>祭坛</strong>：供品最初堆放之处，祭主不远。</li>
+          <li><strong>礁石</strong>：潮汐间暂歇中转，须借道方能迂回搬运。</li>
+          <li><strong>鸦巢</strong>：夫妇藏食之所，须将整塔搬至此处。</li>
+        </ul>
+        <h3>规则</h3>
+        <ul>
+          <li>每次只移<strong>最顶一层</strong>供品。</li>
+          <li><strong>大不得压小</strong>——肉不可覆于鱼、奶、酒之上，依此类推；颠倒则塔倾，惊动祭主。</li>
+          <li><strong>共两关</strong>：第一关为肉·鱼·酒三层；第二关再加奶，共四层。</li>
+        </ul>
+        <h3>步数</h3>
+        <ul>
+          <li>三层妙法需 <strong>7</strong> 步，四层需 <strong>15</strong> 步；步数仅作参考，不必强求最少步通关。</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 id="hn-phaseTitle">阶段</h2>
+      <div id="hn-phaseDesc" class="tip"></div>
+      <div class="meta" id="hn-status" style="margin-top:6px"></div>
+      <div class="btns">
+        <button type="button" id="hn-btnRestart">重新开始</button>
+        <button type="button" id="hn-btnHint">提示</button>
+      </div>
+      <p id="hn-actionHint" class="tip" style="margin-top:8px"></p>
+      <div id="hn-teachBanner" class="hn-teach-banner" hidden>
+        <p style="margin:0 0 0.5rem"><strong>雌鸦</strong>（低声）：「第一关过了——快，祭主快回来了。还有一层奶要搬！」</p>
+        <button type="button" id="hn-btnFormal">开始第二关 · 四层</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>供品柱</h2>
+      <div id="hn-board" class="hanoi-board" aria-label="供品之塔：祭坛、礁石、鸦巢三柱"></div>
+    </div>
+
+    <div class="card">
+      <h2>记录</h2>
+      <div id="hn-log" class="log"></div>
+    </div>
+  </div>
+
+  
+    </div>
+
+      <div class="narrative tight bridge-win-banner" id="bridge-win-next" hidden>
+        <p><strong>雌鸦</strong>（醉眼朦胧）：「我们去海里洗澡吧……」</p>
+        <p>踏入海浪中。突然，一道大浪卷来——雌鸦被吞入海中，一条鱼咬住了她。</p>
+        <p><strong>雄鸦</strong>（悲鸣）：「我的妻子死了！」</p>
+        <button type="button" class="btn-wg" id="btn-go-latin">下一节</button>
+      </div>
+    </section>
+
+    <section id="stage-latin" class="stage">
+      <h2 class="h-wg">下一节</h2>
+      <div class="narrative tight">
+哀鸣引来无数乌鸦。「她是在海边被浪卷走的！我要把海水掏干，把她救回来！」
+<strong>众乌鸦</strong>（齐声）：「掏干海水！救回雌鸦！」
+      </div>
+      <p class="muted small">潮间出现一条被浪刻出的「业径」棋盘：善法为梯，渴爱为蛇。你须以<strong>最少步数</strong>抵达知止礁，且途中须在<strong>北礁劝止碑</strong>与<strong>夜潮舀水处</strong>各落脚一次，再点「验证路径」。</p>
+
+    <div class="puzzle-sl" id="puzzle-sl-root">
+      <div class="sl-card">
+        <h1>业径蛇梯</h1>
+        <p class="muted" style="margin:0 0 0.75rem;line-height:1.65">每步前进 <strong>1、2 或 3</strong> 格（沿格号增大方向）。若落脚恰在<strong>梯脚</strong>，即沿善法梯上升；若落脚在<strong>蛇首</strong>，即沿渴爱蛇滑落。格内短字 <strong>升+n</strong> / <strong>滑n</strong> 表示该次上升或滑落经过的<strong>格数</strong>（盘面已标）。连续跳跃以盘面为准。起点为鸦群滩头，终点为知止礁。</p>
+        <div class="sl-board-wrap">
+          <div class="sl-board" id="sl-board" aria-label="业径棋盘"></div>
+        </div>
+        <div class="sl-ctrl">
+          <span class="muted" style="margin-right:4px">走一步：</span>
+          <button type="button" class="sl-step" id="sl-d1" title="前进1格">+1</button>
+          <button type="button" class="sl-step" id="sl-d2" title="前进2格">+2</button>
+          <button type="button" class="sl-step" id="sl-d3" title="前进3格">+3</button>
+          <button type="button" id="sl-undo">撤销一步</button>
+          <button type="button" id="sl-reset">重置</button>
+          <button type="button" id="sl-verify" style="border-color:#c4a574;color:#c4a574">验证路径</button>
+        </div>
+        <p class="sl-meta" id="sl-stats">当前格：<strong>0</strong>（鸦群滩头）　已走步数：<strong>0</strong>　最短可行：<strong>—</strong></p>
+        <p id="sl-feedback" aria-live="polite"></p>
+        <div class="sl-legend">
+          <span><i class="sl-dot" style="background:#0f1810;border-color:#5a8a5a"></i>梯脚（升+n＝一次上升 n 格）</span>
+          <span><i class="sl-dot" style="background:#180f0f;border-color:#8a4545"></i>蛇首（滑n＝一次滑落 n 格）</span>
+          <span><i class="sl-dot" style="background:#1a1610;border-color:#c4a574"></i>必经碑记</span>
+          <span><i class="sl-dot" style="outline:2px solid var(--fg)"></i>当前立足</span>
+        </div>
+      </div>
+    </div>
+
+      <div class="narrative tight" id="latin-win-next" hidden>
+        <p>群鸦一口一口衔水，吐到岸上。海水却源源不断地涌回。</p>
+        <p><strong>群鸦嘴喙干裂，眼睛通红，喉咙如火。</strong></p>
+        <p><strong>一只乌鸦</strong>（喘息）：「我们……真的能掏干海吗？」</p>
+        <p><strong>众乌鸦</strong>：「我们做不到……我们做不到啊……」</p>
+        <button type="button" class="btn-wg" id="btn-go-verse">下一节</button>
+      </div>
+    </section>
+
+    <section id="stage-versegame" class="stage">
+      <h2 class="h-wg">格律之喉</h2>
+      <p class="scene-tag">海面上，乌云翻涌。这只失去妻子的乌鸦说了一首偈颂,但是两句有误.</p>
+
+    <div class="puzzle-cv">
+<div class="wrap">
+    <header>
+      <p class="lede">潮边残碑上，旧刻仍清晰可读,对照铭文，把偈颂补到齐整。</p>
+    </header>
+    <p class="cv-section-label">乌鸦所言</p>
+
+    <section aria-labelledby="sec-examples">
+      <h2 id="cv-sec-examples">石上范例（他处铭文）</h2>
+      <p class="rule-soft">下列章节仅为碑上并列的巴利文与汉译，供你对照声气；碑铭本身并未解释格律。请你从诗句中找规律。</p>
+
+
+      <div class="example-block">
+        <p class="pali">Sahassam api ce gāthā, anatthapadasaṃhitā,<br />Ekaṃ gāthāpadaṃ seyyo, yaṃ sutvā upasammati.</p>
+        <p class="zh-note">徒诵千首偈，无义理之语，不如一益偈，闻已得寂静。</p>
+      </div>
+
+      <div class="example-block">
+        <p class="pali">Yo sahassaṃ sahassena, sa&#x1E45;gāme mānuse jine,<br />Ekañca jeyya attānaṃ, sa ve sa&#x1E45;gāmajuttamo.</p>
+        <p class="zh-note">匹夫上战场，千战胜千敌，莫如能胜己，彼最胜战士。</p>
+      </div>
+
+      <div class="example-block">
+        <p class="pali">Nāgo va jhānakusalo, nāgo va sukhaseyyaṃ;<br />Nāgo va nimmitākāse, nāgo va aniketasārathi.</p>
+        <p class="zh-note">龙象喜禅观，亦喜般涅槃；内心常守定，行禅住亦禅。</p>
+      </div>
+
+      <div class="example-block">
+        <p class="pali">Samāhito satīmā ca, ekodi hutvāna jhāyato;<br />Tassa dhammapīti sukhā, nāññaṃ passaṃ tato sukhaṃ.</p>
+        <p class="zh-note">专心持止观，自可得法乐，纵有五乐音，如何比此乐？</p>
+      </div>
+
+      <div class="example-block">
+        <p class="pali">Uppajjanti hi lokasmiṃ, buddhā lokānukampakā;<br />Padumaṃ yathā udakasmiṃ, jātaṃ na upalippati.</p>
+        <p class="zh-note">尘世生佛陀，未染一世尘；犹如水中莲，出水自清新。</p>
+      </div>
+    </section>
+
+    <section aria-labelledby="sec-repair">
+      <h2 id="cv-sec-repair">残缺四行 · 修复区</h2>
+      <p class="rule-soft">乌鸦偈颂脱字，还需两粒小品词 <span class="pali">ca</span>、<span class="pali">na</span>。请根据每句大意与两词之义，<strong>各选一句</strong>安置。选定后下方全文会随选更新。</p>
+
+      <div class="wrong-layout">
+        <div class="wrong-poem">
+          <h3><span aria-hidden="true">&#10060;</span> 残缺诗句与句意</h3>
+          <ol class="verse-with-gloss">
+            <li>
+              <span class="pali-line">Api nū hanukā santā</span>
+              <span class="line-gloss">尽管颌疲惫</span>
+            </li>
+            <li>
+              <span class="pali-line">mukhañ parisussati</span>
+              <span class="line-gloss">口也变干枯</span>
+            </li>
+            <li>
+              <span class="pali-line">oramāma pārema</span>
+              <span class="line-gloss">此岸复彼岸</span>
+            </li>
+            <li>
+              <span class="pali-line">pūrat' eva mahodadhī</span>
+              <span class="line-gloss">大海满如故</span>
+            </li>
+          </ol>
+          <p class="repair-label" style="margin-top:1rem;margin-bottom:0.35rem">当前合成</p>
+          <pre class="wrong-lines" id="cv-wrongLinesDisplay"></pre>
+        </div>
+        <aside class="particle-side" aria-label="语粒与句次选择">
+          <p class="particle-side-title">两粒语词 · 各择一句</p>
+          <div class="particle-pick">
+            <p class="particle-token">ca</p>
+            <p class="particle-meaning"><strong>义：</strong>和、亦；连接前后，常作「也」「又」「而且」一类语气，把上一事与此句并置。</p>
+            <label for="selCa">将 <span class="pali">ca</span> 置于第几句？</label>
+            <select id="cv-selCa" autocomplete="off">
+              <option value="">请选择句次</option>
+              <option value="1">第 1 句</option>
+              <option value="2">第 2 句</option>
+              <option value="3">第 3 句</option>
+              <option value="4">第 4 句</option>
+            </select>
+          </div>
+          <div class="particle-pick">
+            <p class="particle-token">na</p>
+            <p class="particle-meaning"><strong>义：</strong>不；否定其后的动作或命题。</p>
+            <label for="selNa">将 <span class="pali">na</span> 置于第几句？</label>
+            <select id="cv-selNa" autocomplete="off">
+              <option value="">请选择句次</option>
+              <option value="1">第 1 句</option>
+              <option value="2">第 2 句</option>
+              <option value="3">第 3 句</option>
+              <option value="4">第 4 句</option>
+            </select>
+          </div>      
+      </div>
+
+      <p class="repair-label">全文抄本</p>
+      <div class="repair-wrap">
+        <textarea id="cv-repair" spellcheck="false" autocomplete="off" rows="6">Api nū hanukā santā
+mukhañ parisussati
+oramāma pārema
+pūrat' eva mahodadhī</textarea>
+      </div>
+      <div class="actions">
+        <button type="button" id="cv-btnVerify">验证</button>
+        <button type="button" class="secondary" id="cv-btnReset">还原残句</button>
+        <button type="button" class="tertiary" id="cv-btnHint">需要提示</button>
+      </div>
+      <p id="cv-feedback" aria-live="polite"></p>
+      <div id="cv-hintBox" class="hint-panel" hidden>
+        <strong>潮声低语</strong>（多点几次「需要提示」逐层显露，共四层）
+        <p class="hint-tier" id="cv-hint1" hidden><strong>提示一 · 元音</strong>：数韵核（音节骨节）时，以元音为准。巴利语单元音为 <span class="pali">a ā、i ī、u ū、e、o</span>；另有双元音如 <span class="pali">au、ai</span> 等。碑上范例的每一行，读来声步大体匀停；这四行里，有的行显得局促，像少踏了半步。</p>
+        <p class="hint-tier" id="cv-hint2" hidden>有两处细缝，各容得下一粒最小的功能语；补进去之后，意思与声气往往同时顺过来。</p>
+        <p class="hint-tier" id="cv-hint3" hidden><span class="pali">ca</span> 与 <span class="pali">na</span> 应各落在第几句，须与碑上范例的声气、义理对拍。</p>
+        <p class="hint-tier" id="cv-hint4" hidden>对照碑上范例的读法：齐整后<strong>每一句为八个音节（八拍）</strong>，且按巴利诗律可数得<strong>每句八个元音韵核</strong>。残句显得短促的那一行，往往正是少这一拍；将 <span class="pali">ca</span>、<span class="pali">na</span> 各补进一句后，四句都应满足「八音节 / 八元音」再点验证。</p>
+      </div>
+
+      <div id="cv-finale" aria-live="polite">
+        <h3>石碑发光</h3>
+        <p class="finale-poem">碑光入海，偈颂齐整，义译亦现。海涛深处，海神自波涛中显现。</p>
+        <p id="cv-finalePali" class="pali" style="margin-top:0.65rem;white-space:pre-line;line-height:1.75"></p>
+      </div>
+
+      <div id="cv-winGlossary" aria-live="polite">
+        <h4>逐词（通关后）</h4>
+        <pre class="gloss-body">api　　　岂不；莫非（句首疑问语气）
+nū　　今；确实（语气）
+hanukā颚；颌（复数主格）
+santā　　　平静；安和
+mukhaṃ　　 口；嘴
+ca亦；和（连接）
+parisussati干涸；枯竭
+oramāma　　在此岸
+na不
+pārema　　至彼岸
+pūrate盈满（pūrat' 为省声）
+eva唯；正是
+mahodadhī　大海；巨浸</pre>
+      </div>
+    </section>
+
+  </div>
+
+  
+    </div>
+
+    </section>
+
+    <section id="stage-finale" class="stage">
+      <div class="narrative finale-block">
+        <p>突然，海水翻腾，一个巨大的身影从浪中升起——<strong>海神</strong>现身，面目狰狞，声如雷鸣：</p>
+        <p><strong>海神</strong>：「汝之妻已逝，汝之执念，不过自苦！以有穷之喙掏无穷之海，正是愚痴所招。」</p>
+        <p><strong>海神</strong>：「她已归于轮回，非汝衔水所能唤回……」</p>
+        <p>话头回到当下祇园精舍。佛陀说：过去世里，那丧妻而率众掏海的乌鸦，就是这位长老；死去的雌鸦，就是他出家前的妻子；从波涛中现身、喝止众鸦的海神，则是菩萨——以海神之相，破我执于愚痴之海。</p>
+      </div>
+      <button type="button" class="btn-wg" id="btn-finale-enter-next" hidden style="margin-top:1rem">进入下一页</button>
+      <details class="jataka-bridge" id="crow-jataka-chapter-end">
+        <summary>Jātaka No. 146 · 《本生经》巴利语节选与英译（全章回首）</summary>
+        <div class="jb-body">
+          <p style="margin:0 0 1rem;color:var(--muted);line-height:1.65">通章后再读本生原文摘录与英译，或能与前文叙事豁然相应。</p>
+          <h4 class="jb-en" style="margin:0.75rem 0 0.35rem;font-size:1em;color:var(--fg)">一、偈颂与 Jetavana 因缘</h4>
+          <p class="jb-pali" lang="pi">Api nū hanukā santā, mukhañ ca parisussati,<br />oramāma na pārema, pūrat&rsquo; eva mahodadhīti.</p>
+          <div class="jb-en">
+            <p><em>Jātaka No. 146: The Crows — Of Grief and Salt Water.</em> &ldquo;Are our jaws weary?&rdquo; so they cried in vain—</p>
+            <p>The Master, dwelling at Jetavana, spake thus concerning many aged monks.</p>
+            <p>For in the days of their household life, these men had been wealthy householders of Sāvatthī, rich and prosperous, and they had been friends together. Hearing the Master&rsquo;s teaching, they had thought: &ldquo;We are old. What good is the household life to us? Let us go forth into the pleasant Buddha&rsquo;s doctrine and make an end of suffering.&rdquo; So they gave all their possessions to their children, left their weeping kinsfolk, and sought ordination from the Master.</p>
+          </div>
+          <h4 class="jb-en" style="margin:1rem 0 0.35rem;font-size:1em;color:var(--fg)">二、比丘哀哭因缘</h4>
+          <p class="jb-pali" lang="pi">Atha te mahallakatherā vihāraṃ gantvā aññamaññaṃ gīvāsu gahetvā &ldquo;madhurahattharasā upāsikā kālakatā&rdquo; ti vihārapaccante rodantā vicariṃsu. Tesaṃ saddaṃ sutvā ito c&rsquo; ito ca bhikkhū sannipatitvā &ldquo;āvuso kasmā rodathā&rdquo; ti pucchiṃsu.</p>
+          <div class="jb-en">
+            <p>Then those old elders went to the monastery, and taking one another by the neck, they wept and wandered about the edge of the grove, crying: &ldquo;The good lay-sister with the sweet, skilful hand is dead!&rdquo;</p>
+            <p>The other monks, hearing their lament, gathered from all sides and asked: &ldquo;Friends, why do you weep?&rdquo;</p>
+            <p>&ldquo;The former wife of our companion,&rdquo; they answered, &ldquo;she whose hand was so sweet in cooking, is dead. She was most helpful to us. Where shall we find such another? For this cause we weep.&rdquo;</p>
+          </div>
+          <h4 class="jb-en" style="margin:1rem 0 0.35rem;font-size:1em;color:var(--fg)">三、出家之后与说法缘起</h4>
+          <p class="jb-pali" lang="pi">Pabbajitvā ca pana pabbajjānurūpaṇ samaṇadhammaṁ na kariṃsu. Mahallakabhāvena dhammam pi na pariyāpuṇiṃsu. Gihikāle viya pabbajitakāle pi vihārapariyante paṇṇasālā kāretvā ekako va vasiṃsu. Piṇḷāya carantāpi aññattha agantvā yebhuyyena attano puttadārass&rsquo; eva gehaṁ gantvā bhuñjiṃsu. Tesu ekassa purāṇadutiyikā sabbesam pi mahallaka-therānaṁ upakārā ahosi.</p>
+          <div class="jb-en">
+            <p>But when they had gone forth, they did not live as beseemed recluses. By reason of their age, they could not master the Dhamma. Even as they had lived at home, so now they built themselves leaf-huts on the borders of the monastery and dwelt alone. And when they went for alms, they went not elsewhere, but for the most part to the house of their own wives and children, and there ate.</p>
+            <p>Now the former wife of one of them was a help to all these aged elders. Therefore the others also, taking the food they had received, would go and sit in her house and eat. And she gave them broth and curry as they had need.</p>
+            <p>But at length she fell sick and died.</p>
+            <p>The monks, seeing their grief, began to talk in the hall of truth: &ldquo;Friends, it is for this cause that the aged elders go about weeping, taking one another by the neck.&rdquo;</p>
+            <p>Then the Master came and asked: &ldquo;What is it, monks, that ye sit here discussing now?&rdquo;</p>
+            <p>When they told Him, He said: &ldquo;Not only now, monks, do they weep and wander for her death. In times past, too, born as crows, they strove to empty the great ocean for a dead mate, and only by the aid of the wise did they save their lives.&rdquo; And He revealed a story of old.</p>
+          </div>
+          <h4 class="jb-en" style="margin:1rem 0 0.35rem;font-size:1em;color:var(--fg)">四、过去世 · 宿世为鸦（起）</h4>
+          <p class="jb-pali" lang="pi">Atīte Bārāṇasiyaṁ Brahmadatte rajjaṁ kārente Bodhisatto samudde devatā hutvā nibbatti. Ath&rsquo; eko kāko attano bhariyaṁ kākiṁ ādāya gocaraṁ pariyesamāno samuddatīraṁ agamāsi.</p>
+          <div class="jb-en">
+            <p>Long ago, when Brahmadatta reigned in Benares, the Bodhisatta was born as a deity of the sea.</p>
+            <p>Now a certain crow took his wife, the she-crow, and went to the seashore in search of food.</p>
+            <p>At that time, men had made an offering to the Nāgas on the shore with milk-rice, fish, meat, and wine, and then departed.</p>
+            <p>The crow saw the milk and the rest, and with his wife ate of the milk-rice, fish, and meat, and drank much wine.</p>
+          </div>
+          <h4 class="jb-en" style="margin:1rem 0 0.35rem;font-size:1em;color:var(--fg)">五、醉浴与失偶</h4>
+          <p class="jb-pali" lang="pi">Te ubho pi surāmadamattā &ldquo;samuddakīḷaṁ kīḷissāmā&rdquo; ti velāyaṁ nīsīditvā nahāyituṁ ārabhiṃsu. Ath&rsquo; ekā ūmi āgantvā kākiṁ gahetvā samuddaṁ pavesesi. Tam eko maccho maṁsaṁ khāditvā ajjhohari. Kāko &ldquo;bhariyā me matā&rdquo; ti rodi paridevi.</p>
+          <div class="jb-en">
+            <p>And being both drunken with wine, they said: &ldquo;Let us play in the sea!&rdquo; So they sat down on the shore and began to bathe.</p>
+            <p>Then a wave came and swept the she-crow into the sea. A fish seized her and swallowed her.</p>
+            <p>The crow wept and lamented: &ldquo;My wife is dead!&rdquo;</p>
+            <p>Hearing his cry, many crows gathered and asked: &ldquo;Why do you weep?&rdquo;</p>
+            <p>&ldquo;Your companion,&rdquo; he cried, &ldquo;bathing on the shore, hath been carried off by a wave!&rdquo;</p>
+            <p>And all they, with one voice, lamented and wept.</p>
+          </div>
+          <h4 class="jb-en" style="margin:1rem 0 0.35rem;font-size:1em;color:var(--fg)">六、衔海、偈颂与海神</h4>
+          <p class="jb-pali" lang="pi">Atha nesaṃ etad ahosi: kiṃ imassa udakassa, āvamissāma samuddaṃ suññaṃ katvā sahāyikaṃ nīharissāmā ti. Te mukhena udakaṃ gahetvā thale ussificiṃsu. Atha nesaṃ kaṇṭhā sukhārī-bhāvaṁ agamaṃsu, thalaṃ pavisitvā nisīdanti. Hanukā kilamanti, tuṇḍāni parisussanti, akkhīni lohitāni honti, niddāya abhibhūtā aññamaññaṃ evam āhaṃsu.</p>
+          <p class="jb-pali" lang="pi">Api nū hanukā santā, mukhañ ca parisussati,<br />oramāma na pārema, pūrat&rsquo; eva mahodadhīti.</p>
+          <div class="jb-en">
+            <p>Then a thought came to them: &ldquo;What is this seawater to us? Let us bale it out, make the sea empty, and rescue our friend!&rdquo;</p>
+            <p>So they filled their mouths and spat the water out upon the shore. But their throats grew dry with the brine, and they would go up on the land to rest. Their jaws wearied, their beaks parched, their eyes reddened, and overcome with drowsiness, they spake one to another:</p>
+            <p>&ldquo;Alas, friends! We take the sea-water and pour it forth, but the place we have emptied fills again. We cannot empty the great ocean.&rdquo; And they uttered this verse:</p>
+            <p>&ldquo;Are our jaws weary, and our beaks all dry?<br />We bale and bale—the great sea will not dry.&rdquo;</p>
+            <p>And having so said, all those crows lamented long: &ldquo;Such a beak had she! Such round eyes! Such a skin! Such a sweet voice! And she is lost to us through this thievish sea!&rdquo;</p>
+            <p>And as they lamented, the deity of the sea showed himself in terrible form and put them to flight. Thus they were saved.</p>
+          </div>
+          <h4 class="jb-en" style="margin:1rem 0 0.35rem;font-size:1em;color:var(--fg)">七、摄颂与判语</h4>
+          <p class="jb-pali" lang="pi">Tadā yā kāki sā etarahi purāṇadutiyikā; yo kāko so etarahi mahallakatthero; ye aññe kākā te cāti mahallakattherā; yā samuddadevatā sā ahaṁ ahosīti.</p>
+          <div class="jb-en">
+            <p>Then the Master, having taught this truth, linked the birth-story: &ldquo;The she-crow of that time is the former wife of to-day; the crow is the aged elder; the other crows are the aged elders; and the sea-deity was I myself.&rdquo;</p>
+          </div>
+        </div>
+      </details>
+      <div class="narrative finale-block">
+        <p class="muted small">—— 衔水之鸦 ——</p>
+      </div>
+    </section>
+
+  </div>
+  <section id="transition12-overlay" class="chapter-transition-overlay" hidden aria-hidden="true">
+    <div class="chapter-transition-card">
+      <div id="transition12Text" class="chapter-transition-type"></div>
+      <button type="button" class="btn-wg" id="btn-go-level2">下一节</button>
+    </div>
+  </section>
+  <script>
+
+(function () {
+  var jp = { test: false, entry: 0 };
+  try {
+    var params = new URLSearchParams(window.location.search);
+    jp.test = params.get("test") === "1";
+    jp.entry = parseInt(params.get("entry") || "0", 10) || 0;
+  } catch (e) {}
+
+  function getJourneyProgress() {
+    var n = 0;
+    try {
+      n = parseInt(localStorage.getItem("siddharthaJourneyProgress") || "0", 10) || 0;
+    } catch (e) {}
+    return n;
+  }
+
+  var progress = getJourneyProgress();
+  if (jp.entry >= 1) {
+    try {
+      localStorage.setItem("siddharthaJourneyProgress", "1");
+    } catch (e) {}
+  }
+  var allowedHere = jp.test || jp.entry >= 1 || progress >= 1;
+  if (!allowedHere) {
+    window.location.href = "../prologue/index.html";
+    return;
+  }
+
+  if (typeof journeyNotifyPage === "function") {
+    journeyNotifyPage("crow", window.location.search ? window.location.search.slice(1) : "");
+  }
+
+  var STAGES = ["poem","grove","buddha","sweet","bridge","latin","versegame","finale"];
+  var idx = 0;
+  function setMission(t) {
+    document.getElementById("mission-bar").innerHTML = "<strong>" + t + "</strong>";
+  }
+  function show(name) {
+    STAGES.forEach(function (s) {
+      var el = document.getElementById("stage-" + s);
+      if (el) el.classList.toggle("active", s === name);
+    });
+    var titles = {
+      poem: "衔水之鸦",
+      grove: "衔水之鸦",
+      buddha: "衔水之鸦",
+      sweet: "衔水之鸦",
+      bridge: "衔水之鸦",
+      latin: "衔水之鸦",
+      versegame: "衔水之鸦",
+      finale: "衔水之鸦"
+    };
+    setMission(titles[name] || name);
+    if (window.setStageBackground) window.setStageBackground(name);
+  }
+  var crowFinaleAutoTimer = null;
+  function hideTransition12Overlay() {
+    var o12 = document.getElementById("transition12-overlay");
+    if (o12) {
+      o12.hidden = true;
+      o12.setAttribute("aria-hidden", "true");
+    }
+    document.body.classList.remove("chapter-transition-on");
+  }
+  function go(name) {
+    idx = STAGES.indexOf(name);
+    if (idx < 0) idx = 0;
+    if (name !== "finale") {
+      hideTransition12Overlay();
+    }
+    show(name);
+    var btnFin = document.getElementById("btn-finale-enter-next");
+    if (btnFin && name !== "finale") btnFin.hidden = true;
+    if (name === "bridge") {
+      document.getElementById("bridge-win-next").hidden = true;
+    }
+    if (name === "latin") {
+      document.getElementById("latin-win-next").hidden = true;
+    }
+    if (crowFinaleAutoTimer) {
+      clearTimeout(crowFinaleAutoTimer);
+      crowFinaleAutoTimer = null;
+    }
+    if (name === "finale") {
+      hideTransition12Overlay();
+      if (crowFinaleAutoTimer) {
+        clearTimeout(crowFinaleAutoTimer);
+        crowFinaleAutoTimer = null;
+      }
+      var btnFin = document.getElementById("btn-finale-enter-next");
+      if (btnFin) btnFin.hidden = false;
+    }
+    window.scrollTo(0, 0);
+    if (typeof journeySaveStage === "function") journeySaveStage("crow", name);
+  }
+  try {
+    window.__crowGo = go;
+  } catch (eCrowHook) {}
+
+  document.getElementById("btn-go-grove").onclick = function () { go("grove"); };
+  document.getElementById("btn-go-buddha").onclick = function () { go("buddha"); };
+  document.getElementById("btn-go-sweet").onclick = function () { go("sweet"); };
+  document.getElementById("btn-go-bridge").onclick = function () { go("bridge"); };
+  document.getElementById("btn-go-latin").onclick = function () { go("latin"); };
+  document.getElementById("btn-go-verse").onclick = function () { go("versegame"); };
+  document.getElementById("btn-finale-enter-next").addEventListener("click", function () {
+    this.hidden = true;
+    if (STAGES[idx] !== "finale") return;
+    var o12 = document.getElementById("transition12-overlay");
+    if (o12) {
+      o12.hidden = false;
+      o12.setAttribute("aria-hidden", "false");
+      document.body.classList.add("chapter-transition-on");
+    }
+    playTransition12();
+  });
+  var transition12Text = document.getElementById("transition12Text");
+  var transition12Timer = null;
+  var transition12Content = "海面平静。远处传来女人的歌声，哀婉又诱人——那是另一种「渴」，比浪花更难掏干。\n\n老人不由自主地向歌声走去。空中似有低语：\n\n「情与欲缠人，甚于海涛。下一关，你将读另一则本生：有人为爱穿上花衣，亦为花衣堕地狱。」";
+  function playTransition12() {
+    if (transition12Timer) clearInterval(transition12Timer);
+    transition12Text.textContent = "";
+    var i = 0;
+    transition12Timer = setInterval(function () {
+      i += 1;
+      transition12Text.textContent = transition12Content.slice(0, i);
+      if (i >= transition12Content.length) {
+        clearInterval(transition12Timer);
+        transition12Timer = null;
+      }
+    }, 30);
+  }
+  document.getElementById("btn-go-level2").onclick = function () {
+    hideTransition12Overlay();
+    try {
+      localStorage.setItem("siddharthaJourneyProgress", "2");
+    } catch (e) {}
+    var q = new URLSearchParams();
+    q.set("entry", "2");
+    if (jp.test) q.set("test", "1");
+    window.location.href = "./花染衣-咒缚之华-全篇文字游戏.html?" + q.toString();
+  };
+
+  window.crowAfterBridgeWin = function () {
+    document.getElementById("bridge-win-next").hidden = false;
+  };
+  window.crowAfterLatinWin = function () {
+    document.getElementById("latin-win-next").hidden = false;
+  };
+  window.crowAfterVerseWin = function () {
+    go("finale");
+  };
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Enter" && e.key !== " " && e.key !== "ArrowRight") return;
+    var t = document.activeElement && document.activeElement.tagName;
+    if (t === "INPUT" || t === "TEXTAREA" || t === "BUTTON" || t === "SELECT") return;
+    if (STAGES[idx] === "poem") {
+      e.preventDefault();
+      go("grove");
+    }
+  });
+
+  var crowStart = "poem";
+  if (typeof journeyShouldRestore === "function" && journeyShouldRestore("crow")) {
+    var cs = typeof journeyGetStage === "function" ? journeyGetStage("crow") : null;
+    if (cs && STAGES.indexOf(cs) >= 0) crowStart = cs;
+  }
+  go(crowStart);
+})();
+
+// --- Puzzle: hanoi（供品之塔 · 两关）---
+(function () {
+  const DISK_LABEL = { 1: "酒", 2: "奶", 3: "鱼", 4: "肉" };
+  const PEG_LABEL = ["祭坛", "礁石", "鸦巢"];
+  const GOAL_PEG = 2;
+
+  const el = {
+    phaseTitle: document.getElementById("hn-phaseTitle"),
+    phaseDesc: document.getElementById("hn-phaseDesc"),
+    status: document.getElementById("hn-status"),
+    board: document.getElementById("hn-board"),
+    log: document.getElementById("hn-log"),
+    actionHint: document.getElementById("hn-actionHint"),
+    teachBanner: document.getElementById("hn-teachBanner"),
+    btnRestart: document.getElementById("hn-btnRestart"),
+    btnHint: document.getElementById("hn-btnHint"),
+    btnFormal: document.getElementById("hn-btnFormal")
+  };
+
+  const state = {
+    phase: "teach",
+    diskCount: 3,
+    pegs: [[], [], []],
+    moves: 0,
+    selectedPeg: null,
+    hintCount: 0,
+    won: false,
+    waitingFormal: false
+  };
+
+  function optimalMoves(n) {
+    return (1 << n) - 1;
+  }
+
+  function initialPegs(count) {
+    const sizes = count === 3 ? [4, 3, 1] : [4, 3, 2, 1];
+    return [sizes.slice(), [], []];
+  }
+
+  function clonePegs(pegs) {
+    return pegs.map(function (p) { return p.slice(); });
+  }
+
+  function encode(pegs) {
+    return pegs.map(function (p) { return p.join(","); }).join("|");
+  }
+
+  function topDisk(peg) {
+    const stack = state.pegs[peg];
+    return stack.length ? stack[stack.length - 1] : null;
+  }
+
+  function canMove(from, to) {
+    if (from === to) return false;
+    const stackFrom = state.pegs[from];
+    if (!stackFrom.length) return false;
+    const disk = stackFrom[stackFrom.length - 1];
+    const stackTo = state.pegs[to];
+    if (!stackTo.length) return true;
+    return disk < stackTo[stackTo.length - 1];
+  }
+
+  function diskSizes() {
+    return state.phase === "teach" ? [4, 3, 1] : [4, 3, 2, 1];
+  }
+
+  function isSolved() {
+    const sizes = diskSizes();
+    const stack = state.pegs[GOAL_PEG];
+    if (stack.length !== sizes.length) return false;
+    const goal = sizes.slice().sort(function (a, b) { return b - a; });
+    for (let i = 0; i < goal.length; i++) {
+      if (stack[i] !== goal[i]) return false;
+    }
+    return state.pegs[0].length === 0 && state.pegs[1].length === 0;
+  }
+
+  function pushLog(text, cls) {
+    const line = document.createElement("div");
+    if (cls) line.className = cls;
+    line.textContent = text;
+    el.log.appendChild(line);
+    el.log.scrollTop = el.log.scrollHeight;
+  }
+
+  function renderPhase() {
+    if (state.phase === "teach") {
+      el.phaseTitle.textContent = "供品之塔 · 第一关（三层）";
+      el.phaseDesc.textContent = "将肉、鱼、酒三层从祭坛迁至鸦巢。须守「大不得压小」。";
+    } else {
+      el.phaseTitle.textContent = "供品之塔 · 第二关（四层）";
+      el.phaseDesc.textContent = "祭品又多了一层奶。须将全部四层搬至鸦巢。";
+    }
+    const par = optimalMoves(state.diskCount);
+    el.status.innerHTML = ""
+      + "<span>步数：" + state.moves + "</span>"
+      + "<span>妙法参考：" + par + " 步</span>"
+      + "<span>目标柱：" + PEG_LABEL[GOAL_PEG] + "</span>";
+  }
+
+  function shakePeg(pegEl) {
+    pegEl.classList.remove("shake");
+    void pegEl.offsetWidth;
+    pegEl.classList.add("shake");
+    setTimeout(function () { pegEl.classList.remove("shake"); }, 360);
+  }
+
+  function renderBoard() {
+    el.board.innerHTML = "";
+    for (let p = 0; p < 3; p++) {
+      const pegWrap = document.createElement("div");
+      pegWrap.className = "hanoi-peg";
+      pegWrap.dataset.peg = String(p);
+
+      const label = document.createElement("div");
+      label.className = "peg-label";
+      label.textContent = PEG_LABEL[p];
+      pegWrap.appendChild(label);
+
+      const stack = document.createElement("div");
+      stack.className = "peg-stack";
+      if (state.selectedPeg === p) stack.classList.add("peg-target");
+      stack.dataset.peg = String(p);
+
+      state.pegs[p].forEach(function (size, i) {
+        const disk = document.createElement("div");
+        disk.className = "hanoi-disk disk-" + size;
+        const isTop = i === state.pegs[p].length - 1;
+        if (state.selectedPeg === p && isTop) disk.classList.add("selected");
+        disk.textContent = DISK_LABEL[size];
+        disk.dataset.peg = String(p);
+        disk.dataset.size = String(size);
+        stack.appendChild(disk);
+      });
+
+      pegWrap.appendChild(stack);
+      el.board.appendChild(pegWrap);
+    }
+
+    if (state.won) {
+      el.actionHint.textContent = "供品已安全藏入鸦巢。";
+    } else if (state.waitingFormal) {
+      el.actionHint.textContent = "第一关完成。点「开始第二关 · 四层」继续。";
+    } else if (state.selectedPeg !== null) {
+      el.actionHint.textContent = "已选 " + PEG_LABEL[state.selectedPeg] + " 顶层供品；点另一柱完成移动，或再点同柱取消。";
+    } else {
+      el.actionHint.textContent = "点某一柱顶层的供品选中，再点目标柱移动。";
+    }
+    renderPhase();
+  }
+
+  function tryMove(from, to) {
+    if (!canMove(from, to)) {
+      const pegEl = el.board.querySelector('.peg-stack[data-peg="' + to + '"]');
+      if (pegEl) shakePeg(pegEl);
+      pushLog("大不得压小——" + DISK_LABEL[topDisk(from)] + " 不能覆于较小供品之上。", "bad");
+      return false;
+    }
+    const disk = state.pegs[from].pop();
+    state.pegs[to].push(disk);
+    state.moves++;
+    pushLog("移 " + DISK_LABEL[disk] + "：" + PEG_LABEL[from] + " → " + PEG_LABEL[to] + "（第 " + state.moves + " 步）");
+    return true;
+  }
+
+  function onPegClick(peg) {
+    if (state.won || state.waitingFormal) return;
+    if (state.selectedPeg === null) {
+      if (!state.pegs[peg].length) return;
+      state.selectedPeg = peg;
+      renderBoard();
+      return;
+    }
+    if (state.selectedPeg === peg) {
+      state.selectedPeg = null;
+      renderBoard();
+      return;
+    }
+    const from = state.selectedPeg;
+    if (tryMove(from, peg)) {
+      state.selectedPeg = null;
+      renderBoard();
+      checkWin();
+    }
+  }
+
+  function checkWin() {
+    if (!isSolved()) return;
+    const par = optimalMoves(state.diskCount);
+    if (state.phase === "teach") {
+      pushLog("第一关通关！三层供品已至鸦巢。" + (state.moves === par ? " 恰好 " + par + " 步，妙法圆满。" : ""), "ok");
+      state.waitingFormal = true;
+      el.teachBanner.hidden = false;
+      renderBoard();
+      return;
+    }
+    state.won = true;
+    pushLog("四层供品齐备！整段通关。" + (state.moves === par ? " 恰好 " + par + " 步。" : " 层层搬移自有定数；掏海却无定数。"), "ok");
+    renderBoard();
+    if (typeof window.crowAfterBridgeWin === "function") window.crowAfterBridgeWin();
+  }
+
+  function bfsNextMove(pegs, sizes) {
+    const start = encode(pegs);
+    const goalStack = sizes.slice().sort(function (a, b) { return b - a; });
+    const goal = encode([[], [], goalStack]);
+    if (start === goal) return null;
+    const queue = [{ pegs: clonePegs(pegs), path: [] }];
+    const seen = new Set([start]);
+    while (queue.length) {
+      const cur = queue.shift();
+      const key = encode(cur.pegs);
+      if (key === goal) {
+        return cur.path.length ? cur.path[0] : null;
+      }
+      for (let from = 0; from < 3; from++) {
+        if (!cur.pegs[from].length) continue;
+        const disk = cur.pegs[from][cur.pegs[from].length - 1];
+        for (let to = 0; to < 3; to++) {
+          if (from === to) continue;
+          const dest = cur.pegs[to];
+          if (dest.length && dest[dest.length - 1] < disk) continue;
+          const next = clonePegs(cur.pegs);
+          next[from].pop();
+          next[to].push(disk);
+          const nk = encode(next);
+          if (seen.has(nk)) continue;
+          seen.add(nk);
+          queue.push({ pegs: next, path: cur.path.concat([[from, to]]) });
+        }
+      }
+    }
+    return null;
+  }
+
+  function showHint() {
+    if (state.won || state.waitingFormal) return;
+    state.hintCount++;
+    const texts = [
+      "先移开压在上面的较小供品，才能动更大的那一层。",
+      "把最大一层暂搁礁石上，腾挪其余供品，再移最大层。",
+      null
+    ];
+    const generic = texts[Math.min(state.hintCount - 1, 1)];
+    const move = bfsNextMove(state.pegs, diskSizes());
+    if (move) {
+      state.selectedPeg = move[0];
+      pushLog("提示：将 " + PEG_LABEL[move[0]] + " 顶层供品移至 " + PEG_LABEL[move[1]] + "。");
+      renderBoard();
+      const pegEl = el.board.querySelector('.peg-stack[data-peg="' + move[0] + '"]');
+      if (pegEl) pegEl.classList.add("peg-target");
+      return;
+    }
+    if (generic) pushLog("提示：" + generic);
+  }
+
+  function startTeach() {
+    state.phase = "teach";
+    state.diskCount = 3;
+    state.pegs = initialPegs(3);
+    state.moves = 0;
+    state.selectedPeg = null;
+    state.hintCount = 0;
+    state.won = false;
+    state.waitingFormal = false;
+    el.teachBanner.hidden = true;
+    el.log.innerHTML = "";
+    pushLog("第一关开始：三层供品（肉·鱼·酒）在祭坛。迁至鸦巢。");
+    renderBoard();
+  }
+
+  function startFormal() {
+    state.phase = "formal";
+    state.diskCount = 4;
+    state.pegs = initialPegs(4);
+    state.moves = 0;
+    state.selectedPeg = null;
+    state.hintCount = 0;
+    state.won = false;
+    state.waitingFormal = false;
+    el.teachBanner.hidden = true;
+    pushLog("第二关：四层供品（肉·鱼·奶·酒）。祭主渐近，须全部搬至鸦巢。");
+    renderBoard();
+  }
+
+  el.board.addEventListener("click", function (e) {
+    const t = e.target;
+    if (!t || !t.closest) return;
+    const node = t.closest("[data-peg]");
+    if (!node) return;
+    const peg = parseInt(node.dataset.peg, 10);
+    if (Number.isNaN(peg)) return;
+    onPegClick(peg);
+  });
+
+  el.btnRestart.onclick = startTeach;
+  el.btnHint.onclick = showHint;
+  el.btnFormal.onclick = startFormal;
+
+  /** 供品之塔：每次调用只推进一小步（教学通关 → 点「四层」→ 正式通关），与 gear-neon-skip 一关一点击对齐 */
+  window.__siddharthaGodCrowHanoiSkipOneStep = function () {
+    try {
+      if (state.waitingFormal && state.phase === "teach") {
+        startFormal();
+        return true;
+      }
+      if (state.phase === "teach" && !state.won && !state.waitingFormal) {
+        state.pegs = [[], [], [4, 3, 1]];
+        state.moves = 7;
+        state.selectedPeg = null;
+        state.waitingFormal = true;
+        state.won = false;
+        el.teachBanner.hidden = false;
+        renderBoard();
+        return true;
+      }
+      if (state.phase === "formal" && !state.won) {
+        state.pegs = [[], [], [4, 3, 2, 1]];
+        state.moves = 15;
+        state.won = true;
+        state.waitingFormal = false;
+        state.selectedPeg = null;
+        el.teachBanner.hidden = true;
+        renderBoard();
+        if (typeof window.crowAfterBridgeWin === "function") window.crowAfterBridgeWin();
+        return true;
+      }
+    } catch (eHanoiGod) {}
+    return false;
+  };
+
+  startTeach();
+})();
+// --- Puzzle: 业径蛇梯（约束最短路）---
+(function () {
+  var COLS = 5;
+  var ROWS = 6;
+  var GOAL = 29;
+  var jump = [];
+  jump[2] = 13;
+  jump[5] = 18;
+  jump[9] = 21;
+  jump[19] = 7;
+  jump[22] = 12;
+  jump[26] = 14;
+
+  var WP = { 10: 1, 23: 2 };
+
+  function resolve(p) {
+    var q = p;
+    var seen = Object.create(null);
+    while (jump[q] != null && !seen[q]) {
+      seen[q] = true;
+      q = jump[q];
+    }
+    return q;
+  }
+
+  function afterMove(pos, d) {
+    var p = pos + d;
+    if (p > GOAL) return null;
+    return resolve(p);
+  }
+
+  function computeMinMoves() {
+    var q = [{ pos: 0, mask: 0, dist: 0 }];
+    var best = Object.create(null);
+    function key(p, m) {
+      return p + "," + m;
+    }
+    while (q.length) {
+      var cur = q.shift();
+      var k = key(cur.pos, cur.mask);
+      if (best[k] != null && best[k] <= cur.dist) continue;
+      best[k] = cur.dist;
+      var m = cur.mask;
+      if (WP[cur.pos]) m |= WP[cur.pos];
+      if (cur.pos === GOAL) {
+        if (m === 3) return cur.dist;
+        continue;
+      }
+      for (var d = 1; d <= 3; d++) {
+        var np = afterMove(cur.pos, d);
+        if (np == null) continue;
+        var nm = cur.mask;
+        if (WP[np]) nm |= WP[np];
+        q.push({ pos: np, mask: nm, dist: cur.dist + 1 });
+      }
+    }
+    return -1;
+  }
+
+  var OPTIMAL = computeMinMoves();
+
+  var boardEl = document.getElementById("sl-board");
+  var fb = document.getElementById("sl-feedback");
+  var statsEl = document.getElementById("sl-stats");
+  var pos = 0;
+  var mask = 0;
+  var steps = 0;
+  var history = [];
+  var trail = Object.create(null);
+  var solved = false;
+
+  function idxToGrid(i) {
+    var r = Math.floor(i / COLS);
+    var c = r % 2 === 0 ? i % COLS : COLS - 1 - (i % COLS);
+    return { r: r + 1, c: c + 1 };
+  }
+
+  function cellTag(i) {
+    if (i === 0) return "起点";
+    if (i === GOAL) return "知止";
+    if (i === 10) return "劝止";
+    if (i === 23) return "舀水";
+    if (jump[i] != null && jump[i] > i) return "升+" + (jump[i] - i);
+    if (jump[i] != null && jump[i] < i) return "滑" + (i - jump[i]);
+    return "";
+  }
+
+  function renderBoard() {
+    boardEl.innerHTML = "";
+    for (var i = 0; i <= GOAL; i++) {
+      var g = idxToGrid(i);
+      var cell = document.createElement("div");
+      cell.className = "sl-cell";
+      cell.dataset.idx = String(i);
+      cell.style.gridRow = String(g.r);
+      cell.style.gridColumn = String(g.c);
+      if (i === 0) cell.classList.add("sl-start");
+      if (i === GOAL) cell.classList.add("sl-goal");
+      if (i === 10 || i === 23) cell.classList.add("sl-way");
+      if (jump[i] != null && jump[i] > i) cell.classList.add("sl-lad");
+      if (jump[i] != null && jump[i] < i) cell.classList.add("sl-snake");
+      if (i === pos) cell.classList.add("sl-here");
+      else if (trail[i]) cell.classList.add("sl-trail");
+      var n = document.createElement("span");
+      n.className = "sl-n";
+      n.textContent = String(i + 1);
+      var t = document.createElement("span");
+      t.className = "sl-t";
+      var tag = cellTag(i);
+      t.textContent = tag;
+      cell.appendChild(n);
+      cell.appendChild(t);
+      boardEl.appendChild(cell);
+    }
+  }
+
+  function updateMaskAt(p) {
+    if (WP[p]) mask |= WP[p];
+  }
+
+  function updateStats() {
+    var name =
+      pos === 0
+        ? "鸦群滩头"
+        : pos === GOAL
+          ? "知止礁"
+          : pos === 10
+            ? "北礁劝止碑"
+            : pos === 23
+              ? "夜潮舀水处"
+              : "第 " + (pos + 1) + " 格";
+    var mtxt = (mask & 1 ? "已" : "未") + "经劝止碑 · " + (mask & 2 ? "已" : "未") + "经舀水处";
+    statsEl.innerHTML =
+      "当前格：<strong>" +
+      pos +
+      "</strong>（" +
+      name +
+      "）　已走步数：<strong>" +
+      steps +
+      "</strong>　最短可行：<strong>" +
+      OPTIMAL +
+      "</strong>　" +
+      mtxt;
+  }
+
+  function applyStep(d) {
+    if (solved) return;
+    var np = afterMove(pos, d);
+    if (np == null) {
+      fb.textContent = "此步会越过知止礁，不可行。";
+      fb.className = "bad";
+      return;
+    }
+    history.push({ pos: pos, mask: mask, steps: steps });
+    trail[pos] = true;
+    pos = np;
+    steps += 1;
+    updateMaskAt(pos);
+    fb.textContent = "";
+    fb.className = "";
+    renderBoard();
+    updateStats();
+  }
+
+  function undo() {
+    if (solved) return;
+    if (!history.length) return;
+    var h = history.pop();
+    pos = h.pos;
+    mask = h.mask;
+    steps = h.steps;
+    trail = Object.create(null);
+    for (var i = 0; i < history.length; i++) {
+      trail[history[i].pos] = true;
+    }
+    fb.textContent = "";
+    fb.className = "";
+    renderBoard();
+    updateStats();
+  }
+
+  function reset() {
+    if (solved) return;
+    pos = 0;
+    mask = 0;
+    steps = 0;
+    history = [];
+    trail = Object.create(null);
+    fb.textContent = "";
+    fb.className = "";
+    renderBoard();
+    updateStats();
+  }
+
+  function verify() {
+    if (solved) return;
+    fb.className = "";
+    if (pos !== GOAL) {
+      fb.textContent = "尚未抵达知止礁（末格）。请继续行走或重置。";
+      fb.className = "bad";
+      return;
+    }
+    if (mask !== 3) {
+      fb.textContent =
+        "虽已抵礁，但须在途中各落脚一次：第 11 格（北礁劝止碑）与第 24 格（夜潮舀水处）。请撤销重试。";
+      fb.className = "bad";
+      return;
+    }
+    if (steps !== OPTIMAL) {
+      fb.textContent =
+        "条件已满足，但步数不是最短（当前 " + steps + " 步，最短 " + OPTIMAL + " 步）。可撤销调整或重置。";
+      fb.className = "bad";
+      return;
+    }
+    fb.textContent = "业径已通：善法梯省苦，渴爱蛇示险；最短步恰合因缘。群鸦继续衔水——";
+    fb.className = "ok";
+    solved = true;
+    document.getElementById("sl-d1").disabled = true;
+    document.getElementById("sl-d2").disabled = true;
+    document.getElementById("sl-d3").disabled = true;
+    document.getElementById("sl-undo").disabled = true;
+    document.getElementById("sl-reset").disabled = true;
+    document.getElementById("sl-verify").disabled = true;
+    if (typeof window.crowAfterLatinWin === "function") window.crowAfterLatinWin();
+  }
+
+  document.getElementById("sl-d1").addEventListener("click", function () {
+    applyStep(1);
+  });
+  document.getElementById("sl-d2").addEventListener("click", function () {
+    applyStep(2);
+  });
+  document.getElementById("sl-d3").addEventListener("click", function () {
+    applyStep(3);
+  });
+  document.getElementById("sl-undo").addEventListener("click", undo);
+  document.getElementById("sl-reset").addEventListener("click", reset);
+  document.getElementById("sl-verify").addEventListener("click", verify);
+
+  window.__siddharthaGodCrowSkipSnakeLadder = function () {
+    try {
+      pos = GOAL;
+      mask = 3;
+      steps = OPTIMAL;
+      solved = true;
+      document.getElementById("sl-d1").disabled = true;
+      document.getElementById("sl-d2").disabled = true;
+      document.getElementById("sl-d3").disabled = true;
+      document.getElementById("sl-undo").disabled = true;
+      document.getElementById("sl-reset").disabled = true;
+      document.getElementById("sl-verify").disabled = true;
+      fb.textContent = "";
+      fb.className = "";
+      renderBoard();
+      updateStats();
+    } catch (eSlGod) {}
+    if (typeof window.crowAfterLatinWin === "function") window.crowAfterLatinWin();
+  };
+
+  renderBoard();
+  updateStats();
+})();
+
+
+// --- Puzzle: verse ---
+(function () {
+(function () {
+      var verseGod = false;
+
+      var WRONG = [
+        "Api nū hanukā santā",
+        "mukhañ parisussati",
+        "oramāma pārema",
+        "pūrat' eva mahodadhī",
+      ].join("\n");
+
+      var EXPECTED = [
+        "Api nū hanukā santā",
+        "mukhañ ca parisussati",
+        "oramāma na pārema",
+        "pūrat' eva mahodadhī",
+      ].join("\n");
+
+      var ta = document.getElementById("cv-repair");
+      var fb = document.getElementById("cv-feedback");
+      var winGlossary = document.getElementById("cv-winGlossary");
+      var finale = document.getElementById("cv-finale");
+      var finalePali = document.getElementById("cv-finalePali");
+      var hintBox = document.getElementById("cv-hintBox");
+      var wrongLinesDisplay = document.getElementById("cv-wrongLinesDisplay");
+      var selCa = document.getElementById("cv-selCa");
+      var selNa = document.getElementById("cv-selNa");
+      var verifyBtn = document.getElementById("cv-btnVerify");
+      var verseFailures = 0;
+      var hintLevel = 0;
+
+      function shuffleSelectOptions(sel) {
+        var opts = Array.prototype.slice.call(sel.querySelectorAll("option"));
+        var head = opts.shift();
+        for (var i = opts.length - 1; i > 0; i--) {
+          var j = Math.floor(Math.random() * (i + 1));
+          var t = opts[i];
+          opts[i] = opts[j];
+          opts[j] = t;
+        }
+        sel.innerHTML = "";
+        sel.appendChild(head);
+        opts.forEach(function (o) {
+          sel.appendChild(o);
+        });
+      }
+      shuffleSelectOptions(selCa);
+      shuffleSelectOptions(selNa);
+
+      function normalizeLine(line) {
+        return String(line)
+          .trim()
+          .replace(/^\d+[\.\)、]\s*/, "")
+          .replace(/\s+/g, " ")
+          .trim();
+      }
+
+      function normalizePoem(s) {
+        return String(s)
+          .replace(/\r\n/g, "\n")
+          .split("\n")
+          .map(normalizeLine)
+          .filter(function (line) {
+            return line.length > 0;
+          })
+          .join("\n");
+      }
+
+      function syncWrongDisplay() {
+        var lines = String(ta.value)
+          .replace(/\r\n/g, "\n")
+          .split("\n")
+          .map(normalizeLine)
+          .filter(function (l) {
+            return l.length > 0;
+          });
+        while (lines.length < 4) {
+          lines.push("");
+        }
+        wrongLinesDisplay.textContent = lines
+          .slice(0, 4)
+          .map(function (l, i) {
+            return (i + 1) + ". " + (l || "…");
+          })
+          .join("\n");
+      }
+
+      function rebuildFromSelections() {
+        var caRow = selCa.value ? parseInt(selCa.value, 10) : 0;
+        var naRow = selNa.value ? parseInt(selNa.value, 10) : 0;
+        var lines = WRONG.split("\n").map(normalizeLine);
+        for (var i = 0; i < lines.length; i++) {
+          var n = i + 1;
+          var L = lines[i];
+          if (caRow === n) {
+            L = L.replace(/mukhañ\s+parisussati/gi, "mukhañ ca parisussati");
+            L = L.replace(/mukhañ\s+ca\s+ca\s+parisussati/gi, "mukhañ ca parisussati");
+          }
+          if (naRow === n) {
+            L = L.replace(/oramāma\s+pārema/gi, "oramāma na pārema");
+            L = L.replace(/oramāma\s+na\s+na\s+pārema/gi, "oramāma na pārema");
+          }
+          lines[i] = L;
+        }
+        ta.value = lines.join("\n");
+        syncWrongDisplay();
+      }
+
+      function verify() {
+        fb.classList.remove("ok", "bad");
+
+        if (!selCa.value || !selNa.value) {
+          fb.textContent = "请先为 ca 与 na 各选一句。";
+          fb.classList.add("bad");
+          return;
+        }
+
+        if (selCa.value === selNa.value) {
+          fb.textContent = "ca 与 na 须落在不同句，请调整句次。";
+          fb.classList.add("bad");
+          return;
+        }
+
+        rebuildFromSelections();
+
+        var canon = normalizePoem(ta.value);
+        var want = normalizePoem(EXPECTED);
+
+        if (canon === want) {
+          verseFailures = 0;
+          fb.textContent = "节律与义理俱顺，句读已齐。石碑发光，海神应声。";
+          fb.classList.add("ok");
+          winGlossary.classList.add("is-on");
+          finale.classList.add("is-on");
+          if (finalePali) finalePali.textContent = EXPECTED.split("\n").join("\n");
+          syncWrongDisplay();
+          if (typeof window.crowAfterVerseWin === "function") window.crowAfterVerseWin();
+          return;
+        }
+
+        winGlossary.classList.remove("is-on");
+        finale.classList.remove("is-on");
+        if (finalePali) finalePali.textContent = "";
+        verseFailures++;
+        if (!verseGod && verseFailures % 3 === 0) showNextHint();
+        if (!verseGod) {
+          verifyBtn.disabled = true;
+          setTimeout(function () {
+            verifyBtn.disabled = false;
+          }, 2000);
+        }
+        fb.textContent = "尚未与碑上他处铭文同声。再对范例细听。";
+        fb.classList.add("bad");
+      }
+
+      function resetRepair() {
+        selCa.value = "";
+        selNa.value = "";
+        shuffleSelectOptions(selCa);
+        shuffleSelectOptions(selNa);
+        ta.value = WRONG;
+        fb.textContent = "";
+        fb.classList.remove("ok", "bad");
+        winGlossary.classList.remove("is-on");
+        finale.classList.remove("is-on");
+        if (finalePali) finalePali.textContent = "";
+        verseFailures = 0;
+        hintLevel = 0;
+        hintBox.hidden = true;
+        ["cv-hint1", "cv-hint2", "cv-hint3", "cv-hint4"].forEach(function (id) {
+          var elHint = document.getElementById(id);
+          if (elHint) elHint.hidden = true;
+        });
+        syncWrongDisplay();
+      }
+
+      function showNextHint() {
+        hintBox.hidden = false;
+        hintLevel = Math.min(hintLevel + 1, 4);
+        if (hintLevel >= 1) document.getElementById("cv-hint1").hidden = false;
+        if (hintLevel >= 2) document.getElementById("cv-hint2").hidden = false;
+        if (hintLevel >= 3) document.getElementById("cv-hint3").hidden = false;
+        if (hintLevel >= 4) document.getElementById("cv-hint4").hidden = false;
+      }
+
+      selCa.addEventListener("change", rebuildFromSelections);
+      selNa.addEventListener("change", rebuildFromSelections);
+      ta.addEventListener("input", syncWrongDisplay);
+
+      document.getElementById("cv-btnVerify").addEventListener("click", verify);
+      document.getElementById("cv-btnReset").addEventListener("click", resetRepair);
+      document.getElementById("cv-btnHint").addEventListener("click", showNextHint);
+
+      window.__siddharthaGodCrowSkipVerse = function () {
+        if (typeof window.crowAfterVerseWin === "function") window.crowAfterVerseWin();
+      };
+
+      rebuildFromSelections();
+    })();
+})();
+
+  </script>
+  <script src="../assets/gear-neon-corners.js"></script>
+  <script src="../assets/gear-neon-skip.js"></script>
+</body>
+</html>
