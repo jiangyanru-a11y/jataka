@@ -1,0 +1,35 @@
+/* Per-stage decorative backdrop behind the dialog panel (not full viewport). */
+
+.stage-bg-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  background-color: #4a4034;
+  background-image: var(--stage-bg-image, none);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  transition: opacity 0.55s ease, background-image 0.01s;
+  opacity: 1;
+}
+
+.stage-bg-layer.is-fading {
+  opacity: 0.55;
+}
+
+.stage-bg-vignette {
+  display: none;
+}
+
+html:has(#stage-bg-layer),
+html:has(#stage-bg-layer) body {
+  background-image: none !important;
+  background-color: #4a4034 !important;
+}
+
+body > :not(.stage-bg-layer) {
+  position: relative;
+  z-index: 1;
+}

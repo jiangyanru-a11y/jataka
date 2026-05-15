@@ -1,0 +1,38 @@
+.wordwall-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  opacity: 1;
+}
+
+.wordwall-brick {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 8px;
+  border: 2px solid #7df9ff;
+  background: rgba(72, 72, 76, 0.55);
+  backdrop-filter: blur(3px);
+  color: #ff5ca8;
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, "Noto Sans Mono", monospace;
+  font-size: 11px;
+  line-height: 1.25;
+  letter-spacing: 0.03em;
+  text-transform: none;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.wordwall-brick.is-vertical {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  padding: 8px 2px;
+}
+
+body.wordwall-enabled > :not(.wordwall-bg) {
+  position: relative;
+  z-index: 1;
+}

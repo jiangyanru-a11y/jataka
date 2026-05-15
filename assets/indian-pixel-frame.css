@@ -1,0 +1,29 @@
+/* Full-viewport background: Indian miniature–style geometric art + light vignette. */
+
+:root {
+  /* Wider play column; sides keep the painting visible */
+  --game-column: min(1020px, 94vw);
+  /* Semi-opaque shell — html background shows through like the opening story */
+  --game-panel-bg: rgba(255, 252, 245, 0.72);
+  --game-panel-border: 1px solid rgba(196, 165, 116, 0.28);
+  /* 可读性：拉丁/巴利转写字母不小于 18px；汉字不小于四号（14pt），正文用黑体系 */
+  --letter-min: 18px;
+  --zh-size: 14pt;
+  --font-zh-hei: "PingFang SC", "Heiti SC", "STHeiti", "Microsoft YaHei", "SimHei", "Noto Sans SC", "Source Han Sans SC", sans-serif;
+}
+
+html {
+  min-height: 100%;
+  min-height: 100dvh;
+  /* 提亮底衬，不叠暗角渐变，细密画直接铺满 */
+  background-color: #4a4034;
+  background-image: url("final-chapter-bg.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: scroll;
+}
+
+body {
+  position: relative;
+}

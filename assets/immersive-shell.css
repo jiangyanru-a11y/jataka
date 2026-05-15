@@ -1,0 +1,490 @@
+/*
+ * 沉浸模式：去掉霓虹对话框外壳与齿轮装饰，正文与按钮直接叠在全屏画面上。
+ * 必须在 gear-neon-shell.css、各页大块 <style> 之后加载。
+ */
+
+#gear-neon-corners-mount,
+.gear-neon-corners {
+  display: none !important;
+}
+
+.gear-neon-game-frame {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  outline: none !important;
+  margin: 0.2rem auto 0.85rem !important;
+  width: min(1020px, 96vw) !important;
+  max-width: 100% !important;
+}
+
+/* 顶栏 */
+#mission-bar {
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  padding: 0.3rem 0.6rem 0.45rem !important;
+  margin: 0 auto !important;
+  margin-bottom: 0 !important;
+}
+
+#mission-bar strong,
+#mission-bar span {
+  font-family: var(--font-zh-hei, "PingFang SC", "Microsoft YaHei", sans-serif) !important;
+  font-size: clamp(0.88rem, 2.6vw, 1.08rem) !important;
+  font-weight: 600 !important;
+  color: #fff !important;
+  text-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.9),
+    0 0 10px rgba(0, 0, 0, 0.55) !important;
+  letter-spacing: 0.05em !important;
+}
+
+.shell,
+.terminal-window,
+.wg-wrap,
+.ending-stage {
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  outline: none !important;
+}
+
+.shell::after,
+.terminal-window::after,
+.wg-wrap::after,
+.ending-stage::after {
+  content: none !important;
+  display: none !important;
+}
+
+.terminal-window {
+  padding-left: max(0.6rem, 2vw) !important;
+  padding-right: max(0.6rem, 2vw) !important;
+}
+
+.shell {
+  padding-left: max(0.65rem, 2vw) !important;
+  padding-right: max(0.65rem, 2vw) !important;
+}
+
+.wg-wrap {
+  padding-left: max(0.65rem, 2vw) !important;
+  padding-right: max(0.65rem, 2vw) !important;
+}
+
+.ending-stage {
+  padding-left: max(0.65rem, 2vw) !important;
+  padding-right: max(0.65rem, 2vw) !important;
+}
+
+/* 落地页 */
+body.arcade-landing .arcade-landing-inner {
+  border: none !important;
+  box-shadow: none !important;
+  background: rgba(255, 252, 245, 0.22) !important;
+  backdrop-filter: blur(2px);
+}
+
+/* 序章分镜 — 配文叠在图下缘 */
+.terminal-window .panel-wrap {
+  position: relative !important;
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+.terminal-window .panel-wrap img {
+  background: transparent !important;
+}
+
+.terminal-window .caption {
+  border: none !important;
+  margin-top: 0 !important;
+  position: absolute !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  padding: 1rem 0.95rem 1.2rem !important;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.72) 0%, rgba(0, 0, 0, 0.35) 55%, transparent 100%) !important;
+  color: #fff !important;
+  text-shadow:
+    0 1px 4px rgba(0, 0, 0, 0.95),
+    0 0 12px rgba(0, 0, 0, 0.65) !important;
+}
+
+.terminal-window .hint,
+.terminal-window .progress,
+.terminal-window .bar {
+  color: #fff !important;
+  text-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.85),
+    0 0 8px rgba(0, 0, 0, 0.45) !important;
+}
+
+/* 过场打字 */
+.transition-overlay {
+  background: rgba(245, 238, 225, 0.28) !important;
+}
+
+.transition-card {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+.transition-card .typewriter-text,
+.transition-card button {
+  color: #fff !important;
+  text-shadow:
+    0 1px 4px rgba(0, 0, 0, 0.9),
+    0 0 10px rgba(0, 0, 0, 0.55) !important;
+}
+
+.transition-card button {
+  background: rgba(78, 78, 82, 0.52) !important;
+  border: 1px solid rgba(212, 175, 116, 0.55) !important;
+}
+
+/* 关卡标题（花染衣等）*/
+.wg-wrap h1.wg-h2,
+.wg-wrap h2.wg-h2,
+.wg-wrap h1 {
+  color: #fff !important;
+  font-family: var(--font-zh-hei, inherit) !important;
+  text-shadow:
+    0 1px 4px rgba(0, 0, 0, 0.9),
+    0 0 12px rgba(0, 0, 0, 0.55) !important;
+}
+
+/* 叙事与偈颂 — 无底框线 */
+.shell .narrative,
+.shell .caption,
+.wg-wrap .narrative,
+.wg-wrap .block,
+.wg-wrap section.scene .narrative,
+.shell .bridge-win-banner,
+.shell #latin-win-next,
+.shell .system-hint,
+.shell .muted,
+.shell .small,
+.shell .scene-tag,
+.wg-wrap .scene-tag,
+.wg-wrap section.scene,
+.shell .pali-open,
+.wg-wrap .pali-open {
+  border: none !important;
+  border-left: none !important;
+  border-top: none !important;
+  border-bottom: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+.shell .system-hint {
+  border: none !important;
+  padding-left: 0 !important;
+}
+
+.shell .h-wg,
+.shell h2.h-wg {
+  border-bottom: none !important;
+  color: #fff !important;
+  text-shadow:
+    0 1px 4px rgba(0, 0, 0, 0.9),
+    0 0 10px rgba(0, 0, 0, 0.5) !important;
+}
+
+.shell .narrative,
+.shell .caption,
+.shell .scene-tag,
+.shell .scene-tag strong,
+.shell .pali-open,
+.shell .muted,
+.shell .hint,
+.wg-wrap .narrative,
+.wg-wrap .block,
+.shell .small,
+.shell .feedback-sg {
+  color: #fff !important;
+  text-shadow:
+    0 1px 4px rgba(0, 0, 0, 0.88),
+    0 0 10px rgba(0, 0, 0, 0.5) !important;
+}
+
+.shell strong,
+.shell b,
+.wg-wrap strong {
+  color: #fff !important;
+  text-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.85),
+    0 0 8px rgba(0, 0, 0, 0.45) !important;
+}
+
+details.jataka-bridge {
+  border: 1px solid rgba(196, 165, 116, 0.42) !important;
+  background: rgba(92, 92, 96, 0.48) !important;
+  border-radius: 6px !important;
+  backdrop-filter: blur(2px);
+  color: #fff !important;
+}
+
+details.jataka-bridge summary {
+  color: #fff !important;
+  text-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.85),
+    0 0 8px rgba(0, 0, 0, 0.45) !important;
+}
+
+/* 谜题与表格 — 极淡玻璃板，非大对话框 */
+.puzzle-hn .card,
+.puzzle-sl .sl-card,
+.puzzle-cb .card,
+.puzzle-cl .card,
+.puzzle-cv section,
+.puzzle-cv .hint-panel,
+.puzzle-cv #cv-repair,
+.puzzle-cv .example-block,
+.wg-wrap .g-grid,
+.wg-wrap .g-log,
+.wg-wrap #wg-repair,
+.wg-wrap .g-rules,
+.wg-wrap .repair-wrap,
+.wg-wrap #scene-mantra .quiz-slide,
+.shell .table-wrap,
+.shell .g-log,
+.shell .hint-panel,
+.shell .status-b,
+.shell .status-t {
+  border: 1px solid rgba(196, 165, 116, 0.24) !important;
+  border-radius: 6px !important;
+  box-shadow: none !important;
+  background: rgba(92, 92, 96, 0.5) !important;
+  backdrop-filter: blur(3px);
+  color: #fff !important;
+}
+
+.puzzle-cb .table,
+.puzzle-cl th,
+.puzzle-cl td,
+.puzzle-cb .log {
+  color: #fff !important;
+  text-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.85),
+    0 0 6px rgba(0, 0, 0, 0.45) !important;
+}
+
+/* 按钮 */
+.btn-wg,
+.bar button,
+button.btn,
+.wg-wrap .btn,
+.wg-wrap button.btn,
+#restartJourney,
+.easter-cta,
+.intro-skip,
+.transition-actions button {
+  background: rgba(78, 78, 82, 0.52) !important;
+  border: 1px solid rgba(212, 175, 116, 0.55) !important;
+  color: #fff !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.45) !important;
+  text-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.9),
+    0 0 8px rgba(0, 0, 0, 0.5) !important;
+}
+
+.btn-wg:hover,
+.bar button:hover:not(:disabled),
+.wg-wrap .btn:hover:not(:disabled) {
+  outline: 2px solid rgba(212, 175, 116, 0.4) !important;
+  outline-offset: 2px !important;
+}
+
+/* 结局 */
+.ending-stage .caption,
+.ending-stage .hint,
+.ending-stage #restartJourney {
+  color: #fff !important;
+  text-shadow:
+    0 1px 4px rgba(0, 0, 0, 0.9),
+    0 0 12px rgba(0, 0, 0, 0.55) !important;
+}
+
+.ending-stage .image-wrap {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+/* 原生 dialog */
+dialog {
+  background: rgba(88, 88, 92, 0.55) !important;
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(196, 165, 116, 0.4) !important;
+  color: #fff !important;
+}
+
+.easter-dialog {
+  border: 1px solid rgba(196, 165, 116, 0.35) !important;
+  background: rgba(88, 88, 92, 0.52) !important;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.65) !important;
+  color: #fff !important;
+}
+
+/* 白字兜底：表格小标题、花染衣密表、链接、落地页 */
+.wg-wrap h2,
+.wg-wrap h3,
+.wg-wrap h4,
+.wg-wrap p,
+.wg-wrap li,
+.wg-wrap td,
+.wg-wrap th,
+.wg-wrap label,
+.wg-wrap .subh,
+.wg-wrap .cipher-intro,
+.wg-wrap .wg-h2,
+.wg-wrap .wg-h3,
+.wg-wrap .wg-jump,
+.wg-wrap section.scene,
+.shell .tip,
+.shell .table-wrap td,
+.shell .table-wrap th {
+  color: #fff !important;
+  text-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.85),
+    0 0 8px rgba(0, 0, 0, 0.45) !important;
+}
+
+.wg-wrap a:link,
+.wg-wrap a:visited,
+.shell a:link,
+.shell a:visited {
+  color: #fff !important;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+body.arcade-landing .arcade-landing-inner,
+body.arcade-landing .arcade-landing-inner * {
+  color: #fff !important;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.85) !important;
+}
+
+.puzzle-hn .card h1,
+.puzzle-hn .card h2,
+.puzzle-hn .card h3,
+.puzzle-hn .tip,
+.puzzle-hn .meta,
+.puzzle-sl .sl-card,
+.puzzle-sl .sl-card .muted {
+  color: #fff !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85) !important;
+}
+
+/* ========== 关卡衔接：独占全屏，不与上一屏正文叠置 ========== */
+body.chapter-transition-on {
+  overflow: hidden !important;
+}
+
+body.chapter-transition-on .terminal-window,
+body.chapter-transition-on #testPanel,
+body.chapter-transition-on .shell,
+body.chapter-transition-on #mission-bar,
+body.chapter-transition-on .wg-wrap,
+body.chapter-transition-on .sea-deco,
+body.chapter-transition-on .forest-deco {
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+.chapter-transition-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 2147482000 !important;
+  box-sizing: border-box !important;
+  margin: 0 !important;
+  display: none !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: max(1.25rem, 5vw) !important;
+  /* 不铺灰底，全屏关卡图（如 stage-bg-layer）仍可见；正文可读性由 .chapter-transition-card 承担 */
+  background: transparent !important;
+  color: #fff !important;
+  overflow: auto !important;
+}
+
+.chapter-transition-overlay:not([hidden]) {
+  display: flex !important;
+}
+
+.chapter-transition-card {
+  width: min(40rem, 100%) !important;
+  max-height: min(88vh, 100%) !important;
+  overflow: auto !important;
+  line-height: 1.85 !important;
+  font-family: var(--font-zh-hei, "PingFang SC", "Microsoft YaHei", sans-serif) !important;
+  font-size: var(--zh-size, 14pt) !important;
+  padding: 1.2rem 1.35rem !important;
+  box-sizing: border-box !important;
+  background: rgba(92, 92, 96, 0.5) !important;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(200, 198, 210, 0.28) !important;
+  border-radius: 6px !important;
+}
+
+.chapter-transition-label {
+  margin: 0 0 0.75rem !important;
+  font-size: 0.92em !important;
+  letter-spacing: 0.12em !important;
+  opacity: 0.88 !important;
+  color: #fff !important;
+}
+
+.chapter-transition-type {
+  white-space: pre-line !important;
+  margin: 0 0 1.35rem !important;
+  text-shadow:
+    0 1px 4px rgba(0, 0, 0, 0.9),
+    0 0 12px rgba(0, 0, 0, 0.55) !important;
+  color: #fff !important;
+}
+
+.chapter-transition-card .btn-wg,
+.chapter-transition-card .btn,
+.chapter-transition-card .btn-continue {
+  align-self: flex-start !important;
+}
+
+#transition01.transition-overlay:not([hidden]) {
+  background: rgba(42, 40, 44, 0.82) !important;
+  z-index: 2147482000 !important;
+}
+
+/* 衔接全屏时仍可按「跳过」 */
+#god-skip-float {
+  position: fixed !important;
+  right: 0.75rem !important;
+  bottom: 0.75rem !important;
+  left: auto !important;
+  top: auto !important;
+  z-index: 2147483640 !important;
+  padding: 0.45rem 0.9rem !important;
+  margin: 0 !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  font: inherit !important;
+  font-size: var(--zh-size, 14pt) !important;
+  border: 2px solid var(--gneon-blue-dim, #1bb8d4) !important;
+  background: linear-gradient(180deg, #141a32 0%, #0a0e1a 100%) !important;
+  color: var(--gneon-blue, #38e8ff) !important;
+  border-radius: 2px !important;
+  box-shadow:
+    0 0 16px rgba(56, 232, 255, 0.35),
+    0 0 24px rgba(255, 77, 196, 0.15) !important;
+  text-shadow: 0 0 8px rgba(56, 232, 255, 0.4) !important;
+}

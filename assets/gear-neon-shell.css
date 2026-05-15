@@ -1,0 +1,541 @@
+/*
+ * 齿轮霓虹壳：蓝 / 粉 / 黄霓虹描边 + 内屏深色；四角像素齿轮由 gear-neon-corners.js 注入。
+ * 须在 indian-pixel-frame.css 之后加载；不修改 html 背景（细密画 final-chapter-bg 仅由 indian-pixel-frame 提供）。
+ * !important 压过章节内联非 !important。
+ */
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&display=swap");
+
+:root {
+  --gneon-blue: #38e8ff;
+  --gneon-blue-dim: #1bb8d4;
+  --gneon-blue-deep: #0a6b8c;
+  --gneon-pink: #ff4dc4;
+  --gneon-pink-dim: #d63a9e;
+  --gneon-yellow: #fff23a;
+  --gneon-yellow-soft: #ffe94d;
+  --gneon-panel-top: rgba(18, 28, 52, 0.96);
+  --gneon-panel-body: rgba(10, 14, 32, 0.98);
+  --gneon-screen: rgba(5, 8, 16, 0.94);
+  --game-column: min(920px, 96vw) !important;
+}
+
+/* 主对话框外框：由 gear-neon-corners.js 包住 mission+shell / terminal / ending / wg-wrap / 落地页 */
+.gear-neon-game-frame {
+  position: relative !important;
+  width: var(--game-column) !important;
+  max-width: 100% !important;
+  margin: 1.1rem auto 1.1rem !important;
+  box-sizing: border-box !important;
+}
+
+body.arcade-landing .gear-neon-game-frame {
+  width: min(920px, 96vw) !important;
+  margin: 1.25rem auto !important;
+}
+
+.gear-neon-game-frame > .terminal-window,
+.gear-neon-game-frame > .ending-stage,
+.gear-neon-game-frame > .wg-wrap {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+/* 齿轮层：贴对话框外缘四角，不挡点击 */
+.gear-neon-game-frame #gear-neon-corners-mount {
+  position: absolute !important;
+  inset: 0 !important;
+  pointer-events: none !important;
+  z-index: 5 !important;
+}
+
+.gear-neon-corners .gear-corner {
+  position: absolute !important;
+  width: 96px !important;
+  height: 96px !important;
+  z-index: 1 !important;
+  pointer-events: none !important;
+}
+
+.gear-neon-corners .gear-corner.tl {
+  top: -14px !important;
+  left: -14px !important;
+  filter: drop-shadow(0 0 10px rgba(56, 232, 255, 0.75)) drop-shadow(0 2px 8px rgba(0, 0, 0, 0.5)) !important;
+}
+
+.gear-neon-corners .gear-corner.tr {
+  top: -14px !important;
+  right: -14px !important;
+  transform: scaleX(-1) !important;
+  filter: drop-shadow(0 0 10px rgba(255, 77, 196, 0.7)) drop-shadow(0 2px 8px rgba(0, 0, 0, 0.5)) !important;
+}
+
+.gear-neon-corners .gear-corner.bl {
+  bottom: -14px !important;
+  left: -14px !important;
+  transform: scaleY(-1) !important;
+  filter: drop-shadow(0 0 10px rgba(255, 242, 58, 0.65)) drop-shadow(0 2px 8px rgba(0, 0, 0, 0.5)) !important;
+}
+
+.gear-neon-corners .gear-corner.br {
+  bottom: -14px !important;
+  right: -14px !important;
+  transform: scale(-1) !important;
+  filter: drop-shadow(0 0 8px rgba(56, 232, 255, 0.5)) drop-shadow(0 0 14px rgba(255, 77, 196, 0.45))
+    drop-shadow(0 2px 8px rgba(0, 0, 0, 0.5)) !important;
+}
+
+@keyframes gneon-gear-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.gear-neon-corners .gear-corner .spin {
+  width: 100% !important;
+  height: 100% !important;
+  display: block !important;
+}
+
+.gear-neon-corners .gear-corner .spin svg {
+  width: 100% !important;
+  height: 100% !important;
+  display: block !important;
+  animation: gneon-gear-spin 48s linear infinite !important;
+  shape-rendering: crispEdges !important;
+  image-rendering: pixelated !important;
+  image-rendering: -moz-crisp-edges !important;
+}
+
+.gear-neon-corners .gear-corner.tr .spin svg {
+  animation-duration: 36s !important;
+  animation-direction: reverse !important;
+}
+
+.gear-neon-corners .gear-corner.bl .spin svg {
+  animation-duration: 40s !important;
+  animation-direction: reverse !important;
+}
+
+.gear-neon-corners .gear-corner.br .spin svg {
+  animation-duration: 44s !important;
+}
+
+body {
+  margin: 0 !important;
+  min-height: 100vh !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  padding: 0.75rem 0.5rem 2rem !important;
+  background: transparent !important;
+  box-sizing: border-box !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+#mission-bar {
+  width: var(--game-column) !important;
+  max-width: 100% !important;
+  margin: 0 auto !important;
+  margin-bottom: 0 !important;
+  padding: 0.55rem 0.85rem !important;
+  font-size: var(--zh-size) !important;
+  border: 3px solid var(--gneon-blue-dim) !important;
+  border-bottom: 2px solid rgba(255, 77, 196, 0.45) !important;
+  border-radius: 4px 4px 0 0 !important;
+  background: linear-gradient(180deg, var(--gneon-panel-top) 0%, var(--gneon-panel-body) 100%) !important;
+  box-shadow:
+    0 0 0 2px var(--gneon-pink-dim),
+    0 0 20px rgba(56, 232, 255, 0.28),
+    0 0 36px rgba(255, 77, 196, 0.12),
+    inset 0 1px 0 rgba(255, 242, 58, 0.08) !important;
+  outline: none !important;
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+#mission-bar strong {
+  font-family: "Share Tech Mono", ui-monospace, monospace !important;
+  font-size: clamp(0.72rem, 3.2vw, 1.02rem) !important;
+  font-weight: 600 !important;
+  color: var(--gneon-yellow-soft) !important;
+  text-shadow: 0 0 12px rgba(255, 242, 58, 0.45), 0 0 24px rgba(255, 77, 196, 0.2) !important;
+  letter-spacing: 0.12em !important;
+}
+
+.wg-wrap h1 {
+  font-size: clamp(1.35rem, 4.2vw, 1.85rem) !important;
+  font-weight: 600 !important;
+  color: var(--gneon-yellow-soft) !important;
+  text-shadow: 0 0 14px rgba(255, 242, 58, 0.35) !important;
+}
+
+.shell {
+  width: var(--game-column) !important;
+  max-width: 100% !important;
+  margin: 0 auto !important;
+  margin-top: 0 !important;
+  border: 3px solid var(--gneon-blue-deep) !important;
+  border-top: 2px solid rgba(255, 242, 58, 0.45) !important;
+  border-radius: 0 0 4px 4px !important;
+  background:
+    radial-gradient(ellipse 100% 70% at 50% 12%, rgba(56, 232, 255, 0.07) 0%, transparent 52%),
+    radial-gradient(ellipse 70% 50% at 92% 88%, rgba(255, 77, 196, 0.06) 0%, transparent 48%),
+    var(--gneon-screen) !important;
+  box-shadow:
+    0 0 0 2px var(--gneon-pink-dim),
+    0 0 0 5px rgba(6, 10, 24, 0.85),
+    0 16px 40px rgba(0, 0, 0, 0.55),
+    0 0 18px rgba(56, 232, 255, 0.12),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.55),
+    inset 0 0 28px rgba(0, 0, 0, 0.35),
+    0 0 0 1px rgba(255, 242, 58, 0.28) !important;
+  outline: none !important;
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+.shell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    rgba(0, 0, 0, 0.06) 3px,
+    rgba(0, 0, 0, 0.06) 5px
+  );
+  opacity: 0.35;
+  z-index: 0;
+}
+
+.shell > * {
+  position: relative;
+  z-index: 1;
+}
+
+.terminal-window {
+  width: var(--game-column) !important;
+  max-width: 100% !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  border: 3px solid var(--gneon-blue-dim) !important;
+  border-radius: 4px !important;
+  background:
+    radial-gradient(ellipse 90% 60% at 50% 0%, rgba(56, 232, 255, 0.08) 0%, transparent 50%),
+    var(--gneon-screen) !important;
+  box-shadow:
+    0 0 0 2px var(--gneon-pink-dim),
+    0 0 24px rgba(56, 232, 255, 0.2),
+    0 18px 42px rgba(0, 0, 0, 0.55),
+    inset 0 0 0 2px rgba(56, 232, 255, 0.12),
+    inset 0 0 40px rgba(0, 0, 0, 0.35) !important;
+  outline: none !important;
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+.terminal-window::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    rgba(0, 0, 0, 0.06) 3px,
+    rgba(0, 0, 0, 0.06) 5px
+  );
+  opacity: 0.32;
+  z-index: 0;
+}
+
+.terminal-window > * {
+  position: relative;
+  z-index: 1;
+}
+
+.wg-wrap {
+  width: var(--game-column) !important;
+  max-width: 100% !important;
+  margin: 1rem auto !important;
+  border: 3px solid var(--gneon-blue-dim) !important;
+  border-radius: 4px !important;
+  background:
+    radial-gradient(ellipse 80% 55% at 20% 10%, rgba(255, 77, 196, 0.06) 0%, transparent 50%),
+    var(--gneon-screen) !important;
+  box-shadow:
+    0 0 0 2px var(--gneon-pink-dim),
+    0 0 22px rgba(255, 77, 196, 0.12),
+    0 18px 40px rgba(0, 0, 0, 0.52),
+    inset 0 0 0 2px rgba(56, 232, 255, 0.1) !important;
+  outline: none !important;
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+.wg-wrap::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    rgba(0, 0, 0, 0.06) 3px,
+    rgba(0, 0, 0, 0.06) 5px
+  );
+  opacity: 0.3;
+  z-index: 0;
+}
+
+.wg-wrap > * {
+  position: relative;
+  z-index: 1;
+}
+
+.ending-stage {
+  width: var(--game-column) !important;
+  max-width: 100% !important;
+  margin: 0 auto !important;
+  border: 3px solid var(--gneon-blue-dim) !important;
+  border-radius: 4px !important;
+  background: var(--gneon-screen) !important;
+  box-shadow:
+    0 0 0 2px var(--gneon-pink-dim),
+    0 0 22px rgba(56, 232, 255, 0.18),
+    0 18px 40px rgba(0, 0, 0, 0.52),
+    inset 0 0 0 2px rgba(255, 242, 58, 0.08) !important;
+  outline: none !important;
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+.ending-stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    rgba(0, 0, 0, 0.06) 3px,
+    rgba(0, 0, 0, 0.06) 5px
+  );
+  opacity: 0.3;
+  z-index: 0;
+}
+
+.ending-stage > * {
+  position: relative;
+  z-index: 1;
+}
+
+body.arcade-landing {
+  justify-content: center !important;
+  padding: 1.5rem 1rem !important;
+}
+
+.arcade-landing-inner {
+  width: min(920px, 96vw);
+  padding: 1.5rem 1.35rem 2rem;
+  border: 3px solid var(--gneon-blue-dim);
+  border-radius: 4px;
+  background: linear-gradient(145deg, rgba(18, 28, 52, 0.96) 0%, rgba(10, 14, 32, 0.98) 45%, rgba(22, 16, 40, 0.95) 100%);
+  box-shadow:
+    0 0 0 2px var(--gneon-pink-dim),
+    0 0 24px rgba(56, 232, 255, 0.32),
+    0 0 48px rgba(255, 77, 196, 0.12),
+    0 20px 48px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 242, 58, 0.08);
+  color: #dbe8f0;
+  position: relative;
+  z-index: 2;
+}
+
+.arcade-landing-inner h1 {
+  font-family: "Press Start 2P", monospace;
+  font-size: clamp(0.5rem, 2.8vw, 0.68rem);
+  line-height: 1.7;
+  color: var(--gneon-yellow-soft);
+  text-shadow: 0 0 12px rgba(255, 242, 58, 0.45), 0 0 20px rgba(255, 77, 196, 0.2);
+  letter-spacing: 0.06em;
+  margin-top: 0;
+}
+
+.arcade-landing-inner .note {
+  color: #9eb8d0;
+}
+
+.arcade-landing-inner a {
+  color: var(--gneon-blue);
+  text-shadow: 0 0 8px rgba(56, 232, 255, 0.35);
+}
+
+.arcade-landing-inner .cta {
+  border: 2px solid var(--gneon-blue-dim);
+  border-radius: 2px;
+  background: linear-gradient(180deg, var(--gneon-yellow) 0%, #e6d020 100%);
+  color: #060814;
+  font-weight: 600;
+  box-shadow:
+    0 0 12px rgba(255, 242, 58, 0.4),
+    0 2px 0 var(--gneon-blue-deep),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.arcade-landing-inner .cta:hover {
+  filter: brightness(1.08);
+}
+
+.arcade-landing-inner .cta-secondary {
+  display: inline-block;
+  margin-top: 0.5rem;
+  margin-left: 0.35rem;
+  padding: 0.5rem 1rem;
+  border: 2px solid var(--gneon-pink-dim) !important;
+  color: var(--gneon-pink) !important;
+  background: linear-gradient(180deg, #141a32 0%, #0a0e1a 100%) !important;
+  text-decoration: none;
+  font-size: var(--zh-size);
+  border-radius: 2px !important;
+  box-shadow: 0 0 10px rgba(255, 77, 196, 0.22) !important;
+}
+
+.arcade-landing-inner .cta-secondary:hover {
+  filter: brightness(1.1);
+}
+
+#god-skip-float {
+  position: fixed !important;
+  right: 0.75rem !important;
+  bottom: 0.75rem !important;
+  left: auto !important;
+  top: auto !important;
+  z-index: 99998 !important;
+  padding: 0.45rem 0.9rem !important;
+  margin: 0 !important;
+  font: inherit !important;
+  font-size: var(--zh-size, 14pt) !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  border: 2px solid var(--gneon-blue-dim) !important;
+  background: linear-gradient(180deg, #141a32 0%, #0a0e1a 100%) !important;
+  color: var(--gneon-blue) !important;
+  border-radius: 2px !important;
+  box-shadow: 0 0 16px rgba(56, 232, 255, 0.35), 0 0 24px rgba(255, 77, 196, 0.15) !important;
+  text-shadow: 0 0 8px rgba(56, 232, 255, 0.4) !important;
+}
+
+/* ========== 分镜 / 过场 / 开场 ========== */
+.terminal-window .panel-wrap {
+  border: 2px solid var(--gneon-blue) !important;
+  background: rgba(6, 8, 18, 0.92) !important;
+  box-shadow:
+    0 0 0 1px rgba(255, 77, 196, 0.25),
+    0 0 18px rgba(56, 232, 255, 0.22) !important;
+}
+
+.terminal-window .caption {
+  border-top: 2px solid rgba(255, 242, 58, 0.4) !important;
+  margin-top: 0.25rem !important;
+}
+
+.transition-card {
+  border: 3px solid var(--gneon-blue-dim) !important;
+  background: rgba(8, 10, 22, 0.96) !important;
+  border-radius: 4px !important;
+  box-shadow:
+    0 0 0 2px var(--gneon-pink-dim),
+    inset 0 0 0 2px rgba(56, 232, 255, 0.1),
+    0 0 26px rgba(255, 242, 58, 0.15) !important;
+}
+
+/* ========== 关卡内：叙事块、状态、谜题卡片 ========== */
+.shell .narrative,
+.wg-wrap section.scene,
+.wg-wrap .g-rules,
+.wg-wrap .repair-wrap,
+.shell .status-b,
+.shell .status-t,
+.shell .feedback-sg,
+.shell .bridge-win-banner,
+.wg-wrap .quiz-mantra-round .quiz-slide,
+.wg-wrap #scene-mantra .quiz-slide {
+  border-radius: 2px !important;
+  border: 2px solid var(--gneon-blue-dim) !important;
+  box-shadow:
+    0 0 0 1px rgba(255, 242, 58, 0.22),
+    inset 0 0 0 1px rgba(56, 232, 255, 0.08) !important;
+}
+
+.shell .narrative,
+.wg-wrap .block {
+  border-left: 4px solid var(--gneon-pink) !important;
+}
+
+.shell .pali-open,
+.wg-wrap .pali-open {
+  border-top: 2px solid var(--gneon-blue-dim) !important;
+  border-bottom: 2px solid var(--gneon-blue-dim) !important;
+  border-left: 4px solid var(--gneon-pink) !important;
+  border-right: 2px solid rgba(255, 242, 58, 0.35) !important;
+}
+
+.puzzle-cb .card,
+.puzzle-hn .card,
+.puzzle-cl .card,
+.puzzle-cv section,
+.puzzle-cb .table-wrap,
+.puzzle-cl .table-wrap,
+.puzzle-cv .hint-panel,
+.puzzle-cv #cv-repair,
+.shell .table-wrap,
+.shell .g-log,
+.shell .hint-panel,
+.wg-wrap .g-grid,
+.wg-wrap .g-log,
+.wg-wrap #wg-repair {
+  border-radius: 2px !important;
+  border: 2px solid var(--gneon-yellow-soft) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(56, 232, 255, 0.14),
+    0 0 14px rgba(255, 77, 196, 0.1) !important;
+}
+
+.puzzle-cb .table,
+.puzzle-cl .table,
+.puzzle-cl th,
+.puzzle-cl td {
+  border-color: rgba(56, 232, 255, 0.35) !important;
+}
+
+/* ========== 结局彩蛋对话框 ========== */
+.easter-dialog {
+  border: 3px solid var(--gneon-blue-dim) !important;
+  background: rgba(6, 8, 18, 0.97) !important;
+  border-radius: 4px !important;
+  box-shadow:
+    0 0 0 2px var(--gneon-pink-dim),
+    inset 0 0 0 2px rgba(56, 232, 255, 0.1),
+    0 12px 40px rgba(0, 0, 0, 0.75) !important;
+}
+
+.easter-reply {
+  color: var(--gneon-yellow-soft) !important;
+  text-shadow: 0 0 10px rgba(255, 242, 58, 0.35) !important;
+}
