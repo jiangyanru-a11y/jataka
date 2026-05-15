@@ -1,0 +1,648 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>结局</title>
+  <link rel="stylesheet" href="../assets/indian-pixel-frame.css" />
+  <link rel="stylesheet" href="../assets/gear-neon-shell.css" />
+  <style>
+    :root {
+      color-scheme: dark;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      color: #f2f0e8;
+      font-family: var(--font-zh-hei);
+      font-size: var(--zh-size);
+      padding: 0;
+      letter-spacing: 0.04em;
+      text-transform: none;
+    }
+
+    .ending-stage {
+      position: relative;
+      z-index: 1;
+      width: min(var(--game-column), 100%);
+      max-width: 100%;
+      display: grid;
+      gap: 16px;
+      cursor: pointer;
+      user-select: none;
+      background: var(--game-panel-bg);
+      border: var(--game-panel-border);
+      outline: none;
+      box-shadow: none;
+      padding: 1rem;
+      justify-items: center;
+    }
+
+    .image-wrap {
+      position: relative;
+      border-radius: 0;
+      overflow: hidden;
+      box-shadow: none;
+      border: none;
+      background: transparent;
+      width: 100%;
+      max-width: 100%;
+    }
+
+    .image-wrap img {
+      width: 100%;
+      min-height: min(52vh, 480px);
+      max-height: min(88vh, 900px);
+      height: auto;
+      display: block;
+      aspect-ratio: auto;
+      object-fit: cover;
+      object-position: center;
+    }
+
+    .caption {
+      margin: 0;
+      padding: 18px 20px;
+      border-radius: 0;
+      line-height: 1.9;
+      font-size: max(var(--zh-size), clamp(16px, 1.8vw, 22px));
+      letter-spacing: 0.02em;
+      background: transparent;
+      border: none;
+      white-space: pre-line;
+      text-align: center;
+      width: 100%;
+      max-width: 100%;
+    }
+
+    .hint {
+      text-align: center;
+      opacity: 0.75;
+      font-size: var(--zh-size);
+      letter-spacing: 0.06em;
+      width: 100%;
+    }
+    .caption, .hint, button {
+      letter-spacing: 0.04em;
+      text-transform: none;
+    }
+    .easter-cta {
+      justify-self: center;
+      border: 1px solid #777;
+      background: rgba(78, 78, 82, 0.55);
+      backdrop-filter: blur(3px);
+      color: #fff;
+      border-radius: 0;
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+    .easter-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1200;
+      background: rgba(38, 36, 40, 0.88);
+      display: block;
+    }
+    .easter-overlay[hidden] {
+      display: none;
+    }
+    #easterCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      image-rendering: pixelated;
+    }
+    .easter-dialog {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 2;
+      width: min(92vw, 420px);
+      padding: 20px 22px;
+      background: rgba(72, 72, 76, 0.55);
+      backdrop-filter: blur(6px);
+      border: 1px solid #666;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.85);
+      pointer-events: auto;
+    }
+    .easter-dialog[hidden] {
+      display: none !important;
+    }
+    .easter-dialog-prompt {
+      margin: 0 0 12px;
+      font-size: max(var(--zh-size), 16px);
+      line-height: 1.6;
+    }
+    .easter-dialog textarea {
+      width: 100%;
+      margin: 0 0 14px;
+      padding: 10px 12px;
+      border: 1px solid #555;
+      background: rgba(56, 56, 60, 0.55);
+      backdrop-filter: blur(4px);
+      color: #f2f0e8 !important;
+      font: inherit;
+      font-size: max(var(--zh-size), 15px);
+      line-height: 1.6;
+      resize: vertical;
+      min-height: 72px;
+    }
+    .easter-dialog button[type="button"] {
+      border: 1px solid #777;
+      background: rgba(78, 78, 82, 0.55);
+      backdrop-filter: blur(3px);
+      color: #fff !important;
+      border-radius: 0;
+      padding: 8px 16px;
+      cursor: pointer;
+      font: inherit;
+      font-size: var(--zh-size);
+    }
+    .easter-dialog button[type="button"]:disabled {
+      opacity: 0.45;
+      cursor: default;
+    }
+    .easter-reply {
+      margin: 18px 0 0;
+      min-height: 1.6em;
+      font-size: max(var(--zh-size), 18px);
+      line-height: 1.7;
+      letter-spacing: 0.08em;
+      color: #d4af37 !important;
+    }
+    .test-panel {
+      position: fixed;
+      left: 10px;
+      bottom: 10px;
+      z-index: 1200;
+      border: 1px solid #777;
+      background: rgba(78, 78, 82, 0.55);
+      backdrop-filter: blur(3px);
+      padding: 8px;
+      display: flex;
+      gap: 6px;
+    }
+    .test-panel[hidden] { display: none; }
+    .test-panel button {
+      border: 1px solid #777;
+      background: rgba(78, 78, 82, 0.55);
+      backdrop-filter: blur(3px);
+      color: #fff;
+      border-radius: 0;
+      padding: 4px 8px;
+      cursor: pointer;
+      font: inherit;
+      font-size: var(--zh-size);
+    }
+    body.easter-only #endingStage,
+    body.easter-only #testPanel {
+      display: none !important;
+    }
+    body, body * {
+      color: #fff !important;
+    }
+  </style>
+  <link rel="stylesheet" href="../assets/immersive-shell.css" />
+  <script src="../assets/journey-bookmark.js"></script>
+</head>
+<body>
+  <div id="testPanel" class="test-panel" hidden>
+    <button type="button" id="testBackStart">测试：回开场</button>
+  </div>
+  <main id="endingStage" class="ending-stage" aria-live="polite">
+    <figure class="image-wrap">
+      <img id="endingImage" src="./images/shot1_wasteland.png" alt="结局画面">
+    </figure>
+    <p id="endingCaption" class="caption"></p>
+    <div class="hint">点击画面切换下一张</div>
+    <button id="restartJourney" type="button" style="justify-self:center;padding:8px 12px;border:1px solid #777;background:rgba(78,78,82,0.55);backdrop-filter:blur(3px);color:#fff;border-radius:0;cursor:pointer;">重新开始旅程</button>
+  </main>
+  <section id="easterOverlay" class="easter-overlay" hidden>
+    <canvas id="easterCanvas"></canvas>
+    <div id="easterDialog" class="easter-dialog" hidden>
+      <p class="easter-dialog-prompt">请提出你的问题。</p>
+      <textarea id="easterQuestionInput" maxlength="2000" placeholder="在此输入……" autocomplete="off"></textarea>
+      <button type="button" id="easterQuestionSubmit">送出</button>
+      <p id="easterReply" class="easter-reply" aria-live="polite"></p>
+    </div>
+  </section>
+  <audio id="omAudio" src="./audio/om.wav" preload="auto"></audio>
+
+  <script>
+(function () {
+    function getJourneyProgress() {
+      let n = 0;
+      try {
+        n = parseInt(localStorage.getItem("siddharthaJourneyProgress") || "0", 10) || 0;
+      } catch (e) {}
+      return n;
+    }
+
+    const endParams = new URLSearchParams(window.location.search);
+    const isTestMode = endParams.get("test") === "1";
+    const entryFromMoon = endParams.get("entry") === "4";
+
+    if (entryFromMoon) {
+      try {
+        localStorage.setItem("siddharthaJourneyProgress", "4");
+      } catch (e) {}
+    }
+
+    if (!isTestMode && !entryFromMoon && getJourneyProgress() < 4) {
+      window.location.href = "../prologue/index.html";
+      return;
+    }
+
+    if (typeof journeyNotifyPage === "function") {
+      journeyNotifyPage("ending", window.location.search ? window.location.search.slice(1) : "");
+    }
+
+    const scenes = [
+      {
+        image: "./images/shot1_wasteland.png",
+        text: "你从废墟间走过，风沙掠过神像坍塌的肩——诸行无常，连石塑的庄严也抵不过劫灰。你的身体一天天年轻，像一只倒走的怀表，把时针拧回无知的起点。你重新拥有少年的脸，却再也叫不出自己的名字。直到此刻你才明白：序章那场火并没有把老人烧成少年，它只是把少年的外壳，借给一个已经百岁的灵魂——色身、感受、心念、造作、识知迁流变易，并不等于另有一个常住不灭的「我」可以换名承继；而你对「我」的执取，尚未散尽。"
+      },
+      {
+        image: "./images/shot2_mirror_hall.png",
+        text: "你伸手碰了碰镜面。\n——进来吧，里面比外面更真实。"
+      },
+      {
+        image: "./images/shot3_enter_mirror.png",
+        text: "你跳了进去。"
+      },
+      {
+        image: "./images/shot4_empty_hall.png",
+        text: "镜子静静立在空殿中央，像一部经书翻到最后一页。你终于读懂那页留白：它不是终章，它是开篇那口棺中之镜的回声。起初你在镜里看见「少年已死，老人活着」；此刻你在镜前看见，老与少都只是注脚，真正被书写的，始终是同一念执著如何生、如何灭。留白深处只剩一行小字：无物在外，无物在内——此即诸本生偈颂所共指之处。"
+      }
+    ];
+
+    const stage = document.getElementById("endingStage");
+    const image = document.getElementById("endingImage");
+    const caption = document.getElementById("endingCaption");
+    const restartBtn = document.getElementById("restartJourney");
+    const easterOverlay = document.getElementById("easterOverlay");
+    const easterCanvas = document.getElementById("easterCanvas");
+    const omAudio = document.getElementById("omAudio");
+    const testPanel = document.getElementById("testPanel");
+    const testBackStart = document.getElementById("testBackStart");
+    let currentIndex = 0;
+    if (typeof journeyShouldRestore === "function" && journeyShouldRestore("ending")) {
+      const sv = typeof journeyGetStage === "function" ? journeyGetStage("ending") : null;
+      if (typeof sv === "number" && sv >= 0 && sv < scenes.length) currentIndex = sv;
+    }
+    let easterPlayed = false;
+    let easterRunning = false;
+    let easterTimer = null;
+
+    function renderScene(index) {
+      const scene = scenes[index];
+      image.src = scene.image;
+      image.alt = `结局画面 ${index + 1}`;
+      caption.textContent = scene.text;
+      if (easterTimer) {
+        clearTimeout(easterTimer);
+        easterTimer = null;
+      }
+      if (index === scenes.length - 1 && !easterPlayed) {
+        easterTimer = setTimeout(() => {
+          runEaster();
+          easterTimer = null;
+        }, 1200);
+      }
+      if (typeof journeySaveStage === "function") journeySaveStage("ending", index);
+    }
+
+    stage.addEventListener("click", () => {
+      if (easterRunning) return;
+      if (currentIndex < scenes.length - 1) {
+        currentIndex += 1;
+        renderScene(currentIndex);
+        return;
+      }
+      if (!easterPlayed) {
+        runEaster();
+      }
+    });
+
+    restartBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (typeof journeyFullReset === "function") journeyFullReset();
+      else {
+        try {
+          localStorage.setItem("siddharthaJourneyProgress", "0");
+        } catch (err) {}
+      }
+      window.location.href = "../prologue/index.html";
+    });
+
+    if (isTestMode) {
+      testPanel.hidden = false;
+      testBackStart.addEventListener("click", () => {
+        window.location.href = "../prologue/index.html?test=1";
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key !== "7") return;
+        e.preventDefault();
+        window.location.href = "../prologue/index.html?test=1";
+      });
+    }
+
+    const DANMAKU_LINES = [
+      "你的肉体只是时光，不停流逝的时光。你不过是每一个孤独的瞬息。",
+      "命运之神没有怜悯之心。上帝的长夜没有尽期。",
+      "我写作不是为了特定的读者，我写作是为了光阴流逝使我心安。",
+      "人会逐渐同他的遭遇混为一体；从长远来说，人也就是他的处境。",
+      "你消磨了岁月，岁月也消磨了你，你至今没有写出诗。",
+      "在雾中散步真是奇妙！一木一石都很孤独……",
+      "人生就是孑然独处，没一个人了解别人，人人都很孤独。",
+      "来自黑暗随即又隐入黑暗，它只在光亮中待了一瞬间。",
+      "我天天赶路却没有目标，从不想停下来歇一歇脚，我的路似乎没有尽头。",
+      "终于发现我只是在转圈。",
+      "所有的极端与对立都告消失之处，即是涅槃。",
+      "于是对旅行感到厌倦。我生命的转折就在那时候。",
+      "没有人富有到可以赎回自己的前世。",
+      "要负起如此的重担，得有西西弗的勇气！",
+      "我们软绵绵地左右摇动，依附着精神旋风的羽翼……不知疲倦，无休无止，逃向我们的非非梦想的天堂。",
+      "肉体之美是一种卓越的天赋。",
+      "谁缚汝？",
+      "谁垢汝？",
+      "谁将生死予汝？",
+      "Ich bin auf der Welt zu allein und doch nicht allein genug, um jede Stunde zu weihen. Ich bin auf der Welt zu gering und doch nicht klein genug, um vor dir zu sein wie ein Ding, dunkel und klug.",
+      "我对这个世界太过孤独，却又不够孤独到能够为每一个时辰祈祷。我对这个世界太过渺小，却又不够渺小到在你面前如一个事物，幽暗而睿智。",
+      "Die notwendige Sache ist nach alledem aber dieses: Einsamkeit, große innere Einsamkeit.",
+      "一切必要之事不过如此：孤独，伟大的内在孤独。",
+      "Haben Sie Geduld mit allem Ungelösten in Ihrem Herzen.",
+      "对你心中一切未解之事保持耐心。",
+      "Daß einer einem Menschen liebt, das ist vielleicht das Schwerste, was uns aufgegeben ist, das Äußerste, die letzte Probe und Prüfung, die Arbeit, für die alle andere Arbeit nur Vorbereitung ist.",
+      "一个人去爱另一个人，这或许是交付给我们最艰难的事，是终极之事，是最后的试炼与考验，是一切其他工作仅为准备的那份工作。",
+      "Geliebtwerden heißt aufbrennen. Lieben ist Leuchten mit unerschöpflichem Öle. Geliebtwerden ist Vergehn, Lieben ist Dauern.",
+      "被爱意味着燃尽。爱是以无穷尽的油发光。被爱是消逝，爱是永恒。",
+      "Eine gute Ehe ist eine, in der jeder den anderen zum Wächter seiner Einsamkeit bestellt.",
+      "美好的婚姻是这样一种：每一方都任命另一方为自己孤独的守护者。",
+      "Freue dich deines Wachstums, in das du freilich niemanden mitnehmen kannst, und sei gütig gegen die, die zurückbleiben.",
+      "为你的成长而欣喜吧——尽管你当然无法带任何人同行——并对那些留下的人保持善意。",
+      "Lebe die Fragen jetzt. Vielleicht lebst du dann allmählich, ohne es zu merken, eines fernen Tages in die Antwort hinein.",
+      "活在问题中吧。或许有朝一日，你会不知不觉地，在某个遥远的日子，渐渐活入了答案之中。",
+      "Nur wer bereit ist zu allem, wer nichts ausschließt, nicht einmal das Unbegreiflichste, wird das Verhältnis zu einem anderen Menschen als etwas Lebendiges erleben und wird selbst die Tiefe seines eigenen Wesens ausloten.",
+      "唯有对一切保持开放、不排除任何事物（哪怕是最不可理解之事）的人，才能将与他人的关系体验为鲜活之物，并探明自身本质的深度。",
+      "O Herr, gib jedem seinen eignen Tod. Das Sterben, das aus jenem Leben geht, darin er Liebe hatte, Sinn und Not.",
+      "主啊，赐给每人他自己的死亡。那从他曾有爱、意义与困苦的生命中走出的死亡。",
+      "Der Tod ist groß. Wir sind die Seinen lachenden Munds. Wenn wir uns mitten im Leben meinen, wagt er zu weinen mitten in uns.",
+      "死亡是伟大的。我们是属于他的，面带微笑。当我们以为自己正活在生命之中，死亡却敢于在我们之中哭泣。",
+      "Denn das Schöne ist nichts als des Schrecklichen Anfang, den wir noch grade ertragen, und wir bewundern es so, weil es gelassen verschmäht, uns zu zerstören.",
+      "因为美无非是那恐怖的开端，我们尚能承受它，而我们之所以惊叹于美，是因为它从容地蔑视着毁灭我们。",
+      "Ein jeder Engel ist schrecklich.",
+      "每一个天使都是可怖的。",
+      "Du mußt dein Leben ändern.",
+      "你必须改变你的生活。",
+      "Rose, oh reiner Widerspruch, Lust, Niemandes Schlaf zu sein unter soviel Lidern.",
+      "玫瑰，哦纯粹的矛盾，在如此多的眼睑之下，渴望成为无人之眠。"
+    ];
+    const DANMAKU_POOL = DANMAKU_LINES.flatMap((s) => [s, s, s]);
+
+    function runEaster() {
+      if (easterRunning) return;
+      easterRunning = true;
+      easterPlayed = true;
+      document.body.classList.add("easter-only");
+      easterOverlay.hidden = false;
+      const ctx = easterCanvas.getContext("2d");
+      const drops = [];
+      let running = true;
+      let omAudioStarted = false;
+      const t0 = performance.now();
+      const omPhaseStart = 4500;
+      const omFadeIn = 700;
+      const danmakuFont = (px) => `600 ${px}px ui-monospace, "PingFang SC", "Heiti SC", "Microsoft YaHei", "SimHei", monospace`;
+
+      function matrixColor() {
+        const hue = 95 + Math.random() * 45;
+        const sat = 26 + Math.random() * 20;
+        const light = 16 + Math.random() * 12;
+        return {
+          fill: `hsl(${hue}, ${sat}%, ${light}%)`,
+          glow: `hsla(${hue}, ${sat}%, ${light + 6}%, 0.2)`
+        };
+      }
+
+      const laneTop = 4;
+      const laneSpacing = 16;
+      function laneCount() {
+        return Math.max(10, Math.ceil((easterCanvas.height - laneTop * 2) / laneSpacing));
+      }
+      function shuffledLanes(n) {
+        const a = [];
+        for (let i = 0; i < n; i++) a.push(i);
+        for (let i = a.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+      }
+
+      function resize() {
+        easterCanvas.width = window.innerWidth;
+        easterCanvas.height = window.innerHeight;
+      }
+      function spawn() {
+        const text = DANMAKU_POOL[Math.floor(Math.random() * DANMAKU_POOL.length)];
+        const fontPx = 13 + Math.floor(Math.random() * 5);
+        ctx.font = danmakuFont(fontPx);
+        const tw = ctx.measureText(text).width;
+        const nLanes = laneCount();
+        const minGap = 26;
+        const enterX = -tw - 12;
+        const c = matrixColor();
+        for (const lane of shuffledLanes(nLanes)) {
+          let ok = true;
+          for (let j = 0; j < drops.length; j++) {
+            const d = drops[j];
+            if (d.lane !== lane) continue;
+            const a0 = enterX;
+            const a1 = enterX + tw;
+            const b0 = d.x;
+            const b1 = d.x + d.tw;
+            if (!(a1 + minGap < b0 || b1 + minGap < a0)) {
+              ok = false;
+              break;
+            }
+          }
+          if (ok) {
+            drops.push({
+              text,
+              x: enterX,
+              y: laneTop + lane * laneSpacing,
+              vx: 1.25 + Math.random() * 1.85,
+              tw,
+              lane,
+              alpha: 1,
+              fontPx,
+              fill: c.fill,
+              glow: c.glow
+            });
+            return;
+          }
+        }
+      }
+      const easterDialog = document.getElementById("easterDialog");
+      const easterQuestionInput = document.getElementById("easterQuestionInput");
+      const easterQuestionSubmit = document.getElementById("easterQuestionSubmit");
+      const easterReply = document.getElementById("easterReply");
+      easterDialog.hidden = true;
+      easterReply.textContent = "";
+      easterQuestionInput.value = "";
+      easterQuestionInput.disabled = false;
+      easterQuestionSubmit.disabled = false;
+
+      let typewriterTimer = null;
+      function clearTypewriter() {
+        if (typewriterTimer !== null) {
+          clearTimeout(typewriterTimer);
+          typewriterTimer = null;
+        }
+      }
+
+      function finish() {
+        clearTypewriter();
+        running = false;
+        easterRunning = false;
+        easterOverlay.removeEventListener("click", onDismissEaster);
+        easterOverlay.removeEventListener("touchstart", onDismissEaster);
+        easterQuestionSubmit.removeEventListener("click", onSubmitQuestion);
+        try {
+          omAudio.pause();
+        } catch (e) {}
+        easterDialog.hidden = true;
+        easterReply.textContent = "";
+        easterQuestionInput.value = "";
+        easterQuestionInput.disabled = false;
+        easterQuestionSubmit.disabled = false;
+        setTimeout(() => {
+          easterOverlay.hidden = true;
+          document.body.classList.remove("easter-only");
+        }, 500);
+      }
+
+      function onDismissEaster(ev) {
+        if (!running) return;
+        if (!easterDialog.hidden) return;
+        if (ev.target && ev.target.closest && ev.target.closest(".easter-dialog")) return;
+        easterDialog.hidden = false;
+        try {
+          easterQuestionInput.focus();
+        } catch (err) {}
+        if (ev.cancelable) ev.preventDefault();
+        ev.stopPropagation();
+      }
+
+      function onSubmitQuestion() {
+        if (!running || easterDialog.hidden) return;
+        clearTypewriter();
+        easterQuestionInput.disabled = true;
+        easterQuestionSubmit.disabled = true;
+        const full = "你是谁？";
+        const chars = Array.from(full);
+        let i = 0;
+        easterReply.textContent = "";
+        function step() {
+          if (i < chars.length) {
+            easterReply.textContent += chars[i];
+            i++;
+            typewriterTimer = setTimeout(step, 200);
+          } else {
+            typewriterTimer = null;
+            setTimeout(() => finish(), 2200);
+          }
+        }
+        step();
+      }
+
+      easterOverlay.addEventListener("click", onDismissEaster);
+      easterOverlay.addEventListener("touchstart", onDismissEaster, { passive: false });
+      easterQuestionSubmit.addEventListener("click", onSubmitQuestion);
+      resize();
+      window.addEventListener("resize", resize, { once: true });
+
+      function frame(now) {
+        if (!running) return;
+        const elapsed = now - t0;
+        const w = easterCanvas.width;
+        const h = easterCanvas.height;
+        const cx = w / 2;
+        const cy = h / 2;
+        ctx.fillStyle = "#020805";
+        ctx.fillRect(0, 0, w, h);
+
+        if (elapsed >= omPhaseStart && !omAudioStarted) {
+          omAudioStarted = true;
+          try {
+            omAudio.currentTime = 0;
+            omAudio.play();
+          } catch (e) {}
+        }
+
+        ctx.font = danmakuFont(14);
+        const spawnTries = Math.max(14, Math.floor(w / 55));
+        for (let i = 0; i < spawnTries; i++) spawn();
+
+        for (let i = drops.length - 1; i >= 0; i--) {
+          const d = drops[i];
+          d.x += d.vx;
+          if (d.x > w + d.tw + 20) {
+            drops.splice(i, 1);
+            continue;
+          }
+          if (d.alpha <= 0.02) {
+            drops.splice(i, 1);
+            continue;
+          }
+          ctx.font = danmakuFont(d.fontPx);
+          ctx.globalAlpha = Math.max(0, d.alpha);
+          ctx.fillStyle = d.fill;
+          ctx.shadowColor = d.glow;
+          ctx.shadowBlur = 4;
+          ctx.fillText(d.text, d.x, d.y);
+          ctx.shadowBlur = 0;
+          ctx.globalAlpha = 1;
+        }
+
+        if (elapsed >= omPhaseStart) {
+          const omT = elapsed - omPhaseStart;
+          const fadeIn = Math.min(1, omT / omFadeIn);
+          ctx.font = "bold 124px ui-monospace, 'PingFang SC', 'Microsoft YaHei', monospace";
+          ctx.globalAlpha = fadeIn;
+          ctx.fillStyle = "#D4AF37";
+          ctx.shadowColor = "rgba(255, 220, 120, 0.85)";
+          ctx.shadowBlur = 22;
+          const om = "Oṃ";
+          const tw = ctx.measureText(om).width;
+          ctx.textBaseline = "middle";
+          ctx.fillText(om, cx - tw / 2, cy);
+          ctx.textBaseline = "alphabetic";
+          ctx.shadowBlur = 0;
+          ctx.globalAlpha = 1;
+        }
+
+        requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+    }
+
+    renderScene(currentIndex);
+})();
+  </script>
+  <script src="../assets/gear-neon-corners.js"></script>
+</body>
+</html>
